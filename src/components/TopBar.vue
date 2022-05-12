@@ -55,10 +55,10 @@ export default {
 					},
 				},
 				{
-					text: "About",
+					text: "Contributor Tools",
 					icon: "mdi-hammer",
 					click: function () {
-						router.push({ name: "About" });
+						router.push({ name: "Contributor Tools" });
 					},
 				},
 				{
