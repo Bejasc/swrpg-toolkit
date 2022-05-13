@@ -1,88 +1,88 @@
 <template>
-	<v-navigation-drawer permanent>
+	<v-navigation-drawer permanent :width="325">
 		<v-parallax src="https://cdn.discordapp.com/attachments/743332978893258763/876449798306283600/492.jpg"></v-parallax>
-		<v-list>
-			<v-list-item prepend-icon="mdi-email" title="Inbox" value="inbox"></v-list-item>
-			<v-list-item prepend-icon="mdi-account-supervisor-circle" title="Supervisors" value="supervisors"></v-list-item>
-			<v-list-item prepend-icon="mdi-clock-start" title="Clock-in" value="clockin"></v-list-item>
+
+		<v-list active-color="primary" variant="contained">
+			<v-list-group v-for="group in listItems">
+				<template v-slot:activator="{ props }">
+					<v-list-item v-bind="props" :title="group.name" :prepend-icon="group.icon"></v-list-item>
+				</template>
+
+				<v-list-item v-for="item in group.items" :value="item.text" :title="item.text" v-on:click="item.click"></v-list-item>
+			</v-list-group>
 		</v-list>
 	</v-navigation-drawer>
 </template>
 
 <script lang="ts">
-import router from "@/router";
 export default {
 	name: "ContributorSidebar",
 	data: () => {
 		return {
 			snackbar: false,
 			snackbarMessage: "Tempoarily Disabled",
-			datasets: [
+			listItems: [
 				{
-					text: "Items",
-					click: function () {
-						router.push({ path: "/data/items" });
-					},
+					name: "Data Sets",
+					icon: "mdi-book-open-page-variant",
+					items: [
+						{
+							text: "Items",
+							click: function () {
+								console.warn(`Not Implemented`);
+							},
+						},
+						{
+							text: "NPCs",
+							click: function () {
+								console.warn(`Not Implemented`);
+							},
+						},
+						{
+							text: "Locations",
+							click: function () {
+								console.warn(`Not Implemented`);
+							},
+						},
+					],
 				},
 				{
-					text: "NPCs",
-					click: function () {
-						router.push({ path: "/data/npc" });
-					},
-				},
-			],
-			gmTools: [
-				{
-					text: "Hook Builder",
-					icon: "mdi-hook",
-					click: function () {
-						router.push({ path: "/tools/hook" });
-					},
-				},
-				// {
-				// 	text: "Quest Item Creator",
-				// 	icon: "mdi-map-marker-question",
-				// 	click: function() {
-				// 		router.push({ path: "/tools/item" });
-				// 	},
-				// },
-				// {
-				// 	text: "NPC Directory",
-				// 	icon: "mdi-account",
-				// 	click: function() {
-				// 		router.push({ path: "/tools/npc" });
-				// 	},
-				// },
-				{
-					text: "Image Library",
-					icon: "mdi-image",
-					click: function () {
-						alert("This item is tempoarily disabled");
-						//router.push({ path: "/tools/images" });
-					},
-				},
-			],
-			contributorResources: [
-				{
-					text: "Event Builder",
-					click: function () {
-						router.push({ path: "/tools/eventBuilder" });
-					},
-				},
-			],
-			gmResources: [
-				// { text: "Quest Item Creator", icon: "mdi-map-marker-question" },
-				{
-					text: "Difficulty Checks",
-					click: function () {
-						router.push({ path: "/tools/resources/difficultyChecks" });
-					},
+					name: "GM Tools",
+					icon: "mdi-dice-d20",
+					items: [
+						{
+							text: "Difficulty Checks",
+							click: function () {
+								console.warn(`Not Implemented`);
+							},
+						},
+						{
+							text: "Hook Builder",
+							icon: "mdi-hook",
+							click: function () {
+								console.warn(`Not Implemented`);
+							},
+						},
+					],
 				},
 				{
-					text: "Event Images",
-					click: function () {
-						//router.push({ path: "/tools/resources/images" });
-					},
+					name: "Contributor Resources",
+					icon: "mdi-package-variant",
+					items: [
+						{
+							text: "Event Builder",
+							click: function () {
+								console.warn(`Not Implemented`);
+							},
+						},
+						{
+							text: "Image Library",
+							icon: "mdi-image",
+							click: function () {
+								console.warn(`Not Implemented`);
+							},
+						},
+					],
 				},
 			],
 		};
