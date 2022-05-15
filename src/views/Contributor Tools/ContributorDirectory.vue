@@ -3,7 +3,7 @@
 	<v-main>
 		<v-container fluid>
 			<!-- If using vue-router -->
-			hello
+			<router-view class="ma-4" />
 		</v-container>
 	</v-main>
 </template>

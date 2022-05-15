@@ -10,12 +10,16 @@ const router = createRouter({
 			component: HomeView,
 		},
 		{
-			path: "/contributorTools",
+			path: "/contributor",
 			name: "Contributor Tools",
-			// route level code-splitting
-			// this generates a separate chunk (About.[hash].js) for this route
-			// which is lazy-loaded when the route is visited.
 			component: async () => import("../views/Contributor Tools/ContributorDirectory.vue"),
+			children: [
+				{
+					path: "packages",
+					name: "Item Package Maker",
+					component: async () => import("../views/Contributor Tools/ItemPackageMaker.vue"),
+				},
+			],
 		},
 	],
 });
