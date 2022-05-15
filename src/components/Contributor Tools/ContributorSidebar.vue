@@ -1,5 +1,5 @@
 <template>
-	<v-navigation-drawer permanent :width="325">
+	<v-navigation-drawer absolute :width="325">
 		<v-parallax src="https://cdn.discordapp.com/attachments/743332978893258763/876449798306283600/492.jpg"></v-parallax>
 
 		<v-list active-color="primary" variant="contained">

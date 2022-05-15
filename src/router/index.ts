@@ -16,7 +16,7 @@ const router = createRouter({
 			children: [
 				{
 					path: "packages",
-					name: "Item Package Maker",
+					name: "Content Creation",
 					component: async () => import("../views/Contributor Tools/ItemPackageMaker.vue"),
 				},
 			],
