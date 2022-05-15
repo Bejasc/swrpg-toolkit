@@ -17,7 +17,12 @@ const router = createRouter({
 				{
 					path: "packages",
 					name: "Content Creation",
-					component: async () => import("../views/Contributor Tools/ItemPackageMaker.vue"),
+					component: async () => import("../views/Contributor Tools/ContentCreation.vue"),
+				},
+				{
+					path: "packages/item",
+					name: "Item Package Creator",
+					component: async () => import("../views/Contributor Tools/ItemPackageCreator.vue"),
 				},
 			],
 		},
