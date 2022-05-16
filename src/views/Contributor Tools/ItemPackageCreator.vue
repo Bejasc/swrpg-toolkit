@@ -6,7 +6,25 @@
 				<v-spacer />
 				<v-card-actions>
 					<div>
-						<v-btn variant="outlined" color="green" outline>Export</v-btn>
+						<v-btn variant="outlined" color="blue" outline
+							>Import
+
+							<v-dialog v-model="dialog" activator="parent" transition="fade-transition">
+								<v-card>
+									<v-card-text>
+										You can import an existing Package by pasting the text below and selecting Import
+
+										<v-textarea v-model="pastedPackage" class="mt-4" clearable clear-icon="mdi-close-circle" label="Package JSON"></v-textarea>
+									</v-card-text>
+									<v-card-actions>
+										<v-spacer />
+										<v-btn color="red" @click="dialog = false">Cancel</v-btn>
+										<v-btn color="success" @click="importPackage">Import</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-dialog>
+						</v-btn>
+						<v-btn variant="outlined" color="green" outline @click="exportPackage">Export</v-btn>
 						<v-btn variant="outlined" color="red" outline>Clear</v-btn>
 					</div>
 				</v-card-actions>
@@ -38,6 +56,7 @@
 						</v-row>
 					</v-expansion-panel-text>
 				</v-expansion-panel>
+
 				<!--EXTRACT ME END-->
 				<v-expansion-panel title="Items">
 					<v-expansion-panel-text class="ma-2">
@@ -52,32 +71,20 @@
 										gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
 										height="200px"
 									>
-										<!-- <div v-if="item.isVerified" class="float-left pa-3">
-							<v-tooltip bottom>
-								<template v-slot:activator="{ on, attrs }">
-									<v-icon color="#91FFFF" v-bind="attrs" v-on="on">mdi-check-decagram</v-icon>
-								</template>
-								<span>Thie Item exists in the SWRPG Database</span>
-							</v-tooltip>
-						</div> -->
-
-										<!-- <v-icon class="float-right pa-3">mdi-dots-vertical</v-icon> -->
+										<v-menu anchor="bottom">
+											<template v-slot:activator="{ props }">
+												<v-btn class="float-right" variant="text" icon="mdi-dots-vertical" v-bind="props"></v-btn>
+											</template>
+											<v-list>
+												<v-list-item title="Duplicate" @click="duplicateItem(item)" />
+												<v-list-item title="Remove" @click="removeItem(item)" />
+											</v-list>
+										</v-menu>
 									</v-img>
-									<v-card-actions>
+									<v-card-actions color="red">
 										<span class="subtitle-1">
 											{{ item.name }}
 										</span>
-
-										<v-spacer />
-
-										<!-- <v-btn icon>
-								<v-tooltip bottom>
-									<template v-slot:activator="{ on, attrs }">
-										<v-icon v-bind="attrs" v-on="on">mdi-shape</v-icon>
-									</template>
-									<span>{{ item.category }}</span>
-								</v-tooltip>
-							</v-btn> -->
 									</v-card-actions>
 								</v-card>
 							</v-col>
@@ -111,15 +118,17 @@
 <script lang="ts">
 import type { IPackageDefinitionItem } from "@/types/packages/ItemPackage";
 import type IItem from "@/types/SwrpgTypes/IItem";
+import mongoose from "mongoose";
 import { defineComponent } from "vue";
-
 // Components
 export default defineComponent({
 	name: "Item Package Creator",
 	emits: ["pageNavigation"],
 	data: () => {
 		return {
+			dialog: false,
 			allowEdit: true,
+			pastedPackage: "",
 			itemPackageData: {
 				packageInfo: {
 					name: "New Item Package",
@@ -131,11 +140,30 @@ export default defineComponent({
 	methods: {
 		addNewItem() {
 			this.itemPackageData.items.push({
-				_id: "abc123",
+				_id: new mongoose.Types.ObjectId().toString(),
 				category: "Unknown",
 				name: "New Item",
 				image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
 			});
+		},
+		duplicateItem(item: IItem) {
+			const newObj: IItem = JSON.parse(JSON.stringify(item));
+			newObj._id = new mongoose.Types.ObjectId().toString();
+			this.itemPackageData.items.push(newObj);
+		},
+		removeItem(item: IItem) {
+			this.itemPackageData.items = this.itemPackageData.items.filter((e) => e._id !== item._id);
+		},
+		exportPackage() {
+			const packageAsJson = JSON.stringify(this.itemPackageData, null, "\t");
+			navigator.clipboard.writeText(packageAsJson);
+			alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
+		},
+		importPackage() {
+			this.dialog = false;
+			const packageFromJson = JSON.parse(this.pastedPackage) as IPackageDefinitionItem;
+			this.itemPackageData = packageFromJson;
+			this.pastedPackage = "";
 		},
 	},
 	mounted() {
