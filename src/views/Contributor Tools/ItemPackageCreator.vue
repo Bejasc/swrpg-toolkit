@@ -35,6 +35,7 @@
 										<v-spacer />
 										<v-btn color="blue" @click="dialogConfirmClear = false">Cancel</v-btn>
 										<v-btn color="red" @click="clearAll">Clear Package</v-btn>
+										<!--TODO emit from extracted component-->
 									</v-card-actions>
 								</v-card>
 							</v-dialog>
@@ -75,7 +76,7 @@
 					<v-expansion-panel-text class="ma-2">
 						<v-row style="max-height: 550px" class="overflow-y-auto">
 							<v-col v-for="item in itemPackageData.items" :key="item._id" cols="2">
-								<v-card width="200px">
+								<v-card width="200px" @click="openItem(item, false)">
 									<v-img
 										:src="item.image"
 										:lazy-src="item.image"
@@ -89,8 +90,10 @@
 												<v-btn class="float-right" variant="text" icon="mdi-dots-vertical" v-bind="props"></v-btn>
 											</template>
 											<v-list>
+												<v-list-item title="View" @click="openItem(item, false)" />
 												<v-list-item title="Duplicate" @click="duplicateItem(item)" />
 												<v-list-item title="Remove" @click="removeItem(item)" />
+												<v-list-item title="Edit" @click="openItem(item, true)" />
 											</v-list>
 										</v-menu>
 									</v-img>
@@ -103,7 +106,7 @@
 							</v-col>
 
 							<v-col cols="1">
-								<v-card style="border: 3px dashed grey" width="200px" @click="addNewItem">
+								<v-card style="border: 3px dashed grey" width="200px" @click="openItem(undefined, true)">
 									<v-icon size="200px" color="grey">mdi-plus</v-icon>
 								</v-card>
 							</v-col>
@@ -112,6 +115,7 @@
 				</v-expansion-panel>
 			</v-expansion-panels>
 		</v-card>
+		<ItemFullView :show="dialogItemFullView" :item="selectedItem" :allowEdit="allowEdit" @itemAdded="addNewItem($event)" @closeFullView="dialogItemFullView = false" />
 	</v-col>
 </template>
 
@@ -129,18 +133,24 @@
 </style>
 
 <script lang="ts">
+import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
 import type { IPackageDefinitionItem } from "@/types/packages/ItemPackage";
 import type IItem from "@/types/SwrpgTypes/IItem";
 import mongoose from "mongoose";
 import { defineComponent } from "vue";
+
 // Components
 export default defineComponent({
 	name: "Item Package Creator",
 	emits: ["pageNavigation"],
+	components: { ItemFullView },
+
 	data: () => {
 		return {
+			selectedItem: {} as IItem,
 			dialog: false,
 			dialogConfirmClear: false,
+			dialogItemFullView: false,
 			allowEdit: true,
 			pastedPackage: "",
 			itemPackageData: {
@@ -161,13 +171,15 @@ export default defineComponent({
 				items: [] as IItem[],
 			} as IPackageDefinitionItem;
 		},
-		addNewItem() {
-			this.itemPackageData.items.push({
-				_id: new mongoose.Types.ObjectId().toString(),
-				category: "Unknown",
-				name: "New Item",
-				image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
-			});
+		addNewItem(item: IItem) {
+			// this.itemPackageData.items.push({
+			// 	_id: new mongoose.Types.ObjectId().toString(),
+			// 	category: "Unknown",
+			// 	name: "New Item",
+			// 	image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
+			// });
+			this.dialogItemFullView = false;
+			this.itemPackageData.items.push(item);
 		},
 		duplicateItem(item: IItem) {
 			const newObj: IItem = JSON.parse(JSON.stringify(item));
@@ -176,6 +188,21 @@ export default defineComponent({
 		},
 		removeItem(item: IItem) {
 			this.itemPackageData.items = this.itemPackageData.items.filter((e) => e._id !== item._id);
+		},
+		openItem(item?: IItem, editMode = true) {
+			console.log(item?.name ?? "None");
+			if (!item)
+				item = {
+					_id: new mongoose.Types.ObjectId().toString(),
+					category: "Unknown",
+					name: "New Item",
+					image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
+				};
+
+			this.dialogItemFullView = true;
+
+			this.selectedItem = item;
+			this.allowEdit = editMode;
 		},
 		exportPackage() {
 			const packageAsJson = JSON.stringify(this.itemPackageData, null, "\t");
