@@ -25,7 +25,20 @@
 							</v-dialog>
 						</v-btn>
 						<v-btn variant="outlined" color="green" outline @click="exportPackage">Export</v-btn>
-						<v-btn variant="outlined" color="red" outline>Clear</v-btn>
+						<v-btn variant="outlined" color="red" outline
+							>Clear
+
+							<v-dialog v-model="dialogConfirmClear" activator="parent" transition="fade-transition" persistent>
+								<v-card>
+									<v-card-text> Are you sure you want to remove the Package Info and all of the Package Items? This cannot be undone </v-card-text>
+									<v-card-actions>
+										<v-spacer />
+										<v-btn color="blue" @click="dialogConfirmClear = false">Cancel</v-btn>
+										<v-btn color="red" @click="clearAll">Clear Package</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-dialog>
+						</v-btn>
 					</div>
 				</v-card-actions>
 			</v-card-title>
@@ -127,6 +140,7 @@ export default defineComponent({
 	data: () => {
 		return {
 			dialog: false,
+			dialogConfirmClear: false,
 			allowEdit: true,
 			pastedPackage: "",
 			itemPackageData: {
@@ -138,6 +152,15 @@ export default defineComponent({
 		};
 	},
 	methods: {
+		clearAll() {
+			this.dialogConfirmClear = false;
+			this.itemPackageData = {
+				packageInfo: {
+					name: "New Item Package",
+				},
+				items: [] as IItem[],
+			} as IPackageDefinitionItem;
+		},
 		addNewItem() {
 			this.itemPackageData.items.push({
 				_id: new mongoose.Types.ObjectId().toString(),
