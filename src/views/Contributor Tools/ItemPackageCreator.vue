@@ -9,8 +9,12 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
 	name: "Item Package Creator",
+	emits: ["pageNavigation"],
 	data: () => {
 		return {};
+	},
+	mounted() {
+		this.$emit("pageNavigation", this.$route.name);
 	},
 });
 </script>
