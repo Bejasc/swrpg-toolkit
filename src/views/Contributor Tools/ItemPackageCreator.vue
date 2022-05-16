@@ -40,11 +40,18 @@
 				</v-expansion-panel>
 				<!--EXTRACT ME END-->
 				<v-expansion-panel title="Items">
-					<v-expansion-panel-text>
-						<v-row>
+					<v-expansion-panel-text class="ma-2">
+						<v-row style="max-height: 550px" class="overflow-y-auto">
 							<v-col v-for="item in itemPackageData.items" :key="item._id" cols="2">
-								<v-card width="150px">
-									<v-img :src="item.image" :lazy-src="item.image" contain class="white--text" gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)" height="150px">
+								<v-card width="200px">
+									<v-img
+										:src="item.image"
+										:lazy-src="item.image"
+										contain
+										class="white--text imageMouseover"
+										gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+										height="200px"
+									>
 										<!-- <div v-if="item.isVerified" class="float-left pa-3">
 							<v-tooltip bottom>
 								<template v-slot:activator="{ on, attrs }">
@@ -75,9 +82,9 @@
 								</v-card>
 							</v-col>
 
-							<v-col cols="2">
-								<v-card style="border: 3px dashed grey" width="150px" @click="addNewItem">
-									<v-icon size="150px" color="grey">mdi-plus</v-icon>
+							<v-col cols="1">
+								<v-card style="border: 3px dashed grey" width="200px" @click="addNewItem">
+									<v-icon size="200px" color="grey">mdi-plus</v-icon>
 								</v-card>
 							</v-col>
 						</v-row>
@@ -88,13 +95,25 @@
 	</v-col>
 </template>
 
+<style scoped>
+.imageMouseover {
+	filter: brightness(100%) blur(0.5px);
+	-webkit-transition: -webkit-filter 200ms linear;
+}
+.imageMouseover:hover {
+	cursor: pointer;
+
+	filter: brightness(115%) blur(0px);
+	-webkit-transition: -webkit-filter 200ms linear;
+}
+</style>
+
 <script lang="ts">
 import type { IPackageDefinitionItem } from "@/types/packages/ItemPackage";
 import type IItem from "@/types/SwrpgTypes/IItem";
 import { defineComponent } from "vue";
 
 // Components
-
 export default defineComponent({
 	name: "Item Package Creator",
 	emits: ["pageNavigation"],
@@ -113,8 +132,9 @@ export default defineComponent({
 		addNewItem() {
 			this.itemPackageData.items.push({
 				_id: "abc123",
-				category: "Yellow",
-				name: "Banana",
+				category: "Unknown",
+				name: "New Item",
+				image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
 			});
 		},
 	},
