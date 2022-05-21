@@ -1,4 +1,7 @@
+import ContributorDirectoryVue from "@/views/Contributor Tools/ContributorDirectory.vue";
 import { createRouter, createWebHistory } from "vue-router";
+import ContentCreationVue from "../views/Contributor Tools/ContentCreation.vue";
+import ItemPackageCreatorVue from "../views/Contributor Tools/ItemPackageCreator.vue";
 import HomeView from "../views/HomeView.vue";
 
 const router = createRouter({
@@ -12,17 +15,17 @@ const router = createRouter({
 		{
 			path: "/contributor",
 			name: "Contributor Tools",
-			component: async () => import("../views/Contributor Tools/ContributorDirectory.vue"),
+			component: ContributorDirectoryVue, //async () => import("../views/Contributor Tools/ContributorDirectory.vue"),
 			children: [
 				{
 					path: "packages",
 					name: "Content Creation",
-					component: async () => import("../views/Contributor Tools/ContentCreation.vue"),
+					component: ContentCreationVue, //async () => import("../views/Contributor Tools/ContentCreation.vue"),
 				},
 				{
 					path: "packages/item",
 					name: "Item Package Creator",
-					component: async () => import("../views/Contributor Tools/ItemPackageCreator.vue"),
+					component: ItemPackageCreatorVue, //async () => import("../views/Contributor Tools/ItemPackageCreator.vue"),
 				},
 			],
 		},
