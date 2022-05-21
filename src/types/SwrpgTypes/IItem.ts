@@ -21,5 +21,6 @@ export default interface IItem {
 	image?: string;
 	description?: string;
 	category: string;
+	encumbrance: number;
 	tradeProperties?: IItemTradeProperties;
 }

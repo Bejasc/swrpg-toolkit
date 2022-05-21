@@ -144,7 +144,6 @@ export default defineComponent({
 	name: "Item Package Creator",
 	emits: ["pageNavigation"],
 	components: { ItemFullView },
-
 	data: () => {
 		return {
 			selectedItem: {} as IItem,
@@ -197,6 +196,7 @@ export default defineComponent({
 					category: "Unknown",
 					name: "New Item",
 					image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
+					encumbrance: 0,
 				};
 
 			this.dialogItemFullView = true;

@@ -11,7 +11,11 @@
 							<v-col cols="8">
 								<v-text-field label="Item Name*" required></v-text-field>
 								<v-autocomplete v-model="item.category" :items="itemCategories" label="Category"></v-autocomplete>
-								<v-slider class="pt-3" min="0" max="100" color="red" thumb-label> </v-slider>
+								<!-- <v-slider v-model="item.encumbrance" class="pt-3" min="0" max="30" step="0.5" color="red" thumb-label>
+									<template v-slot:append>
+										<v-text-field v-model="item.encumbrance" type="number" style="width: 80px" density="compact" hide-details variant="outlined"></v-text-field>
+									</template>
+								</v-slider> -->
 							</v-col>
 							<v-col cols="4">
 								<v-img :src="item.image" class="itemThumbnail" width="250px" @click="changeItemImage()" />
