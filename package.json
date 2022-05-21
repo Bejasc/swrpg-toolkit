@@ -6,10 +6,12 @@
 		"build": "vite build",
 		"dev": "vite",
 		"preview": "vite preview --port 5050",
-		"typecheck": "vue-tsc --noEmit"
+		"typecheck": "vue-tsc --noEmit",
+		"deploy": "node src/scripts/gh-pages-deploy.mjs"
 	},
 	"dependencies": {
 		"@mdi/font": "5.9.55",
+		"execa": "^6.1.0",
 		"material-design-icons": "^3.0.1",
 		"mongoose": "^6.3.3",
 		"roboto-fontface": "*",
