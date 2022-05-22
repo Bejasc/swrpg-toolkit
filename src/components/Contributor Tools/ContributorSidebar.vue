@@ -31,7 +31,7 @@ export default {
 					items: [
 						{
 							text: "Items",
-							isVisible: true,
+							isVisible: false,
 							click: function () {
 								console.warn(`Not Implemented`);
 							},
@@ -47,7 +47,7 @@ export default {
 							text: "Locations",
 							isVisible: true,
 							click: function () {
-								console.warn(`Not Implemented`);
+								router.push({ path: "contributor/data/locations" });
 							},
 						},
 					],

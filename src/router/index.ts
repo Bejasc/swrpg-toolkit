@@ -1,4 +1,5 @@
 import ContributorDirectoryVue from "@/views/Contributor Tools/ContributorDirectory.vue";
+import LocationDataSetVue from "@/views/Data Sets/LocationDataSet.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import ContentCreationVue from "../views/Contributor Tools/ContentCreation.vue";
 import ItemPackageCreatorVue from "../views/Contributor Tools/ItemPackageCreator.vue";
@@ -17,6 +18,11 @@ const router = createRouter({
 			name: "Contributor Tools",
 			component: ContributorDirectoryVue, //async () => import("../views/Contributor Tools/ContributorDirectory.vue"),
 			children: [
+				{
+					path: "data/locations",
+					name: "Locations",
+					component: LocationDataSetVue, //async () => import("../views/Contributor Tools/ContentCreation.vue"),
+				},
 				{
 					path: "packages",
 					name: "Content Creation",
