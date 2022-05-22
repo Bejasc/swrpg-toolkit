@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"scripts": {
 		"serve": "vite preview",
-		"build": "vite build",
+		"build": "vue-tsc --noEmit && vite build",
 		"dev": "vite",
 		"preview": "vite preview --port 5050",
 		"typecheck": "vue-tsc --noEmit",
