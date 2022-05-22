@@ -1,7 +1,7 @@
 <template>
 	<!--TODO: Pull this out into it's own component, define height of each item-->
 	<v-row>
-		<FeatureImageCard v-for="section in sections" :cols="section.cols" :image="section.image" :text="section.text" :route="section.route" />
+		<FeatureImageCard v-for="section in sections" :cols="section.cols" :image="section.image" :text="section.text" :route="(section.route as string)" />
 	</v-row>
 </template>
 

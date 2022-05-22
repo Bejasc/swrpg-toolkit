@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"@mdi/font": "5.9.55",
+		"axios": "^0.26.1",
 		"execa": "^6.1.0",
 		"material-design-icons": "^3.0.1",
 		"mongoose": "^6.3.3",
@@ -21,6 +22,7 @@
 		"webfontloader": "^1.0.0"
 	},
 	"devDependencies": {
+		"@types/axios": "^0.14.0",
 		"@types/mongoose": "^5.11.97",
 		"@types/node": "^16.11.27",
 		"@types/webfontloader": "^1.0.0",
