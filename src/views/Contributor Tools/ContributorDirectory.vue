@@ -2,7 +2,7 @@
 	<ContributorSidebar />
 	<v-main>
 		<v-container fluid>
-			<Breadcrumb />
+			<!-- <Breadcrumb /> -->
 			<router-view class="ma-4" />
 		</v-container>
 	</v-main>

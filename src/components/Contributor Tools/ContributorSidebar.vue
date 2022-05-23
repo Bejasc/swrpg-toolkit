@@ -25,15 +25,15 @@ export default {
 			snackbarMessage: "Tempoarily Disabled",
 			listItems: [
 				{
-					name: "Data Sets",
+					name: "Data Sets (SWRPG V1)",
 					icon: "mdi-book-open-page-variant",
 					isVisible: true,
 					items: [
 						{
 							text: "Items",
-							isVisible: false,
+							isVisible: true,
 							click: function () {
-								console.warn(`Not Implemented`);
+								router.push({ path: "/data/items" });
 							},
 						},
 						{
@@ -47,14 +47,14 @@ export default {
 							text: "Locations",
 							isVisible: true,
 							click: function () {
-								router.push({ path: "contributor/data/locations" });
+								router.push({ path: "/data/locations" });
 							},
 						},
 					],
 				},
 				{
 					name: "GM Tools",
-					isVisible: true,
+					isVisible: false,
 					icon: "mdi-dice-d20",
 					items: [
 						{
@@ -74,20 +74,27 @@ export default {
 					],
 				},
 				{
-					name: "Contributor Tools",
+					name: "Content Creation",
 					isVisible: true,
 					icon: "mdi-package-variant",
 					items: [
 						{
-							text: "Content Creation",
+							text: "Item Creator",
 							isVisible: true,
+							click: function () {
+								router.push({ path: "/contributor/packages/item" });
+							},
+						},
+						{
+							text: "Content Creation",
+							isVisible: false,
 							click: function () {
 								router.push({ path: "/contributor/packages" });
 							},
 						},
 						{
 							text: "Event Builder",
-							isVisible: true,
+							isVisible: false,
 							click: function () {
 								console.warn(`Not Implemented`);
 							},

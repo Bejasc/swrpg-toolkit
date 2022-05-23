@@ -6,9 +6,10 @@
 				<v-spacer />
 				<v-card-actions>
 					<div>
-						<v-btn variant="outlined" color="blue" outline
-							>Import
+						<v-btn variant="outlined" color="green" outline @click="exportPackage"> <v-icon icon="mdi-content-save-outline" /> Save </v-btn>
 
+						<v-btn variant="outlined" color="blue" outline>
+							<v-icon icon="mdi-cloud-upload-outline" /> Load
 							<v-dialog v-model="dialog" activator="parent" transition="fade-transition">
 								<v-card>
 									<v-card-text>
@@ -24,9 +25,8 @@
 								</v-card>
 							</v-dialog>
 						</v-btn>
-						<v-btn variant="outlined" color="green" outline @click="exportPackage">Export</v-btn>
-						<v-btn variant="outlined" color="red" outline
-							>Clear
+						<v-btn variant="outlined" color="red" outline>
+							<v-icon icon="mdi-delete-outline" /> Clear
 
 							<v-dialog v-model="dialogConfirmClear" activator="parent" transition="fade-transition" persistent>
 								<v-card>
@@ -43,7 +43,7 @@
 					</div>
 				</v-card-actions>
 			</v-card-title>
-			<v-expansion-panels variant="accordion">
+			<v-expansion-panels variant="accordion" multiple v-model="panels">
 				<!--EXTRACT ME-->
 				<v-expansion-panel title="Package Info" color="red-darken-3">
 					<v-expansion-panel-text>
@@ -115,6 +115,7 @@
 				</v-expansion-panel>
 			</v-expansion-panels>
 		</v-card>
+
 		<ItemFullView :show="dialogItemFullView" :item="selectedItem" :allowEdit="allowEdit" @itemAdded="addNewItem($event)" @closeFullView="dialogItemFullView = false" />
 	</v-col>
 </template>
@@ -136,9 +137,9 @@
 import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
 import type { IPackageDefinitionItem } from "@/types/packages/ItemPackage";
 import type IItem from "@/types/SwrpgTypes/IItem";
+import FileSaver from "file-saver";
 import mongoose from "mongoose";
 import { defineComponent } from "vue";
-
 // Components
 export default defineComponent({
 	name: "Item Package Creator",
@@ -146,6 +147,8 @@ export default defineComponent({
 	components: { ItemFullView },
 	data: () => {
 		return {
+			panels: [0, 1],
+			incompleteSnackbar: true,
 			selectedItem: {} as IItem,
 			dialog: false,
 			dialogConfirmClear: false,
@@ -153,9 +156,7 @@ export default defineComponent({
 			allowEdit: true,
 			pastedPackage: "",
 			itemPackageData: {
-				packageInfo: {
-					name: "New Item Package",
-				},
+				packageInfo: {},
 				items: [] as IItem[],
 			} as IPackageDefinitionItem,
 		};
@@ -164,9 +165,7 @@ export default defineComponent({
 		clearAll() {
 			this.dialogConfirmClear = false;
 			this.itemPackageData = {
-				packageInfo: {
-					name: "New Item Package",
-				},
+				packageInfo: {},
 				items: [] as IItem[],
 			} as IPackageDefinitionItem;
 		},
@@ -210,9 +209,17 @@ export default defineComponent({
 			this.allowEdit = editMode;
 		},
 		exportPackage() {
+			if (!this.itemPackageData.packageInfo.name || !this.itemPackageData.packageInfo.author) {
+				alert("Please complete the required Package Info");
+				return;
+			}
+
 			const packageAsJson = JSON.stringify(this.itemPackageData, null, "\t");
-			navigator.clipboard.writeText(packageAsJson);
-			alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
+
+			var blob = new Blob([packageAsJson], { type: "text/plain;charset=utf-8" });
+			FileSaver.saveAs(blob, `${this.itemPackageData.packageInfo.author}.${this.itemPackageData.packageInfo.name}.json`);
+			// navigator.clipboard.writeText(packageAsJson);
+			// alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
 		},
 		importPackage() {
 			this.dialog = false;

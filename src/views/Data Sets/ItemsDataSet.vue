@@ -2,26 +2,22 @@
 	<v-col cols="11">
 		<v-text-field dense v-model="search" clearable label="Search" prepend-inner-icon="mdi-magnify" variant="contained" single-line></v-text-field>
 		<v-row no-gutters style="max-height: 70vh" class="overflow-y-auto">
-			<v-col v-for="loc in filteredItems" :key="loc.name" cols="3">
-				<v-card class="ma-4">
-					<v-img class="imageMouseover" :src="loc.image" :lazy-src="loc.image" cover height="196px">
-						<div class="ma-4" style="height: 64px; width: 64px">
-							<v-img style="margin-left: 0" :src="loc.planetImage" :lazy-src="loc.planetImage" contain> </v-img>
-						</div>
-					</v-img>
-					<v-card-title class="text-h6 d-inline-block text-truncate" style="max-width: 100%">
-						{{ loc.name }}
+			<v-col v-for="item in filteredItems" :key="item._id" cols="2">
+				<v-card class="ma-4" @click="openItemFullView(item)">
+					<v-img class="imageMouseover" :src="item.image" :lazy-src="item.image" contain height="150px"> </v-img>
+					<v-card-title class="text-subtitle-1 d-inline-block text-truncate" style="max-width: 100%">
+						{{ item.name }}
 					</v-card-title>
 
 					<v-card-subtitle>
-						{{ loc.landingSite }}
-						<v-spacer />
+						{{ item.category }}
 					</v-card-subtitle>
 				</v-card>
 			</v-col>
 		</v-row>
 	</v-col>
 	<DrpgLoader :showLoader="showLoader" />
+	<ItemFullView :show="dialogItemFullView" :item="selectedItem" :allowEdit="false" @closeFullView="dialogItemFullView = false" />
 </template>
 
 <style scoped>
@@ -38,20 +34,23 @@
 </style>
 
 <script lang="ts">
+import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
 import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
-import type { ILocation } from "@/types/SwrpgTypes/ILocation";
+import type IItem from "@/types/SwrpgTypes/IItem";
 import { defineComponent } from "vue";
 // Components
 export default defineComponent({
 	name: "LocationDataSet",
-	components: { DrpgLoader },
+	components: { DrpgLoader, ItemFullView },
 	emits: ["pageNavigation"],
 	data: () => {
 		return {
+			selectedItem: {} as IItem,
+			dialogItemFullView: false,
 			search: "",
 			showLoader: false,
-			locations: [] as ILocation[],
+			items: [] as IItem[],
 		};
 	},
 	mounted() {
@@ -62,17 +61,21 @@ export default defineComponent({
 	methods: {
 		async loadAllItems() {
 			this.showLoader = true;
-			this.locations = [];
-			this.locations = await getData<ILocation>("location");
+			this.items = [];
+			this.items = await getData<IItem>("items");
 
-			console.table(this.locations);
+			console.table(this.items);
 			this.showLoader = false;
+		},
+		openItemFullView(item: IItem) {
+			this.selectedItem = item;
+			this.dialogItemFullView = true;
 		},
 	},
 	computed: {
-		filteredItems(): ILocation[] {
-			return this.locations.filter((location: ILocation) => {
-				return location.name.toLowerCase().includes(this.search.toLowerCase()) || location.aliases?.some((e) => e.toLowerCase().includes(this.search.toLowerCase()));
+		filteredItems(): IItem[] {
+			return this.items.filter((item: IItem) => {
+				return item.name.toLowerCase().includes(this.search.toLowerCase()) || item.aliases?.some((e) => e.toLowerCase().includes(this.search.toLowerCase()));
 				//return npc.tags.some(t => t.toLowerCase().includes(this.search.toLowerCase()));
 			});
 		},

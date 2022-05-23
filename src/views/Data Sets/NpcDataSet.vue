@@ -1,6 +1,6 @@
 <template>
 	<v-col cols="11">
-		<v-text-field dense v-model="search" clearable label="Search" prepend-inner-icon="mdi-magnify" variant="contained" single-line></v-text-field>
+		<v-text-field dense v-model="search" label="Search" prepend-inner-icon="mdi-magnify" variant="contained" single-line></v-text-field>
 		<v-row no-gutters style="max-height: 70vh" class="overflow-y-auto">
 			<v-col v-for="loc in filteredItems" :key="loc.name" cols="3">
 				<v-card class="ma-4">
@@ -9,7 +9,7 @@
 							<v-img style="margin-left: 0" :src="loc.planetImage" :lazy-src="loc.planetImage" contain> </v-img>
 						</div>
 					</v-img>
-					<v-card-title class="text-h6 d-inline-block text-truncate" style="max-width: 100%">
+					<v-card-title>
 						{{ loc.name }}
 					</v-card-title>
 

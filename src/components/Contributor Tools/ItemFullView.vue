@@ -6,38 +6,29 @@
 					<v-container>
 						<v-row no-gutters>
 							<v-col cols="8">
-								<v-text-field label="Item Name*" v-model="item.name" density="compact" required></v-text-field>
-
-								<!-- <div>
-									<div class="text-caption">Encumbrance</div>
-									<v-slider v-model="item.encumbrance" min="0" max="30" step="0.5" color="red" thumb-label prepend-icon="mdi-weight">
-										<template v-slot:append>
-											<v-text-field
-												v-model="item.encumbrance"
-												type="number"
-												style="width: 90px"
-												density="compact"
-												hide-details
-												variant="outlined"
-											></v-text-field>
-										</template>
-									</v-slider>
-								</div> -->
+								<v-text-field label="Item Name*" :readonly="!allowEdit" v-model="item.name" density="compact" required></v-text-field>
 								<v-row>
 									<v-col cols="6">
-										<v-autocomplete v-model="item.category" :items="itemCategories" label="Category" density="compact"></v-autocomplete>
+										<v-autocomplete v-model="item.category" :readonly="!allowEdit" :items="itemCategories" label="Category" density="compact"></v-autocomplete>
 									</v-col>
 									<v-col cols="6">
-										<v-text-field v-model="item.encumbrance" prepend-inner-icon="mdi-weight" type="number" label="Encumbrance" density="compact"></v-text-field>
+										<v-text-field
+											v-model="item.encumbrance"
+											v-bind:readonly="!allowEdit"
+											prepend-inner-icon="mdi-weight"
+											type="number"
+											label="Encumbrance"
+											density="compact"
+										></v-text-field>
 									</v-col>
 								</v-row>
 							</v-col>
 							<v-col cols="4" style="margin-top: -30px">
-								<v-img :src="item.image" class="itemThumbnail" width="140px" @click="changeItemImage()" />
-								<div align="center" class="text-caption font-italic">Click image to change</div>
+								<v-img :src="item.image" :disabled="!allowEdit" class="itemThumbnail" width="140px" @click="changeItemImage()" />
+								<div v-if="allowEdit" align="center" class="text-caption font-italic">Click image to change</div>
 							</v-col>
 							<v-col cols="12" class="pt-6">
-								<v-textarea v-model="item.description" label="Description" required rows="2"></v-textarea>
+								<v-textarea v-model="item.description" :readonly="!allowEdit" label="Description" required rows="2"></v-textarea>
 							</v-col>
 						</v-row>
 						<v-checkbox v-if="allowEdit" v-model="isTradeable" :label="`Is Tradeable: ${isTradeable ? 'Yes' : 'No'}`"></v-checkbox>
