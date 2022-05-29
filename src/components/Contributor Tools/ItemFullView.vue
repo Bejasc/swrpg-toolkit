@@ -1,7 +1,7 @@
 <template>
 	<v-row justify="center">
-		<v-dialog v-model="show" persistent>
-			<v-card class="pa-4">
+		<v-dialog v-model="show" persistent width="1200px">
+			<v-card class="pa-4" :title="item.name">
 				<v-card-text>
 					<v-container>
 						<v-row no-gutters>
@@ -31,13 +31,17 @@
 								<v-textarea v-model="item.description" :readonly="!allowEdit" label="Description" required rows="2"></v-textarea>
 							</v-col>
 						</v-row>
-						<v-checkbox v-if="allowEdit" v-model="isTradeable" :label="`Is Tradeable: ${isTradeable ? 'Yes' : 'No'}`"></v-checkbox>
+
+						<v-col cols="4">
+							<v-checkbox v-if="allowEdit" v-model="isTradeable" :label="`Is Tradeable: ${isTradeable ? 'Yes' : 'No'}`"></v-checkbox>
+						</v-col>
+
 						<div id="tradeProperties" v-if="isTradeable">
-							<v-row>
-								<v-col cols="5">
+							<v-row no-gutters>
+								<v-col cols="5" class="px-2">
 									<v-select :items="itemRarities" v-model="item.tradeProperties.itemRarity" label="Rarity" density="compact"></v-select>
 								</v-col>
-								<v-col cols="7">
+								<v-col cols="7" class="px-2">
 									<v-text-field
 										v-model="item.tradeProperties.baseValue"
 										prepend-inner-icon="mdi-cash"
@@ -45,23 +49,62 @@
 										label="Base Value"
 										density="compact"
 									></v-text-field>
+								</v-col>
 
-									<!-- <div class="text-caption">Base Value (Credits)</div>
-
-									<v-slider v-model="item.tradeProperties.baseValue" min="0" max="100000" step="5" color="yellow" thumb-label prepend-icon="mdi-cash">
-										<template v-slot:append>
-											<v-text-field
-												v-model="item.tradeProperties.baseValue"
-												type="number"
-												style="width: 150px"
-												density="compact"
-												hide-details
-												variant="outlined"
-											></v-text-field>
+								<v-col cols="6" v-if="isTradeable">
+									<v-checkbox
+										v-model="marketHelper.isAvailableEverywhere"
+										:label="`Is Available Everywhere: ${marketHelper.isAvailableEverywhere ? 'Yes' : 'No'}`"
+									></v-checkbox>
+								</v-col>
+								<v-col cols="5" v-if="!marketHelper.isAvailableEverywhere">
+									<!-- <v-switch v-model="marketHelper.isWhitelist" :label="`Treat list as ${marketHelper.isWhitelist ? 'Whitelist' : 'Blacklist'}`"> </v-switch> -->
+									<v-switch v-model="marketHelper.isWhitelist">
+										<template v-slot:label>
+											<span v-if="marketHelper.isWhitelist">Treat list as Whitelist</span>
+											<span v-else>Treat list as Blacklist</span>
+											<v-tooltip bottom>
+												<template v-slot:activator="{ props }">
+													<v-icon v-bind="props" v-on="props"> mdi-help </v-icon>
+												</template>
+												<span v-if="marketHelper.isWhitelist">This item will appear <b>only on</b> Locations shown below</span>
+												<span v-else>This item will appear everywhere <b>except</b> on Locations shown below</span>
+											</v-tooltip>
 										</template>
-									</v-slider> -->
+									</v-switch>
+								</v-col>
+
+								<v-col cols="12" v-if="!marketHelper.isAvailableEverywhere">
+									<v-card :title="`Locations ${marketHelper.isWhitelist ? 'Whitelist' : 'Blacklist'}`" color="grey-darken-3" flat tile>
+										<v-row style="max-height: 250px" class="mx-3 overflow-y-auto" no-gutters>
+											<v-col cols="4" v-for="loc in locations">
+												<v-card class="ma-1" outlined>
+													<v-row no-gutters style="flex-wrap: nowrap">
+														<v-col cols="2" class="flex-grow-0 flex-shrink-0">
+															<v-img :src="loc.planetImage"></v-img>
+														</v-col>
+														<v-col cols="8" style="min-width: 100px; max-width: 80%" class="pl-4 flex-gorw-1 flex-shrink-0">
+															<div style="display: flex; align-items: center; height: 100%">
+																{{ loc.name }}
+															</div>
+														</v-col>
+														<v-col cols="1" style="min-width: 100px" class="flex-grow-0 flex-shrink-1">
+															<v-checkbox hide-details></v-checkbox>
+														</v-col>
+													</v-row>
+												</v-card>
+											</v-col>
+										</v-row>
+									</v-card>
 								</v-col>
 							</v-row>
+							<!-- <v-row>
+								<v-expansion-panels>
+									<v-expansion-panel title="Market Overrides" color="blue">
+										<v-expansion-panel-text> </v-expansion-panel-text>
+									</v-expansion-panel>
+								</v-expansion-panels>
+							</v-row> -->
 						</div>
 					</v-container>
 				</v-card-text>
@@ -90,7 +133,9 @@
 </style>
 
 <script lang="ts">
+import { MarketHelper } from "@/types/MarketHelper";
 import type IItem from "@/types/SwrpgTypes/IItem";
+import type { ILocation } from "@/types/SwrpgTypes/ILocation";
 import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
@@ -102,6 +147,9 @@ export default defineComponent({
 			required: true,
 		},
 		allowEdit: Boolean,
+		locations: {
+			type: Object as PropType<ILocation[]>,
+		},
 	},
 	data: () => {
 		return {
@@ -109,6 +157,7 @@ export default defineComponent({
 			aliasString: "",
 			isTradeable: false,
 			itemRarities: ["Abundant", "Common", "Uncommon", "Rare", "Legendary", "Unique"],
+			marketHelper: new MarketHelper(),
 		};
 	},
 	methods: {

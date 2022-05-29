@@ -116,8 +116,16 @@
 			</v-expansion-panels>
 		</v-card>
 
-		<ItemFullView :show="dialogItemFullView" :item="selectedItem" :allowEdit="allowEdit" @itemAdded="addNewItem($event)" @closeFullView="dialogItemFullView = false" />
+		<ItemFullView
+			:show="dialogItemFullView"
+			:item="selectedItem"
+			:locations="locations"
+			:allowEdit="allowEdit"
+			@itemAdded="addNewItem($event)"
+			@closeFullView="dialogItemFullView = false"
+		/>
 	</v-col>
+	<DrpgLoader :showLoader="showLoader" />
 </template>
 
 <style scoped>
@@ -135,8 +143,11 @@
 
 <script lang="ts">
 import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
+import DrpgLoader from "@/components/DrpgLoader.vue";
+import { getData } from "@/plugins/MongoConnector";
 import type { IPackageDefinitionItem } from "@/types/packages/ItemPackage";
 import type IItem from "@/types/SwrpgTypes/IItem";
+import type { ILocation } from "@/types/SwrpgTypes/ILocation";
 import FileSaver from "file-saver";
 import mongoose from "mongoose";
 import { defineComponent } from "vue";
@@ -144,7 +155,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
 	name: "Item Package Creator",
 	emits: ["pageNavigation"],
-	components: { ItemFullView },
+	components: { ItemFullView, DrpgLoader },
 	data: () => {
 		return {
 			panels: [0, 1],
@@ -159,6 +170,8 @@ export default defineComponent({
 				packageInfo: {},
 				items: [] as IItem[],
 			} as IPackageDefinitionItem,
+			locations: [] as ILocation[],
+			showLoader: false,
 		};
 	},
 	methods: {
@@ -227,9 +240,17 @@ export default defineComponent({
 			this.itemPackageData = packageFromJson;
 			this.pastedPackage = "";
 		},
+		async loadAllLocations() {
+			this.showLoader = true;
+			this.locations = [];
+			this.locations = await getData<ILocation>("location");
+
+			this.showLoader = false;
+		},
 	},
 	mounted() {
 		this.$emit("pageNavigation", this.$route.name);
+		this.loadAllLocations();
 	},
 });
 </script>
