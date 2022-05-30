@@ -78,10 +78,12 @@
 									<v-card :title="`Locations ${marketHelper.isWhitelist ? 'Whitelist' : 'Blacklist'}`" color="grey-darken-3" flat tile>
 										<v-row style="max-height: 250px" class="mx-3 overflow-y-auto" no-gutters>
 											<v-col cols="4" v-for="loc in locations">
-												<v-card class="ma-1" outlined>
+												<v-card class="ma-1 pa-2" outlined flat @click="">
 													<v-row no-gutters style="flex-wrap: nowrap">
 														<v-col cols="2" class="flex-grow-0 flex-shrink-0">
-															<v-img :src="loc.planetImage"></v-img>
+															<div style="display: flex; align-items: center; height: 100%">
+																<v-img :src="loc.planetImage"></v-img>
+															</div>
 														</v-col>
 														<v-col cols="8" style="min-width: 100px; max-width: 80%" class="pl-4 flex-gorw-1 flex-shrink-0">
 															<div style="display: flex; align-items: center; height: 100%">
