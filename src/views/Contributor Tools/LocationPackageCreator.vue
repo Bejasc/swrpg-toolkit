@@ -78,8 +78,8 @@
 							<v-col v-for="location in packageData.locations" :key="location._id" cols="2">
 								<v-card width="200px" @click="openLocation(location, false)">
 									<v-img
-										:src="location.image"
-										:lazy-src="location.image"
+										:src="location.planetImage"
+										:lazy-src="location.planetImage"
 										contain
 										class="white--text imageMouseover"
 										gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -115,15 +115,8 @@
 				</v-expansion-panel>
 			</v-expansion-panels>
 		</v-card>
-
-		<LocationFullView
-			:show="dialogFullView"
-			:location="selectedLocation"
-			:allowEdit="allowEdit"
-			@locationAdded="addNewLocation($event)"
-			@closeFullView="dialogFullView = false"
-		/>
 	</v-col>
+	<LocationFullView :show="dialogFullView" :location="selectedLocation" :allowEdit="allowEdit" @locationAdded="addNewLocation($event)" @closeFullView="dialogFullView = false" />
 	<DrpgLoader :showLoader="showLoader" />
 </template>
 
@@ -207,6 +200,9 @@ export default defineComponent({
 						y: 0,
 					},
 					name: "New Planet",
+					image: "https://cdn.discordapp.com/attachments/964554539539771412/985579435317157918/unknown_environment.png",
+					planetImage: "https://cdn.discordapp.com/attachments/964554539539771412/985578348191313990/unknown_planet.png",
+					description: "Not much is known about this planet.",
 				};
 
 			this.dialogFullView = true;
