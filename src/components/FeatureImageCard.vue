@@ -30,7 +30,7 @@ export default defineComponent({
 			if (this.route) {
 				router.push(this.route);
 			} else {
-				alert("This goes nowhere!");
+				alert("Coming Soon - Work in Progress");
 			}
 		},
 	},

@@ -40,6 +40,7 @@ export default {
 							text: "NPCs",
 							isVisible: false,
 							click: function () {
+								alert("Coming soon!");
 								console.warn(`Not Implemented`);
 							},
 						},
@@ -79,15 +80,8 @@ export default {
 					icon: "mdi-package-variant",
 					items: [
 						{
-							text: "Item Creator",
+							text: "Package Creator",
 							isVisible: true,
-							click: function () {
-								router.push({ path: "/contributor/packages/item" });
-							},
-						},
-						{
-							text: "Content Creation",
-							isVisible: false,
 							click: function () {
 								router.push({ path: "/contributor/packages" });
 							},

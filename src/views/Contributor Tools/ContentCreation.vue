@@ -41,7 +41,12 @@ export default defineComponent({
 					route: "/contributor/packages/item",
 				},
 				{ cols: 6, text: "Ships", image: "https://cdn.discordapp.com/attachments/743332978893258763/876450001490956288/525.jpg" },
-				{ cols: 6, text: "Locations", image: "https://cdn.discordapp.com/attachments/743332978893258763/876449563504955452/459.jpg" },
+				{
+					cols: 6,
+					text: "Locations",
+					image: "https://cdn.discordapp.com/attachments/743332978893258763/876449563504955452/459.jpg",
+					route: "/contributor/packages/location",
+				},
 			],
 		};
 	},
