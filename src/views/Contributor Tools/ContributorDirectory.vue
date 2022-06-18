@@ -2,7 +2,7 @@
 	<ContributorSidebar />
 	<v-main>
 		<v-container fluid>
-			<!-- If using vue-router -->
+			<!-- <Breadcrumb /> -->
 			<router-view class="ma-4" />
 		</v-container>
 	</v-main>
@@ -10,12 +10,16 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import Breadcrumb from "../../components/Breadcrumb.vue";
 import ContributorSidebar from "../../components/Contributor Tools/ContributorSidebar.vue";
 
 // Components
 
 export default defineComponent({
 	name: "ContributorDirectory",
-	components: { ContributorSidebar },
+	components: { ContributorSidebar, Breadcrumb },
+	data: () => {
+		return {};
+	},
 });
 </script>

@@ -1,5 +1,5 @@
 <template>
-	<v-navigation-drawer permanent :width="325">
+	<v-navigation-drawer absolute :width="325">
 		<v-parallax src="https://cdn.discordapp.com/attachments/743332978893258763/876449798306283600/492.jpg"></v-parallax>
 
 		<v-list active-color="primary" variant="contained">
@@ -25,7 +25,7 @@ export default {
 			snackbarMessage: "Tempoarily Disabled",
 			listItems: [
 				{
-					name: "Data Sets",
+					name: "Data Sets (SWRPG V1)",
 					icon: "mdi-book-open-page-variant",
 					isVisible: true,
 					items: [
@@ -33,13 +33,14 @@ export default {
 							text: "Items",
 							isVisible: true,
 							click: function () {
-								console.warn(`Not Implemented`);
+								router.push({ path: "/data/items" });
 							},
 						},
 						{
 							text: "NPCs",
 							isVisible: false,
 							click: function () {
+								alert("Coming soon!");
 								console.warn(`Not Implemented`);
 							},
 						},
@@ -47,14 +48,14 @@ export default {
 							text: "Locations",
 							isVisible: true,
 							click: function () {
-								console.warn(`Not Implemented`);
+								router.push({ path: "/data/locations" });
 							},
 						},
 					],
 				},
 				{
 					name: "GM Tools",
-					isVisible: true,
+					isVisible: false,
 					icon: "mdi-dice-d20",
 					items: [
 						{
@@ -74,12 +75,12 @@ export default {
 					],
 				},
 				{
-					name: "Contributor Tools",
+					name: "Content Creation",
 					isVisible: true,
 					icon: "mdi-package-variant",
 					items: [
 						{
-							text: "Content Creation",
+							text: "Package Creator",
 							isVisible: true,
 							click: function () {
 								router.push({ path: "/contributor/packages" });
@@ -87,7 +88,7 @@ export default {
 						},
 						{
 							text: "Event Builder",
-							isVisible: true,
+							isVisible: false,
 							click: function () {
 								console.warn(`Not Implemented`);
 							},

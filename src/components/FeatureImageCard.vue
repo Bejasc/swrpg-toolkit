@@ -1,5 +1,5 @@
 <template>
-	<v-col :cols="cols">
+	<v-col :cols="cols" @click="clicked()">
 		<div style="position: relative; height: 250px">
 			<div style="position: absolute; z-index: 100" class="text-h6 ma-3">{{ text }}</div>
 			<v-parallax cover class="imageMouseover rounded-lg elevation-12" :src="image"> </v-parallax>
@@ -21,9 +21,19 @@
 </style>
 
 <script lang="ts">
+import router from "@/router";
 import { defineComponent } from "vue";
 export default defineComponent({
 	name: "FeatureImageCard",
+	methods: {
+		clicked() {
+			if (this.route) {
+				router.push(this.route);
+			} else {
+				alert("Coming Soon - Work in Progress");
+			}
+		},
+	},
 	props: {
 		cols: {
 			type: Number,
@@ -37,6 +47,7 @@ export default defineComponent({
 			type: String,
 			required: true,
 		},
+		route: String,
 	},
 });
 </script>

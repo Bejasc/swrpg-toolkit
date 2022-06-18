@@ -1,7 +1,7 @@
 <template>
 	<!--TODO: Pull this out into it's own component, define height of each item-->
 	<v-row>
-		<FeatureImageCard v-for="section in sections" :cols="section.cols" :image="section.image" :text="section.text" />
+		<FeatureImageCard v-for="section in sections" :cols="section.cols" :image="section.image" :text="section.text" :route="(section.route as string)" />
 	</v-row>
 </template>
 
@@ -24,14 +24,29 @@ import FeatureImageCard from "../../components/FeatureImageCard.vue";
 // Components
 
 export default defineComponent({
-	name: "ContributorDirectory",
+	name: "ContentCreation",
 	components: { ContributorSidebar, FeatureImageCard },
+	methods: {
+		clicked(x: unknown) {
+			console.log(x);
+		},
+	},
 	data: () => {
 		return {
 			sections: [
-				{ cols: 12, text: "Items", image: "https://cdn.discordapp.com/attachments/964554539539771412/975238642173902879/unknown.png" },
+				{
+					cols: 12,
+					text: "Items",
+					image: "https://cdn.discordapp.com/attachments/964554539539771412/975238642173902879/unknown.png",
+					route: "/contributor/packages/item",
+				},
 				{ cols: 6, text: "Ships", image: "https://cdn.discordapp.com/attachments/743332978893258763/876450001490956288/525.jpg" },
-				{ cols: 6, text: "Locations", image: "https://cdn.discordapp.com/attachments/743332978893258763/876449563504955452/459.jpg" },
+				{
+					cols: 6,
+					text: "Locations",
+					image: "https://cdn.discordapp.com/attachments/743332978893258763/876449563504955452/459.jpg",
+					route: "/contributor/packages/location",
+				},
 			],
 		};
 	},
