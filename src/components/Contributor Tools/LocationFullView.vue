@@ -2,7 +2,7 @@
 	<v-row justify="center">
 		<v-dialog v-model="show" persistent max-height="1000px">
 			<div style="width: 700px">
-				<v-card class="pa-4" :title="location.name">
+				<v-card class="pa-4" :title="data.location.name">
 					<v-card-text>
 						<v-container>
 							<v-row class="mb-10">
@@ -17,12 +17,12 @@
 
 							<v-row no-gutters>
 								<v-col cols="7">
-									<v-text-field label="Location Name*" :readonly="!allowEdit" v-model="location.name" density="compact" required></v-text-field>
-									<v-textarea v-model="location.description" :readonly="!allowEdit" label="Description" required rows="2"></v-textarea>
+									<v-text-field label="Location Name*" :readonly="!allowEdit" v-model="data.location.name" density="compact" required></v-text-field>
+									<v-textarea v-model="data.location.description" :readonly="!allowEdit" label="Description" required rows="2"></v-textarea>
 								</v-col>
 								<v-spacer />
 								<v-col cols="4" style="margin-top: -30px">
-									<v-img :src="location.planetImage" :disabled="!allowEdit" class="itemThumbnail" @click="changePlanetImage()" />
+									<v-img :src="data.location.planetImage" :disabled="!allowEdit" class="itemThumbnail" @click="changePlanetImage()" />
 									<div v-if="allowEdit" align="center" class="text-caption font-italic">Click image to change</div>
 								</v-col>
 							</v-row>
@@ -33,7 +33,7 @@
 								<v-col cols="6">
 									<v-text-field
 										class="pa-1"
-										v-model="location.landingSite"
+										v-model="data.location.landingSite"
 										v-bind:readonly="!allowEdit"
 										label="Landing Site Name"
 										density="compact"
@@ -41,7 +41,7 @@
 									<v-checkbox v-if="allowEdit" v-model="hasMarket" :label="`Has Market: ${hasMarket ? 'Yes' : 'No'}`"></v-checkbox>
 								</v-col>
 								<v-col cols="6">
-									<v-img :src="location.image" :disabled="!allowEdit" class="itemThumbnail" @click="changeEnvironmentImage()" />
+									<v-img :src="data.location.image" :disabled="!allowEdit" class="itemThumbnail" @click="changeEnvironmentImage()" />
 									<div v-if="allowEdit" align="center" class="text-caption font-italic">Click image to change</div>
 								</v-col>
 							</v-row>
@@ -50,25 +50,49 @@
 
 							<v-row no-gutters>
 								<v-col cols="6">
-									<v-text-field class="pa-1" v-model="location.coordinates.region" v-bind:readonly="!allowEdit" label="Region" density="compact"></v-text-field>
+									<v-text-field
+										class="pa-1"
+										v-model="data.location.coordinates.region"
+										v-bind:readonly="!allowEdit"
+										label="Region"
+										density="compact"
+									></v-text-field>
 								</v-col>
 								<v-col cols="6">
-									<v-text-field class="pa-1" v-model="location.coordinates.sector" v-bind:readonly="!allowEdit" label="Sector" density="compact"></v-text-field>
+									<v-text-field
+										class="pa-1"
+										v-model="data.location.coordinates.sector"
+										v-bind:readonly="!allowEdit"
+										label="Sector"
+										density="compact"
+									></v-text-field>
 								</v-col>
 								<v-col cols="6">
 									<v-row no-gutters>
 										<v-col cols="6" class="pa-1">
-											<v-text-field v-model="location.coordinates.x" v-bind:readonly="!allowEdit" type="number" label="X" density="compact"></v-text-field>
+											<v-text-field
+												v-model="data.location.coordinates.x"
+												v-bind:readonly="!allowEdit"
+												type="number"
+												label="X"
+												density="compact"
+											></v-text-field>
 										</v-col>
 										<v-col cols="6" class="pa-1">
-											<v-text-field v-model="location.coordinates.y" v-bind:readonly="!allowEdit" type="number" label="Y" density="compact"></v-text-field>
+											<v-text-field
+												v-model="data.location.coordinates.y"
+												v-bind:readonly="!allowEdit"
+												type="number"
+												label="Y"
+												density="compact"
+											></v-text-field>
 										</v-col>
 									</v-row>
 								</v-col>
 								<v-col cols="6">
 									<v-text-field
 										class="pa-1"
-										v-model="location.coordinates.hyperlaneProximity"
+										v-model="data.location.coordinates.hyperlaneProximity"
 										v-bind:readonly="!allowEdit"
 										label="Hyperlane Proximity (TODO)"
 										type="number"
@@ -88,11 +112,11 @@
 						</v-container>
 					</v-card-text>
 					<v-card-actions>
-						<small style="opacity: 0.2">Location ID: {{ location._id }}</small>
+						<small style="opacity: 0.2">Location ID: {{ data.location._id }}</small>
 
 						<v-spacer></v-spacer>
 						<v-btn color="blue darken-1" text @click="$emit('closeFullView')"> Close </v-btn>
-						<v-btn v-if="allowEdit" color="green darken-1" :disabled="!location.name" text @click="saveNewLocation()"> Save </v-btn>
+						<v-btn v-if="allowEdit" color="green darken-1" :disabled="!data.location.name" text @click="saveNewLocation()"> Save </v-btn>
 						<!-- <v-btn v-if="allowEdit" color="green darken-1" :disabled="!item.name || !item.category || !item.encumbrance" text @click="saveNewItem()"> Save </v-btn> -->
 						<!-- <v-btn color="blue darken-1" text @click="show = false">
 						Save
@@ -120,15 +144,15 @@ a {
 </style>
 
 <script lang="ts">
-import type { ILocation } from "@/types/SwrpgTypes/ILocation";
+import type { ILocationData } from "@/types/SwrpgTypes/ILocation";
 import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
 	name: "LocationFullView",
 	props: {
 		show: Boolean,
-		location: {
-			type: Object as PropType<ILocation>,
+		data: {
+			type: Object as PropType<ILocationData>,
 			required: true,
 		},
 		allowEdit: Boolean,
@@ -141,26 +165,26 @@ export default defineComponent({
 	},
 	methods: {
 		getAliases(): string {
-			return this.location.aliases?.join(", ") ?? "";
+			return this.data.location.aliases?.join(", ") ?? "";
 		},
 		async saveNewLocation() {
 			(this.$parent as any).showLoader = true;
 			const a = this.aliasString.replace(" ", "").split(",");
 
-			this.location.aliases = a;
+			this.data.location.aliases = a;
 
-			this.$emit("locationAdded", this.location);
+			this.$emit("locationAdded", this.data);
 			(this.$parent as any).showLoader = false;
 		},
 		changePlanetImage() {
 			//TODO Change to dialog
-			const imageUrl = prompt("Enter the URL for the new image", this.location.planetImage);
-			if (imageUrl != null) this.location.planetImage = imageUrl;
+			const imageUrl = prompt("Enter the URL for the new image", this.data.location.planetImage);
+			if (imageUrl != null) this.data.location.planetImage = imageUrl;
 		},
 		changeEnvironmentImage() {
 			//TODO Change to dialog
-			const imageUrl = prompt("Enter the URL for the new image", this.location.image);
-			if (imageUrl != null) this.location.image = imageUrl;
+			const imageUrl = prompt("Enter the URL for the new image", this.data.location.image);
+			if (imageUrl != null) this.data.location.image = imageUrl;
 		},
 	},
 });

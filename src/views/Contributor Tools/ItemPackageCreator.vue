@@ -2,7 +2,7 @@
 	<v-col cols="11">
 		<v-card>
 			<v-card-title class="d-flex">
-				{{ itemPackageData.packageInfo.name }} ({{ itemPackageData.items.length }} Items)
+				{{ packageData.packageInfo.name }} ({{ packageData.items.length }} Items)
 				<v-spacer />
 				<v-card-actions>
 					<div>
@@ -50,22 +50,22 @@
 						<v-row class="pt-4">
 							<!--Title-->
 							<v-col sm="6">
-								<v-text-field v-model="itemPackageData.packageInfo.name" v-if="allowEdit" label="Package Name*" outlined dense required></v-text-field>
-								<v-text-field v-else label="Package Name*" readonly outlined dense :value="itemPackageData.packageInfo.name"></v-text-field>
+								<v-text-field v-model="packageData.packageInfo.name" v-if="allowEdit" label="Package Name*" outlined dense required></v-text-field>
+								<v-text-field v-else label="Package Name*" readonly outlined dense :value="packageData.packageInfo.name"></v-text-field>
 							</v-col>
 
 							<!--Author-->
 							<v-col sm="6">
-								<v-text-field v-model="itemPackageData.packageInfo.author" v-if="allowEdit" label="Author*" outlined dense required></v-text-field>
-								<v-text-field v-else label="Author*" readonly outlined dense :value="itemPackageData.packageInfo.author"></v-text-field>
+								<v-text-field v-model="packageData.packageInfo.author" v-if="allowEdit" label="Author*" outlined dense required></v-text-field>
+								<v-text-field v-else label="Author*" readonly outlined dense :value="packageData.packageInfo.author"></v-text-field>
 							</v-col>
 						</v-row>
 
 						<!--Description-->
 						<v-row dense>
 							<v-col sm="12">
-								<v-text-field v-model="itemPackageData.packageInfo.description" v-if="allowEdit" label="Description" outlined dense required></v-text-field>
-								<v-text-field v-else label="Description" readonly outlined dense :value="itemPackageData.packageInfo.description"></v-text-field>
+								<v-text-field v-model="packageData.packageInfo.description" v-if="allowEdit" label="Description" outlined dense required></v-text-field>
+								<v-text-field v-else label="Description" readonly outlined dense :value="packageData.packageInfo.description"></v-text-field>
 							</v-col>
 						</v-row>
 					</v-expansion-panel-text>
@@ -75,7 +75,7 @@
 				<v-expansion-panel title="Items">
 					<v-expansion-panel-text class="ma-2">
 						<v-row style="max-height: 550px" class="overflow-y-auto">
-							<v-col v-for="item in itemPackageData.items" :key="item._id" cols="2">
+							<v-col v-for="item in packageData.items" :key="item._id" cols="2">
 								<v-card width="200px" @click="openItem(item, false)">
 									<v-img
 										:src="item.image"
@@ -145,6 +145,7 @@
 import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
 import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
+import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
 import type IItem from "@/types/SwrpgTypes/IItem";
 import type { ILocation } from "@/types/SwrpgTypes/ILocation";
@@ -166,7 +167,7 @@ export default defineComponent({
 			dialogItemFullView: false,
 			allowEdit: true,
 			pastedPackage: "",
-			itemPackageData: {
+			packageData: {
 				packageInfo: {},
 				items: [] as IItem[],
 			} as IPackageDefinition,
@@ -177,7 +178,7 @@ export default defineComponent({
 	methods: {
 		clearAll() {
 			this.dialogConfirmClear = false;
-			this.itemPackageData = {
+			this.packageData = {
 				packageInfo: {},
 				items: [] as IItem[],
 			} as IPackageDefinition;
@@ -190,15 +191,15 @@ export default defineComponent({
 			// 	image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
 			// });
 			this.dialogItemFullView = false;
-			this.itemPackageData.items.push(item);
+			this.packageData.items.push(item);
 		},
 		duplicateItem(item: IItem) {
 			const newObj: IItem = JSON.parse(JSON.stringify(item));
 			newObj._id = new mongoose.Types.ObjectId().toString();
-			this.itemPackageData.items.push(newObj);
+			this.packageData.items.push(newObj);
 		},
 		removeItem(item: IItem) {
-			this.itemPackageData.items = this.itemPackageData.items.filter((e) => e._id !== item._id);
+			this.packageData.items = this.packageData.items.filter((e) => e._id !== item._id);
 		},
 		openItem(item?: IItem, editMode = true) {
 			console.log(item?.name ?? "None");
@@ -222,22 +223,24 @@ export default defineComponent({
 			this.allowEdit = editMode;
 		},
 		exportPackage() {
-			if (!this.itemPackageData.packageInfo.name || !this.itemPackageData.packageInfo.author) {
+			if (!this.packageData.packageInfo.name || !this.packageData.packageInfo.author) {
 				alert("Please complete the required Package Info");
 				return;
 			}
 
-			const packageAsJson = JSON.stringify(this.itemPackageData, null, "\t");
+			const fileName = `${stringToCamelCase(this.packageData.packageInfo.author)}.${stringToCamelCase(this.packageData.packageInfo.name)}`;
+
+			const packageAsJson = JSON.stringify(this.packageData, null, "\t");
 
 			var blob = new Blob([packageAsJson], { type: "text/plain;charset=utf-8" });
-			FileSaver.saveAs(blob, `${this.itemPackageData.packageInfo.author}.${this.itemPackageData.packageInfo.name}.json`);
+			FileSaver.saveAs(blob, `${fileName}.json`);
 			// navigator.clipboard.writeText(packageAsJson);
 			// alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
 		},
 		importPackage() {
 			this.dialog = false;
 			const packageFromJson = JSON.parse(this.pastedPackage) as IPackageDefinition;
-			this.itemPackageData = packageFromJson;
+			this.packageData = packageFromJson;
 			this.pastedPackage = "";
 		},
 		async loadAllLocations() {
