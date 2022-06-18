@@ -75,11 +75,11 @@
 				<v-expansion-panel title="Locations">
 					<v-expansion-panel-text class="ma-2">
 						<v-row style="max-height: 550px" class="overflow-y-auto">
-							<v-col v-for="data in packageData.locations" :key="data.location._id" cols="2">
-								<v-card width="200px" @click="openLocation(data, false)">
+							<v-col v-for="locData in packageData.locations" :key="locData.location._id" cols="2">
+								<v-card width="200px" @click="openLocation(locData, false)">
 									<v-img
-										:src="data.location.planetImage"
-										:lazy-src="data.location.planetImage"
+										:src="locData.location.planetImage"
+										:lazy-src="locData.location.planetImage"
 										contain
 										class="white--text imageMouseover"
 										gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -90,23 +90,23 @@
 												<v-btn class="float-right" variant="text" icon="mdi-dots-vertical" v-bind="props"></v-btn>
 											</template>
 											<v-list>
-												<v-list-item title="View" @click="openLocation(data, false)" />
-												<v-list-item title="Duplicate" @click="duplicateLocation(data)" />
-												<v-list-item title="Remove" @click="removeLocation(data)" />
-												<v-list-item title="Edit" @click="openLocation(data, true)" />
+												<v-list-item title="View" @click="openLocation(locData, false)" />
+												<v-list-item title="Duplicate" @click="duplicateLocation(locData)" />
+												<v-list-item title="Remove" @click="removeLocation(locData)" />
+												<v-list-item title="Edit" @click="openLocation(locData, true)" />
 											</v-list>
 										</v-menu>
 									</v-img>
 									<v-card-actions color="red">
 										<span class="subtitle-1">
-											{{ data.location.name }}
+											{{ locData.location.name }}
 										</span>
 									</v-card-actions>
 								</v-card>
 							</v-col>
 
 							<v-col cols="1">
-								<v-card style="border: 3px dashed grey" width="200px" @click="openLocation(undefined, true)">
+								<v-card style="border: 3px dashed grey" width="200px" @click="openLocation(null, true)">
 									<v-icon size="200px" color="grey">mdi-plus</v-icon>
 								</v-card>
 							</v-col>
@@ -116,7 +116,7 @@
 			</v-expansion-panels>
 		</v-card>
 	</v-col>
-	<LocationFullView :show="dialogFullView" :data="selectedLocation" :allowEdit="allowEdit" @locationAdded="addNewLocation($event)" @closeFullView="dialogFullView = false" />
+	<LocationFullView :show="dialogFullView" :locData="selectedLocation" :allowEdit="allowEdit" @locationAdded="addNewLocation($event)" @closeFullView="dialogFullView = false" />
 	<DrpgLoader :showLoader="showLoader" />
 </template>
 
@@ -172,7 +172,7 @@ export default defineComponent({
 				locations: [] as ILocationData[],
 			} as IPackageDefinition;
 		},
-		addNewLocation(location: ILocationData) {
+		addNewLocation(locData: ILocationData) {
 			// this.itemPackageData.items.push({
 			// 	_id: new mongoose.Types.ObjectId().toString(),
 			// 	category: "Unknown",
@@ -180,43 +180,45 @@ export default defineComponent({
 			// 	image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
 			// });
 			this.dialogFullView = false;
-			this.packageData.locations.push(location);
+			this.packageData.locations.push(locData);
 		},
-		duplicateLocation(location: ILocationData) {
-			const newObj: ILocationData = JSON.parse(JSON.stringify(location));
+		duplicateLocation(locData: ILocationData) {
+			const newObj: ILocationData = JSON.parse(JSON.stringify(locData));
 			newObj.location._id = new mongoose.Types.ObjectId().toString();
 			if (newObj.market) {
 				//TODO give market new ID
 			}
 			this.packageData.locations.push(newObj);
 		},
-		removeLocation(data: ILocationData) {
-			this.packageData.locations = this.packageData.locations.filter((e) => e.location._id !== data.location._id);
+		removeLocation(locData: ILocationData) {
+			this.packageData.locations = this.packageData.locations.filter((e) => e.location._id !== locData.location._id);
 		},
-		openLocation(data?: ILocationData, editMode = true) {
-			console.log(data?.location.name ?? "None");
-			if (!data)
-				data.location = {
-					_id: new mongoose.Types.ObjectId().toString(),
-					coordinates: {
-						hyperlaneProximity: 0,
-						x: 0,
-						y: 0,
-					},
-					name: "New Planet",
-					image: "https://cdn.discordapp.com/attachments/964554539539771412/985579435317157918/unknown_environment.png",
-					planetImage: "https://cdn.discordapp.com/attachments/964554539539771412/985578348191313990/unknown_planet.png",
-					description: "Not much is known about this planet.",
-					channelOptions: {
+		openLocation(locData?: ILocationData, editMode = true) {
+			console.log(locData?.location.name ?? "None");
+			if (!locData)
+				locData = {
+					location: {
+						_id: new mongoose.Types.ObjectId().toString(),
+						coordinates: {
+							hyperlaneProximity: 0,
+							x: 0,
+							y: 0,
+						},
 						name: "New Planet",
-						autoCreate: true,
-						category: "Planets",
+						image: "https://cdn.discordapp.com/attachments/964554539539771412/985579435317157918/unknown_environment.png",
+						planetImage: "https://cdn.discordapp.com/attachments/964554539539771412/985578348191313990/unknown_planet.png",
+						description: "Not much is known about this planet.",
+						channelOptions: {
+							name: "New Planet",
+							autoCreate: true,
+							category: "Planets",
+						},
 					},
 				};
 
 			this.dialogFullView = true;
 
-			this.selectedLocation = data;
+			this.selectedLocation = locData;
 			this.allowEdit = editMode;
 		},
 		exportPackage() {
