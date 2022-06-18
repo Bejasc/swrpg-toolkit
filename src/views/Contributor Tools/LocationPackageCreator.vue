@@ -75,11 +75,11 @@
 				<v-expansion-panel title="Locations">
 					<v-expansion-panel-text class="ma-2">
 						<v-row style="max-height: 550px" class="overflow-y-auto">
-							<v-col v-for="location in packageData.locations" :key="location._id" cols="2">
-								<v-card width="200px" @click="openLocation(location, false)">
+							<v-col v-for="data in packageData.locations" :key="data.location._id" cols="2">
+								<v-card width="200px" @click="openLocation(data, false)">
 									<v-img
-										:src="location.planetImage"
-										:lazy-src="location.planetImage"
+										:src="data.location.planetImage"
+										:lazy-src="data.location.planetImage"
 										contain
 										class="white--text imageMouseover"
 										gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -90,16 +90,16 @@
 												<v-btn class="float-right" variant="text" icon="mdi-dots-vertical" v-bind="props"></v-btn>
 											</template>
 											<v-list>
-												<v-list-item title="View" @click="openLocation(location, false)" />
-												<v-list-item title="Duplicate" @click="duplicateLocation(location)" />
-												<v-list-item title="Remove" @click="removeLocation(location)" />
-												<v-list-item title="Edit" @click="openLocation(location, true)" />
+												<v-list-item title="View" @click="openLocation(data, false)" />
+												<v-list-item title="Duplicate" @click="duplicateLocation(data)" />
+												<v-list-item title="Remove" @click="removeLocation(data)" />
+												<v-list-item title="Edit" @click="openLocation(data, true)" />
 											</v-list>
 										</v-menu>
 									</v-img>
 									<v-card-actions color="red">
 										<span class="subtitle-1">
-											{{ location.name }}
+											{{ data.location.name }}
 										</span>
 									</v-card-actions>
 								</v-card>
@@ -116,7 +116,7 @@
 			</v-expansion-panels>
 		</v-card>
 	</v-col>
-	<LocationFullView :show="dialogFullView" :location="selectedLocation" :allowEdit="allowEdit" @locationAdded="addNewLocation($event)" @closeFullView="dialogFullView = false" />
+	<LocationFullView :show="dialogFullView" :data="selectedLocation" :allowEdit="allowEdit" @locationAdded="addNewLocation($event)" @closeFullView="dialogFullView = false" />
 	<DrpgLoader :showLoader="showLoader" />
 </template>
 
@@ -136,8 +136,9 @@
 <script lang="ts">
 import LocationFullView from "@/components/Contributor Tools/LocationFullView.vue";
 import DrpgLoader from "@/components/DrpgLoader.vue";
+import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
-import type { ILocation } from "@/types/SwrpgTypes/ILocation";
+import type { ILocationData } from "@/types/SwrpgTypes/ILocation";
 import FileSaver from "file-saver";
 import mongoose from "mongoose";
 import { defineComponent } from "vue";
@@ -150,7 +151,7 @@ export default defineComponent({
 		return {
 			panels: [0, 1],
 			incompleteSnackbar: true,
-			selectedLocation: {} as ILocation,
+			selectedLocation: {} as ILocationData,
 			dialog: false,
 			dialogConfirmClear: false,
 			dialogFullView: false,
@@ -158,7 +159,7 @@ export default defineComponent({
 			pastedPackage: "",
 			packageData: {
 				packageInfo: {},
-				locations: [] as ILocation[],
+				locations: [],
 			} as IPackageDefinition,
 			showLoader: false,
 		};
@@ -168,10 +169,10 @@ export default defineComponent({
 			this.dialogConfirmClear = false;
 			this.packageData = {
 				packageInfo: {},
-				locations: [] as ILocation[],
+				locations: [] as ILocationData[],
 			} as IPackageDefinition;
 		},
-		addNewLocation(location: ILocation) {
+		addNewLocation(location: ILocationData) {
 			// this.itemPackageData.items.push({
 			// 	_id: new mongoose.Types.ObjectId().toString(),
 			// 	category: "Unknown",
@@ -181,18 +182,21 @@ export default defineComponent({
 			this.dialogFullView = false;
 			this.packageData.locations.push(location);
 		},
-		duplicateLocation(location: ILocation) {
-			const newObj: ILocation = JSON.parse(JSON.stringify(location));
-			newObj._id = new mongoose.Types.ObjectId().toString();
+		duplicateLocation(location: ILocationData) {
+			const newObj: ILocationData = JSON.parse(JSON.stringify(location));
+			newObj.location._id = new mongoose.Types.ObjectId().toString();
+			if (newObj.market) {
+				//TODO give market new ID
+			}
 			this.packageData.locations.push(newObj);
 		},
-		removeLocation(location: ILocation) {
-			this.packageData.locations = this.packageData.locations.filter((e) => e._id !== location._id);
+		removeLocation(data: ILocationData) {
+			this.packageData.locations = this.packageData.locations.filter((e) => e.location._id !== data.location._id);
 		},
-		openLocation(location?: ILocation, editMode = true) {
-			console.log(location?.name ?? "None");
-			if (!location)
-				location = {
+		openLocation(data?: ILocationData, editMode = true) {
+			console.log(data?.location.name ?? "None");
+			if (!data)
+				data.location = {
 					_id: new mongoose.Types.ObjectId().toString(),
 					coordinates: {
 						hyperlaneProximity: 0,
@@ -203,11 +207,16 @@ export default defineComponent({
 					image: "https://cdn.discordapp.com/attachments/964554539539771412/985579435317157918/unknown_environment.png",
 					planetImage: "https://cdn.discordapp.com/attachments/964554539539771412/985578348191313990/unknown_planet.png",
 					description: "Not much is known about this planet.",
+					channelOptions: {
+						name: "New Planet",
+						autoCreate: true,
+						category: "Planets",
+					},
 				};
 
 			this.dialogFullView = true;
 
-			this.selectedLocation = location;
+			this.selectedLocation = data;
 			this.allowEdit = editMode;
 		},
 		exportPackage() {
@@ -217,9 +226,10 @@ export default defineComponent({
 			}
 
 			const packageAsJson = JSON.stringify(this.packageData, null, "\t");
+			const fileName = `${stringToCamelCase(this.packageData.packageInfo.author)}.${stringToCamelCase(this.packageData.packageInfo.name)}`;
 
 			var blob = new Blob([packageAsJson], { type: "text/plain;charset=utf-8" });
-			FileSaver.saveAs(blob, `${this.packageData.packageInfo.author}.${this.packageData.packageInfo.name}.json`);
+			FileSaver.saveAs(blob, `${fileName}.json`);
 			// navigator.clipboard.writeText(packageAsJson);
 			// alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
 		},

@@ -1,3 +1,8 @@
+export interface ILocationData {
+	location: ILocation;
+	market?: boolean; //TODO change this to actual market type when available
+}
+
 export interface ILocation {
 	_id: string;
 	name: string;
@@ -13,4 +18,16 @@ export interface ILocation {
 		sector?: string;
 		region?: string;
 	};
+	channelOptions: {
+		name: string;
+		autoCreate: true;
+		category: string;
+	};
+	initialPoints?: [
+		{
+			factionId: string;
+			points: number;
+			description: string;
+		},
+	];
 }
