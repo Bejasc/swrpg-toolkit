@@ -202,7 +202,8 @@ export default defineComponent({
 			this.packageData.items = this.packageData.items.filter((e) => e._id !== item._id);
 		},
 		openItem(item?: IItem, editMode = true) {
-			console.log(item?.name ?? "None");
+			console.log(item?.name ?? "Create new Item", editMode);
+
 			if (!item)
 				item = {
 					_id: new mongoose.Types.ObjectId().toString(),
@@ -233,7 +234,7 @@ export default defineComponent({
 			const packageAsJson = JSON.stringify(this.packageData, null, "\t");
 
 			var blob = new Blob([packageAsJson], { type: "text/plain;charset=utf-8" });
-			FileSaver.saveAs(blob, `${fileName}.json`);
+			FileSaver.saveAs(blob, `${fileName}.items.json`);
 			// navigator.clipboard.writeText(packageAsJson);
 			// alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
 		},

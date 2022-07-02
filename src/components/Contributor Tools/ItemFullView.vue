@@ -5,53 +5,58 @@
 				<v-card-text>
 					<v-container>
 						<v-row no-gutters>
-							<v-col cols="8">
+							<v-col cols="7">
 								<v-text-field label="Item Name*" :readonly="!allowEdit" v-model="item.name" density="compact" required></v-text-field>
-
 								<v-text-field
-									v-if="!allowEdit"
 									label="Aliases"
 									placeholder="Other names, separated by comma"
 									:readonly="!allowEdit"
 									v-model="aliasString"
 									density="compact"
 								></v-text-field>
-
-								<v-row>
-									<v-col cols="6">
-										<v-autocomplete v-model="item.category" :readonly="!allowEdit" :items="itemCategories" label="Category" density="compact"></v-autocomplete>
-									</v-col>
-									<v-col cols="6">
-										<v-text-field
-											v-model="item.encumbrance"
-											v-bind:readonly="!allowEdit"
-											prepend-inner-icon="mdi-weight"
-											type="number"
-											label="Encumbrance"
-											density="compact"
-										></v-text-field>
-									</v-col>
-								</v-row>
 							</v-col>
+							<v-spacer />
 							<v-col cols="4" style="margin-top: -30px">
 								<v-img :src="item.image" :disabled="!allowEdit" class="itemThumbnail" width="140px" @click="changeItemImage()" />
 								<div v-if="allowEdit" align="center" class="text-caption font-italic">Click image to change</div>
 							</v-col>
-							<v-col cols="12" class="pt-6">
+						</v-row>
+
+						<v-row no-gutters>
+							<v-row>
+								<v-col cols="6">
+									<v-autocomplete v-model="item.category" :readonly="!allowEdit" :items="itemCategories" label="Category" density="compact"></v-autocomplete>
+								</v-col>
+								<v-col cols="6">
+									<v-text-field
+										v-model="item.encumbrance"
+										v-bind:readonly="!allowEdit"
+										prepend-inner-icon="mdi-weight"
+										type="number"
+										label="Encumbrance"
+										density="compact"
+									></v-text-field>
+								</v-col>
+							</v-row>
+							<v-col cols="12">
 								<v-textarea v-model="item.description" :readonly="!allowEdit" label="Description" required rows="2"></v-textarea>
 							</v-col>
 						</v-row>
 
-						<v-col cols="4">
-							<v-checkbox v-if="allowEdit" v-model="isTradeable" :label="`Is Tradeable: ${isTradeable ? 'Yes' : 'No'}`"></v-checkbox>
-						</v-col>
+						<v-divider class="mb-7" />
+
+						<v-row no-gutters>
+							<v-col cols="4">
+								<v-checkbox v-if="allowEdit" v-model="isTradeable" :label="`Is Tradeable: ${isTradeable ? 'Yes' : 'No'}`"></v-checkbox>
+							</v-col>
+						</v-row>
 
 						<div id="tradeProperties" v-if="isTradeable">
 							<v-row no-gutters>
-								<v-col cols="5" class="px-2">
+								<v-col cols="5">
 									<v-select :items="itemRarities" v-model="item.tradeProperties.itemRarity" label="Rarity" density="compact"></v-select>
 								</v-col>
-								<v-col cols="7" class="px-2">
+								<v-col cols="7">
 									<v-text-field
 										v-model="item.tradeProperties.baseValue"
 										prepend-inner-icon="mdi-cash"
@@ -203,14 +208,17 @@ export default defineComponent({
 			(this.$parent as any).showLoader = false;
 		},
 		changeItemImage() {
+			if (!this.allowEdit) return;
+
 			//TODO Change to dialog
 			const imageUrl = prompt("Enter the URL for the new image", this.item.image);
 			if (imageUrl != null) this.item.image = imageUrl;
 		},
 	},
 	mounted() {
+		console.log(this.item.name ?? "asdasd");
 		if (this.item.tradeProperties) this.isTradeable = true;
-		if (this.item.aliases.length > 0) this.aliasString = this.getItemAliases();
+		if (this.item?.aliases?.length > 0) this.aliasString = this.getItemAliases();
 	},
 });
 </script>

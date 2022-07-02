@@ -231,7 +231,7 @@ export default defineComponent({
 			const fileName = `${stringToCamelCase(this.packageData.packageInfo.author)}.${stringToCamelCase(this.packageData.packageInfo.name)}`;
 
 			var blob = new Blob([packageAsJson], { type: "text/plain;charset=utf-8" });
-			FileSaver.saveAs(blob, `${fileName}.json`);
+			FileSaver.saveAs(blob, `${fileName}.locations.json`);
 			// navigator.clipboard.writeText(packageAsJson);
 			// alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
 		},
