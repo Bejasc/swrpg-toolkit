@@ -7,6 +7,16 @@
 						<v-row no-gutters>
 							<v-col cols="8">
 								<v-text-field label="Item Name*" :readonly="!allowEdit" v-model="item.name" density="compact" required></v-text-field>
+
+								<v-text-field
+									v-if="!allowEdit"
+									label="Aliases"
+									placeholder="Other names, separated by comma"
+									:readonly="!allowEdit"
+									v-model="aliasString"
+									density="compact"
+								></v-text-field>
+
 								<v-row>
 									<v-col cols="6">
 										<v-autocomplete v-model="item.category" :readonly="!allowEdit" :items="itemCategories" label="Category" density="compact"></v-autocomplete>
@@ -155,7 +165,22 @@ export default defineComponent({
 	},
 	data: () => {
 		return {
-			itemCategories: ["Unknown", "Food", "Armour", "Weapons", "Medical"],
+			itemCategories: [
+				"Unknown",
+				"Food",
+				"Armour",
+				"Weapons",
+				"Medical",
+				"Tools",
+				"Clothing",
+				"Resources",
+				"Minerals",
+				"Luxuries",
+				"Waste",
+				"Technology",
+				"Salvage",
+				"Chemicals",
+			],
 			aliasString: "",
 			isTradeable: false,
 			itemRarities: ["Abundant", "Common", "Uncommon", "Rare", "Legendary", "Unique"],
@@ -185,6 +210,7 @@ export default defineComponent({
 	},
 	mounted() {
 		if (this.item.tradeProperties) this.isTradeable = true;
+		if (this.item.aliases.length > 0) this.aliasString = this.getItemAliases();
 	},
 });
 </script>
