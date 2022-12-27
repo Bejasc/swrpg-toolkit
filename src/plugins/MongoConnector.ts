@@ -3,7 +3,7 @@ import axios from "axios";
 type allowedMongoCollections = "items" | "location" | "skills" | "npcs";
 
 export async function getData<T>(collection: allowedMongoCollections, id?: string): Promise<T[]> {
-	const swrpgApi: string = import.meta.env.VITE_SWRPG_API ?? "NOT PROVIDED";
+	const swrpgApi = "https://swrpg.bejasc.dev/api"; //import.meta.env.VITE_SWRPG_API ?? "NOT PROVIDED";
 
 	let url = swrpgApi + "/" + collection;
 
@@ -24,7 +24,7 @@ export async function getData<T>(collection: allowedMongoCollections, id?: strin
 }
 
 export async function postData<T>(collection: allowedMongoCollections, item: T): Promise<T | null> {
-	const swrpgApi: string = process.env.VUE_APP_SWRPG_API ?? "NOT PROVIDED";
+	const swrpgApi = "https://swrpg.bejasc.dev/api"; //process.env.VUE_APP_SWRPG_API ?? "NOT PROVIDED";
 
 	const url = swrpgApi + collection;
 

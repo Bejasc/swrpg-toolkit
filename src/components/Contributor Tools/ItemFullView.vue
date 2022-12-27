@@ -204,8 +204,9 @@ export default defineComponent({
 
 			if (!this.isTradeable) this.item.tradeProperties = undefined;
 
-			this.$emit("itemAdded", this.item);
 			(this.$parent as any).showLoader = false;
+
+			this.$emit("saveItem", this.item);
 		},
 		changeItemImage() {
 			if (!this.allowEdit) return;

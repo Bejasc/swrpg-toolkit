@@ -85,15 +85,39 @@
 										gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
 										height="200px"
 									>
-										<v-menu anchor="bottom">
+										<v-menu anchor="bottom" v-model="showContextMenu">
 											<template v-slot:activator="{ props }">
 												<v-btn class="float-right" variant="text" icon="mdi-dots-vertical" v-bind="props"></v-btn>
 											</template>
 											<v-list>
-												<v-list-item title="View" @click="openLocation(locData, false)" />
-												<v-list-item title="Duplicate" @click="duplicateLocation(locData)" />
-												<v-list-item title="Remove" @click="removeLocation(locData)" />
-												<v-list-item title="Edit" @click="openLocation(locData, true)" />
+												<v-list-item
+													title="View"
+													@click="
+														openLocation(locData, false);
+														showContextMenu = false;
+													"
+												/>
+												<v-list-item
+													title="Duplicate"
+													@click="
+														duplicateLocation(locData);
+														showContextMenu = false;
+													"
+												/>
+												<v-list-item
+													title="Remove"
+													@click="
+														removeLocation(locData);
+														showContextMenu = false;
+													"
+												/>
+												<v-list-item
+													title="Edit"
+													@click="
+														openLocation(locData, true);
+														showContextMenu = false;
+													"
+												/>
 											</v-list>
 										</v-menu>
 									</v-img>
@@ -116,7 +140,7 @@
 			</v-expansion-panels>
 		</v-card>
 	</v-col>
-	<LocationFullView :show="dialogFullView" :locData="selectedLocation" :allowEdit="allowEdit" @locationAdded="addNewLocation($event)" @closeFullView="dialogFullView = false" />
+	<LocationFullView :show="dialogFullView" :locData="selectedLocation" :allowEdit="allowEdit" @locationSaved="saveLocation($event)" @closeFullView="dialogFullView = false" />
 	<DrpgLoader :showLoader="showLoader" />
 </template>
 
@@ -155,6 +179,7 @@ export default defineComponent({
 			dialog: false,
 			dialogConfirmClear: false,
 			dialogFullView: false,
+			showContextMenu: false,
 			allowEdit: true,
 			pastedPackage: "",
 			packageData: {
@@ -172,7 +197,7 @@ export default defineComponent({
 				locations: [] as ILocationData[],
 			} as IPackageDefinition;
 		},
-		addNewLocation(locData: ILocationData) {
+		saveLocation(locData: ILocationData) {
 			// this.itemPackageData.items.push({
 			// 	_id: new mongoose.Types.ObjectId().toString(),
 			// 	category: "Unknown",
@@ -181,6 +206,15 @@ export default defineComponent({
 			// });
 			this.dialogFullView = false;
 			this.packageData.locations.push(locData);
+
+			const existingLocation = this.packageData.locations.find((e) => e.location._id === locData.location._id);
+
+			if (existingLocation) {
+				const i = this.packageData.locations.indexOf(existingLocation);
+				this.packageData.locations[i] = locData;
+			} else {
+				this.packageData.locations.push(locData);
+			}
 		},
 		duplicateLocation(locData: ILocationData) {
 			const newObj: ILocationData = JSON.parse(JSON.stringify(locData));

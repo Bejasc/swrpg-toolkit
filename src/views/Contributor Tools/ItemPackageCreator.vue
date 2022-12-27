@@ -85,15 +85,39 @@
 										gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
 										height="200px"
 									>
-										<v-menu anchor="bottom">
+										<v-menu anchor="bottom" v-model="showContextMenu">
 											<template v-slot:activator="{ props }">
 												<v-btn class="float-right" variant="text" icon="mdi-dots-vertical" v-bind="props"></v-btn>
 											</template>
 											<v-list>
-												<v-list-item title="View" @click="openItem(item, false)" />
-												<v-list-item title="Duplicate" @click="duplicateItem(item)" />
-												<v-list-item title="Remove" @click="removeItem(item)" />
-												<v-list-item title="Edit" @click="openItem(item, true)" />
+												<v-list-item
+													title="View"
+													@click="
+														openItem(item, false);
+														showContextMenu = false;
+													"
+												/>
+												<v-list-item
+													title="Duplicate"
+													@click="
+														duplicateItem(item);
+														showContextMenu = false;
+													"
+												/>
+												<v-list-item
+													title="Remove"
+													@click="
+														removeItem(item);
+														showContextMenu = false;
+													"
+												/>
+												<v-list-item
+													title="Edit"
+													@click="
+														openItem(item, true);
+														showContextMenu = false;
+													"
+												/>
 											</v-list>
 										</v-menu>
 									</v-img>
@@ -121,7 +145,7 @@
 			:item="selectedItem"
 			:locations="locations"
 			:allowEdit="allowEdit"
-			@itemAdded="addNewItem($event)"
+			@saveItem="saveItem($event)"
 			@closeFullView="dialogItemFullView = false"
 		/>
 	</v-col>
@@ -165,6 +189,7 @@ export default defineComponent({
 			dialog: false,
 			dialogConfirmClear: false,
 			dialogItemFullView: false,
+			showContextMenu: false,
 			allowEdit: true,
 			pastedPackage: "",
 			packageData: {
@@ -183,7 +208,7 @@ export default defineComponent({
 				items: [] as IItem[],
 			} as IPackageDefinition;
 		},
-		addNewItem(item: IItem) {
+		saveItem(item: IItem) {
 			// this.itemPackageData.items.push({
 			// 	_id: new mongoose.Types.ObjectId().toString(),
 			// 	category: "Unknown",
@@ -191,7 +216,15 @@ export default defineComponent({
 			// 	image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
 			// });
 			this.dialogItemFullView = false;
-			this.packageData.items.push(item);
+
+			const existingItem = this.packageData.items.find((e) => e._id === item._id);
+
+			if (existingItem) {
+				const i = this.packageData.items.indexOf(existingItem);
+				this.packageData.items[i] = item;
+			} else {
+				this.packageData.items.push(item);
+			}
 		},
 		duplicateItem(item: IItem) {
 			const newObj: IItem = JSON.parse(JSON.stringify(item));
