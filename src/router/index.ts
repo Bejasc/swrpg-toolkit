@@ -3,6 +3,7 @@ import ContributorDirectoryVue from "@/views/Contributor Tools/ContributorDirect
 import ItemsDataSetVue from "@/views/Data Sets/ItemsDataSet.vue";
 import LocationDataSetVue from "@/views/Data Sets/LocationDataSet.vue";
 import { createRouter, createWebHistory } from "vue-router";
+import EventPackageCreator from "../views/Contributor Tools/EventPackageCreator.vue";
 import ItemPackageCreatorVue from "../views/Contributor Tools/ItemPackageCreator.vue";
 import LocationPackageCreator from "../views/Contributor Tools/LocationPackageCreator.vue";
 import HomeView from "../views/HomeView.vue";
@@ -33,6 +34,11 @@ const router = createRouter({
 					path: "packages/location",
 					name: "Location Package Creator",
 					component: LocationPackageCreator, //async () => import("../views/Contributor Tools/ItemPackageCreator.vue"),
+				},
+				{
+					path: "packages/events",
+					name: "Event Package Creator",
+					component: EventPackageCreator, //async () => import("../views/Contributor Tools/ItemPackageCreator.vue"),
 				},
 			],
 		},

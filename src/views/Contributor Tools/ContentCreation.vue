@@ -35,10 +35,16 @@ export default defineComponent({
 		return {
 			sections: [
 				{
-					cols: 12,
+					cols: 6,
 					text: "Items",
 					image: "https://cdn.discordapp.com/attachments/964554539539771412/975238642173902879/unknown.png",
 					route: "/contributor/packages/item",
+				},
+				{
+					cols: 6,
+					text: "Events",
+					image: "https://cdn.discordapp.com/attachments/743332978893258763/876449920687685652/517.jpg",
+					route: "/contributor/packages/events",
 				},
 				{ cols: 6, text: "Ships", image: "https://cdn.discordapp.com/attachments/743332978893258763/876450001490956288/525.jpg" },
 				{
