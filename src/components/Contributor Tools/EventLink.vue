@@ -99,6 +99,10 @@ export default defineComponent({
 					color: "#E6A00E",
 				},
 				eventLinks: [],
+				results: {
+					pickRandom: false,
+					changes: [],
+				},
 			};
 			this.eventLink.eventId.push(newEvent);
 		},
