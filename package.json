@@ -15,7 +15,7 @@
 		"execa": "^6.1.0",
 		"file-saver": "^2.0.5",
 		"material-design-icons": "^3.0.1",
-		"mongoose": "^6.3.3",
+		"mongoose": "^6.4.6",
 		"roboto-fontface": "*",
 		"vue": "^3.2.33",
 		"vue-emoji-picker": "^1.0.3",
@@ -49,7 +49,7 @@
 		"sass": "^1.38.0",
 		"sass-loader": "^10.0.0",
 		"typescript": "~4.6.3",
-		"vite": "^2.9.5",
+		"vite": "^2.9.13",
 		"vue-cli-plugin-vuetify": "~2.4.8",
 		"vue-tsc": "^0.34.7",
 		"vuetify-loader": "^2.0.0-alpha.0"
