@@ -18,8 +18,9 @@
 		"mongoose": "^6.3.3",
 		"roboto-fontface": "*",
 		"vue": "^3.2.33",
+		"vue-emoji-picker": "^1.0.3",
 		"vue-router": "^4.0.14",
-		"vuetify": "^3.0.0-beta.0",
+		"vuetify": "^3.0.6",
 		"webfontloader": "^1.0.0"
 	},
 	"devDependencies": {

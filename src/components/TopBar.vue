@@ -3,7 +3,7 @@
 		<v-toolbar-title>SWRPG - {{ $route.name }}</v-toolbar-title>
 		<v-spacer />
 		<!-- <v-btn outlined>View docs</v-btn> -->
-		<v-menu anchor="start">
+		<v-menu anchor="start" min-width="800">
 			<template v-slot:activator="{ props }">
 				<v-btn color="primary" v-bind="props">
 					<v-icon>mdi-menu</v-icon>
@@ -11,9 +11,9 @@
 			</template>
 			<v-list>
 				<v-list-item v-for="item in items" :key="item.text" link active-class="big" @click="item.click()">
-					<v-list-item-avatar start>
+					<template v-slot:prepend>
 						<v-icon :icon="item.icon"></v-icon>
-					</v-list-item-avatar>
+					</template>
 					<v-list-item-title>{{ item.text }}</v-list-item-title>
 				</v-list-item>
 			</v-list>

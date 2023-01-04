@@ -2,7 +2,7 @@
 	<v-col :cols="cols" @click="clicked()">
 		<div style="position: relative; height: 250px">
 			<div style="position: absolute; z-index: 100" class="text-h6 ma-3">{{ text }}</div>
-			<v-parallax cover class="imageMouseover rounded-lg elevation-12" :src="image"> </v-parallax>
+			<v-img :src="image" cover class="imageMouseover rounded-lg elevation-12"></v-img>
 		</div>
 	</v-col>
 </template>

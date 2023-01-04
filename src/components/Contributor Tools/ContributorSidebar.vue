@@ -1,6 +1,6 @@
 <template>
 	<v-navigation-drawer absolute :width="325">
-		<v-parallax src="https://cdn.discordapp.com/attachments/743332978893258763/876449798306283600/492.jpg"></v-parallax>
+		<v-img src="https://cdn.discordapp.com/attachments/743332978893258763/876449798306283600/492.jpg"></v-img>
 
 		<v-list active-color="primary" variant="contained">
 			<v-list-group v-for="group in listItems" v-show="group.isVisible">
