@@ -229,12 +229,9 @@ export default defineComponent({
 				eventData = {
 					id: new mongoose.Types.ObjectId().toString(),
 					embedOptions: {
-						title: "Embed Title",
-						description: "Embed Description",
-						image: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
-						thumbnail: "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png",
 						color: "#E6A00E",
 					},
+					eventLinks: [],
 				};
 
 			this.dialogFullView = true;
