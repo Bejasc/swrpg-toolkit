@@ -1,6 +1,6 @@
 <template>
 	<v-col cols="11">
-		<v-text-field dense v-model="search" clearable label="Search" prepend-inner-icon="mdi-magnify" variant="contained" single-line></v-text-field>
+		<v-text-field dense v-model="search" clearable label="Search" prepend-inner-icon="mdi-magnify" single-line></v-text-field>
 		<v-row no-gutters style="max-height: 70vh" class="overflow-y-auto">
 			<v-col v-for="item in filteredItems" :key="item._id" cols="2">
 				<v-card class="ma-4" @click="openItemFullView(item)">

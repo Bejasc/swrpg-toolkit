@@ -1,12 +1,22 @@
 <template>
 	<v-expansion-panels variant="accordion">
-		<v-expansion-panel :title="eventLink.title ?? 'Unnamed Option'">
+		<v-expansion-panel>
+			<v-expansion-panel-title>
+				<template v-slot:default="{ expanded }">
+					{{ eventLink.title ?? "Unnamed Option" }}
+					<v-spacer />
+					<div class="mx-6">
+						<v-btn color="red" variant="outlined" icon="mdi-delete-outline" size="small" @click.stop="removeEventLink(eventLink)"> </v-btn>
+					</div>
+				</template>
+			</v-expansion-panel-title>
+
 			<v-expansion-panel-text>
 				<v-row no-gutters>
 					<v-col cols="4" class="ma-2">
 						<v-text-field label="Button Label" :readonly="!allowEdit" v-model="eventLink.title" density="compact" placeholder="Pickup" required></v-text-field>
 					</v-col>
-					<v-col cols="6" class="ma-2">
+					<v-col cols="5" class="ma-2">
 						<v-text-field
 							label="Short Description"
 							:readonly="!allowEdit"
@@ -16,36 +26,29 @@
 							required
 						></v-text-field>
 					</v-col>
+					<v-spacer />
+					<v-btn class="ma-3" variant="outlined" color="blue" outline @click="addEvent()"> Add Result </v-btn>
 				</v-row>
 
 				<v-expansion-panels variant="accordion">
-					<v-expansion-panel v-for="event in eventLink.eventId" :title="event.embedOptions.title ?? 'Unnamed Embed'">
+					<v-expansion-panel v-for="(event, index) in eventLink.eventId">
+						<v-expansion-panel-title>
+							<template v-slot:default="{ expanded }">
+								{{ event.embedOptions.title ?? `Result ${index + 1}` }}
+								<v-spacer />
+								<div class="mx-6">
+									<v-btn color="red" variant="outlined" icon="mdi-delete-outline" size="small" @click.stop="removeEventFromLink(event)"> </v-btn>
+								</div>
+							</template>
+						</v-expansion-panel-title>
+
 						<v-expansion-panel-text>
 							<EventEditorComponent :eventData="event" :allowEdit="allowEdit"></EventEditorComponent>
 						</v-expansion-panel-text>
 					</v-expansion-panel>
 				</v-expansion-panels>
 
-				<div class="text-center my-5">
-					<v-btn variant="outlined" color="blue" outline @click="addEvent()"> Add Event </v-btn>
-				</div>
-
-				<div class="text-center my-5">
-					<v-btn variant="outlined" color="red" outline>
-						<v-icon icon="mdi-delete-outline" /> Remove {{ eventLink.title }} Option
-
-						<v-dialog class="myDialog" v-model="dialogConfirmDeleteLink" activator="parent" transition="fade-transition" persistent>
-							<v-card>
-								<v-card-text> Are you sure you want to remove this event link? <br />This cannot be undone </v-card-text>
-								<v-card-actions>
-									<v-spacer />
-									<v-btn color="blue" @click="dialogConfirmDeleteLink = false">Cancel</v-btn>
-									<v-btn color="red" @click="removeEventLink(eventLink)">Remove</v-btn>
-								</v-card-actions>
-							</v-card>
-						</v-dialog>
-					</v-btn>
-				</div>
+				<div class="text-center my-5"></div>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
 	</v-expansion-panels>
@@ -98,6 +101,9 @@ export default defineComponent({
 				eventLinks: [],
 			};
 			this.eventLink.eventId.push(newEvent);
+		},
+		removeEventFromLink(event: IEventBase) {
+			this.eventLink.eventId = this.eventLink.eventId.filter((e) => e != event);
 		},
 	},
 });

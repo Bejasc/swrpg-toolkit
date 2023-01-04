@@ -18,10 +18,10 @@ export default defineComponent({
 			//
 		};
 	},
-	computed: {
-		theme() {
-			return this.$vuetify.theme.getTheme("dark") ? "dark" : "light";
-		},
-	},
+	// computed: {
+	// 	theme() {
+	// 		return this.$vuetify.theme.getTheme("dark") ? "dark" : "light";
+	// 	},
+	// },
 });
 </script>
