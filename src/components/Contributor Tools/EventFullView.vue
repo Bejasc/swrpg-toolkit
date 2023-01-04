@@ -3,7 +3,7 @@
 		<v-dialog v-model="show" persistent width="1200">
 			<v-card width="1200px" max-height="800px" :title="eventData.embedOptions.title">
 				<v-card-text style="max-height: 80vh" class="mx-3 overflow-y-auto"> </v-card-text>
-				<EventEditor :allow-edit="allowEdit" :event-data="eventData"></EventEditor>
+				<EventEditor :allow-edit="allowEdit" :event-data="eventData" :is-top-level="true"></EventEditor>
 				<v-card-actions>
 					<small style="opacity: 0.2">Event ID: {{ eventData.id }}</small>
 

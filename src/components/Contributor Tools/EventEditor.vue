@@ -63,19 +63,18 @@
 				</template>
 			</v-expansion-panel-title>
 			<v-expansion-panel-text>
-				<div align="left" class="text-caption font-italic text-medium-emphasis">
+				<div align="left" class="text-caption font-italic text-medium-emphasis ma-4" v-if="isTopLevel">
 					For each entry, a Button will be shown for that entry as an available choice. For each choice, multiple events can be provided - one will be picked at random.
 					<br />
 					If no link is provided - this event ({{ eventData.embedOptions.title }}) will be considered as the conclusion.
 				</div>
-
-				<EventLink
+				<EventLinkComponent
 					:allow-edit="allowEdit"
 					:event-link="eventLink"
 					v-for="(eventLink, index) in eventData.eventLinks"
 					:key="index"
-					@eventLinkDeleted="removeEventLink(index)"
-				></EventLink>
+					:remove-event-link="removeEventLink"
+				></EventLinkComponent>
 
 				<div class="text-center mt-5">
 					<v-btn class="ma-2" icon="mdi-plus" size="small" variant="outlined" color="green" @click="addEventLink"> </v-btn>
@@ -86,56 +85,40 @@
 </template>
 
 <script lang="ts">
-import EventLink from "@/components/Contributor Tools/EventLink.vue";
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
 import DrpgSwatches from "@/types/DrpgColors";
-import type { IEventBase } from "@/types/SwrpgTypes/IEventBase";
+import type { IEventBase, IEventLink } from "@/types/SwrpgTypes/IEventBase";
 import mongoose from "mongoose";
 import { defineComponent, type PropType } from "vue";
 export default defineComponent({
 	name: "EventEditor",
-	components: { DiscordEmbed, EventLink },
+	components: { DiscordEmbed },
 	props: {
-		show: Boolean,
 		eventData: {
 			type: Object as PropType<IEventBase>,
 			required: true,
 		},
 		allowEdit: Boolean,
+		isTopLevel: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	data: () => {
 		return {
 			previewEmbed: false,
 			swatches: DrpgSwatches,
-			dialogConfirmDeleteLink: false,
-			nestedEventShow: false,
 		};
 	},
 	methods: {
-		updateColor(value: string) {
-			alert(value);
-		},
 		async saveEvent() {
 			(this.$parent as any).showLoader = true;
 
 			this.$emit("eventSaved", this.eventData);
 			(this.$parent as any).showLoader = false;
 		},
-		changeEmbedImage() {
-			if (!this.allowEdit) return;
-			//TODO Change to dialog
-			const imageUrl = prompt("Enter the URL for the new image", this.eventData.embedOptions.image);
-			if (imageUrl != null) this.eventData.embedOptions.image = imageUrl;
-		},
-		changeThumbnailImage() {
-			if (!this.allowEdit) return;
-
-			//TODO Change to dialog
-			const imageUrl = prompt("Enter the URL for the new image", this.eventData.embedOptions.thumbnail);
-			if (imageUrl != null) this.eventData.embedOptions.thumbnail = imageUrl;
-		},
 		addEventLink() {
-			this.eventData.eventLinks.push({
+			const newLink: IEventLink = {
 				title: null,
 				eventId: [
 					{
@@ -146,10 +129,11 @@ export default defineComponent({
 						eventLinks: [],
 					},
 				],
-			});
+			};
+			this.eventData.eventLinks.push(newLink);
 		},
-		removeEventLink(index: number) {
-			this.eventData.eventLinks.splice(index, 1);
+		removeEventLink(eventLink: IEventLink) {
+			this.eventData.eventLinks = this.eventData.eventLinks.filter((e) => e != eventLink);
 		},
 	},
 });

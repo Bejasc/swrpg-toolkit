@@ -33,7 +33,7 @@ export interface IEventLink {
 	title: string;
 	emoji?: string;
 	description?: string;
-	eventId: string[] | IEventBase[];
+	eventId: IEventBase[];
 }
 
 export interface IEmbedOptions {
