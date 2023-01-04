@@ -53,7 +53,29 @@
 			</v-expansion-panel-text>
 		</v-expansion-panel>
 		<!-- <v-expansion-panel title="Conditions"> </v-expansion-panel> -->
-		<!-- <v-expansion-panel title="Results"> </v-expansion-panel> -->
+		<v-expansion-panel title="Results">
+			<v-expansion-panel-text>
+				<div align="left" class="text-caption font-italic text-medium-emphasis ma-4" v-if="isTopLevel">
+					Results are the affects that are applied to the player when this node of the Event is hit. <br />
+					They could be awarded or penalized Credits, Skill Points or Items, or something else.
+				</div>
+				<EventResult
+					:allow-edit="allowEdit"
+					v-for="result in eventData.results.changes"
+					:event-result="result"
+					:remove-result="removeResult"
+					:all-items="allItems"
+				></EventResult>
+				<v-row>
+					<v-col cols="1" class="ma-3">
+						<v-btn color="green" variant="text" @click="addResult()">Add Result</v-btn>
+					</v-col>
+					<v-col cols="4">
+						<v-checkbox v-if="eventData.results.changes.length > 1" v-model="eventData.results.pickRandom" label="Pick one at random"></v-checkbox>
+					</v-col>
+				</v-row>
+			</v-expansion-panel-text>
+		</v-expansion-panel>
 		<v-expansion-panel>
 			<v-expansion-panel-title>
 				<template v-slot:default="{ expanded }">
@@ -74,6 +96,7 @@
 					v-for="(eventLink, index) in eventData.eventLinks"
 					:key="index"
 					:remove-event-link="removeEventLink"
+					:all-items="allItems"
 				></EventLinkComponent>
 
 				<div class="text-center mt-5">
@@ -87,12 +110,14 @@
 <script lang="ts">
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
 import DrpgSwatches from "@/types/DrpgColors";
-import type { IEventBase, IEventLink } from "@/types/SwrpgTypes/IEventBase";
+import type { IEventBase, IEventLink, IEventResult } from "@/types/SwrpgTypes/IEventBase";
+import type IItem from "@/types/SwrpgTypes/IItem";
 import mongoose from "mongoose";
 import { defineComponent, type PropType } from "vue";
+import EventResult from "./EventResult.vue";
 export default defineComponent({
 	name: "EventEditor",
-	components: { DiscordEmbed },
+	components: { DiscordEmbed, EventResult },
 	props: {
 		eventData: {
 			type: Object as PropType<IEventBase>,
@@ -102,6 +127,10 @@ export default defineComponent({
 		isTopLevel: {
 			type: Boolean,
 			default: false,
+		},
+		allItems: {
+			type: Object as PropType<IItem[]>,
+			required: true,
 		},
 	},
 	data: () => {
@@ -127,6 +156,10 @@ export default defineComponent({
 							color: "#E6A00E",
 						},
 						eventLinks: [],
+						results: {
+							pickRandom: false,
+							changes: [],
+						},
 					},
 				],
 			};
@@ -134,6 +167,18 @@ export default defineComponent({
 		},
 		removeEventLink(eventLink: IEventLink) {
 			this.eventData.eventLinks = this.eventData.eventLinks.filter((e) => e != eventLink);
+		},
+		addResult() {
+			const newResult: IEventResult = {
+				modifier: "add",
+				type: "item",
+				key: null,
+				value: null,
+			};
+			this.eventData.results.changes.push(newResult);
+		},
+		removeResult(result: IEventResult) {
+			this.eventData.results.changes = this.eventData.results.changes.filter((e) => e != result);
 		},
 	},
 });

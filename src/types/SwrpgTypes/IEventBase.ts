@@ -17,7 +17,10 @@ export interface IEventBase {
 	embedOptions?: IEmbedOptions;
 	eventLinks?: IEventLink[];
 	requirements?: IEventRequirement;
-	results?: { items: IItemQuantity[]; experience: number; credits: number; affinity: IAffinity };
+	results?: {
+		pickRandom?: boolean;
+		changes: IEventResult[];
+	};
 }
 
 export type Frequency = "Disabled" | "Common" | "Regular" | "Uncommon" | "Rare" | "Legendary";
@@ -94,6 +97,13 @@ export interface IEventCombat {
 	npcEndAtHp?: number;
 	forceWeapon?: string;
 	fleeEvent?: [];
+}
+
+export interface IEventResult {
+	modifier: "add" | "subtract" | "set";
+	type: "item" | "credits" | "affinity" | "skill" | "experience" | "hitpoints" | "location" | "primaryWeapon" | "secondaryWeapon" | "ship" | "equipment" | "flag";
+	key: string;
+	value: string | number | null;
 }
 
 export interface IItemQuantity {

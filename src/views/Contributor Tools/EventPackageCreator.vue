@@ -231,6 +231,10 @@ export default defineComponent({
 					embedOptions: {
 						color: "#E6A00E",
 					},
+					results: {
+						pickRandom: false,
+						changes: [],
+					},
 					eventLinks: [],
 				};
 

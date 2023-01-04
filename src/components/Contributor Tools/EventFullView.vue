@@ -3,7 +3,7 @@
 		<v-dialog v-model="show" persistent width="1200">
 			<v-card width="1200px" max-height="800px" :title="eventData.embedOptions.title">
 				<v-card-text style="max-height: 80vh" class="mx-3 overflow-y-auto"> </v-card-text>
-				<EventEditor :allow-edit="allowEdit" :event-data="eventData" :is-top-level="true"></EventEditor>
+				<EventEditor :allow-edit="allowEdit" :event-data="eventData" :is-top-level="true" :all-items="items"></EventEditor>
 				<v-card-actions>
 					<small style="opacity: 0.2">Event ID: {{ eventData.id }}</small>
 
@@ -14,6 +14,7 @@
 			</v-card>
 		</v-dialog>
 	</v-row>
+	<DrpgLoader :showLoader="showLoader" />
 </template>
 
 <style scoped>
@@ -34,11 +35,15 @@ a {
 <script lang="ts">
 import EventEditor from "@/components/Contributor Tools/EventEditor.vue";
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
+import DrpgLoader from "@/components/DrpgLoader.vue";
+import { getData } from "@/plugins/MongoConnector";
 import type { IEventBase } from "@/types/SwrpgTypes/IEventBase";
+import type IItem from "@/types/SwrpgTypes/IItem";
 import { defineComponent, type PropType } from "vue";
+
 export default defineComponent({
 	name: "EventFullView",
-	components: { DiscordEmbed, EventEditor },
+	components: { DiscordEmbed, EventEditor, DrpgLoader },
 	props: {
 		show: Boolean,
 		eventData: {
@@ -48,7 +53,10 @@ export default defineComponent({
 		allowEdit: Boolean,
 	},
 	data: () => {
-		return {};
+		return {
+			showLoader: false,
+			items: [] as IItem[],
+		};
 	},
 	methods: {
 		async saveEvent() {
@@ -57,6 +65,17 @@ export default defineComponent({
 			this.$emit("eventSaved", this.eventData);
 			(this.$parent as any).showLoader = false;
 		},
+		async loadAllItems() {
+			this.showLoader = true;
+			this.items = [];
+			this.items = await getData<IItem>("items");
+
+			console.table(this.items);
+			this.showLoader = false;
+		},
+	},
+	mounted() {
+		this.loadAllItems();
 	},
 });
 </script>
