@@ -18,7 +18,13 @@
 					</v-col>
 				</v-row>
 
-				<EventEditorComponent v-for="event in eventLink.eventId" :eventData="event" :allowEdit="allowEdit"></EventEditorComponent>
+				<v-expansion-panels variant="accordion">
+					<v-expansion-panel v-for="event in eventLink.eventId" :title="event.embedOptions.title ?? 'Unnamed Embed'">
+						<v-expansion-panel-text>
+							<EventEditorComponent :eventData="event" :allowEdit="allowEdit"></EventEditorComponent>
+						</v-expansion-panel-text>
+					</v-expansion-panel>
+				</v-expansion-panels>
 
 				<div class="text-center my-5">
 					<v-btn variant="outlined" color="blue" outline @click="addEvent()"> Add Event </v-btn>
