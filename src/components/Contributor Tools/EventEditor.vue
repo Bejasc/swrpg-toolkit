@@ -1,18 +1,6 @@
 <template>
 	<v-expansion-panels variant="accordion">
-		<v-expansion-panel :id="eventData.id">
-			<v-expansion-panel-title>
-				<template v-slot:default="{ expanded }">
-					<v-row no-gutters>
-						<v-col cols="4" class="d-flex justify-start"> Embed Options </v-col>
-						<v-col cols="8" class="text-grey">
-							<v-fade-transition leave-absolute>
-								<span v-if="expanded" key="0"> How the event will be displayed </span>
-							</v-fade-transition>
-						</v-col>
-					</v-row>
-				</template>
-			</v-expansion-panel-title>
+		<v-expansion-panel title="Embed Options">
 			<v-expansion-panel-text>
 				<v-row no-gutters>
 					<v-col cols="6">
@@ -80,66 +68,25 @@
 					<br />
 					If no link is provided - this event ({{ eventData.embedOptions.title }}) will be considered as the conclusion.
 				</div>
-				<v-expansion-panels variant="accordion">
-					<v-expansion-panel v-for="(eventLink, index) in eventData.eventLinks" :key="index" :title="eventLink.title ?? 'Unnamed Option'">
-						<v-expansion-panel-text>
-							<v-row no-gutters>
-								<v-col cols="4">
-									<v-text-field
-										label="Button Label"
-										:readonly="!allowEdit"
-										v-model="eventLink.title"
-										density="compact"
-										placeholder="Pickup"
-										required
-									></v-text-field>
-								</v-col>
-								<v-col cols="6">
-									<v-text-field
-										label="Short Description"
-										:readonly="!allowEdit"
-										v-model="eventLink.description"
-										density="compact"
-										placeholder="Pickup the credits"
-										required
-									></v-text-field>
-								</v-col>
-							</v-row>
 
-							<EventEditor :allow-edit="allowEdit" :event-data="eventLink.eventId"></EventEditor>
+				<EventLink
+					:allow-edit="allowEdit"
+					:event-link="eventLink"
+					v-for="(eventLink, index) in eventData.eventLinks"
+					:key="index"
+					@eventLinkDeleted="removeEventLink(index)"
+				></EventLink>
 
-							<v-btn variant="outlined" color="red" outline>
-								<v-icon icon="mdi-delete-outline" /> Remove {{ eventLink.title }} Option
-
-								<v-dialog class="myDialog" v-model="dialogConfirmDeleteLink" activator="parent" transition="fade-transition" persistent>
-									<v-card>
-										<v-card-text> Are you sure you want to remove this event link? <br />This cannot be undone </v-card-text>
-										<v-card-actions>
-											<v-spacer />
-											<v-btn color="blue" @click="dialogConfirmDeleteLink = false">Cancel</v-btn>
-											<v-btn color="red" @click="removeEventLink(index)">Remove</v-btn>
-										</v-card-actions>
-									</v-card>
-								</v-dialog>
-							</v-btn>
-						</v-expansion-panel-text>
-					</v-expansion-panel>
-					<v-btn color="success" variant="text" @click="addEventLink()">Add New Option</v-btn>
-				</v-expansion-panels>
+				<div class="text-center mt-5">
+					<v-btn class="ma-2" icon="mdi-plus" size="small" variant="outlined" color="green" @click="addEventLink"> </v-btn>
+				</div>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
 	</v-expansion-panels>
 </template>
 
-<style scoped>
-.myDialog {
-	position: absolute;
-	margin: 0 auto !important;
-	width: 400px;
-}
-</style>
-
 <script lang="ts">
+import EventLink from "@/components/Contributor Tools/EventLink.vue";
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
 import DrpgSwatches from "@/types/DrpgColors";
 import type { IEventBase } from "@/types/SwrpgTypes/IEventBase";
@@ -147,7 +94,7 @@ import mongoose from "mongoose";
 import { defineComponent, type PropType } from "vue";
 export default defineComponent({
 	name: "EventEditor",
-	components: { DiscordEmbed },
+	components: { DiscordEmbed, EventLink },
 	props: {
 		show: Boolean,
 		eventData: {
@@ -203,7 +150,6 @@ export default defineComponent({
 		},
 		removeEventLink(index: number) {
 			this.eventData.eventLinks.splice(index, 1);
-			this.dialogConfirmDeleteLink = false;
 		},
 	},
 });
