@@ -15,7 +15,7 @@
 		"execa": "^6.1.0",
 		"file-saver": "^2.0.5",
 		"material-design-icons": "^3.0.1",
-		"mongoose": "^6.3.3",
+		"mongoose": "^6.4.6",
 		"roboto-fontface": "*",
 		"vue": "^3.2.33",
 		"vue-emoji-picker": "^1.0.3",
