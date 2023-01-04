@@ -1,11 +1,11 @@
 <template>
 	<div :class="{ 'discord-inline-field': inline }" class="discord-embed-field">
 		<div class="discord-field-title">{{ title }}</div>
-		<span style="color:'#DCDDDE'"><slot></slot></span>
+		<span style="color: '#DCDDDE'"><slot></slot></span>
 	</div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
 	name: "EmbedField",
 	props: {

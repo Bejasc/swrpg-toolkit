@@ -2,7 +2,7 @@
 	<v-navigation-drawer absolute :width="325">
 		<v-img src="https://cdn.discordapp.com/attachments/743332978893258763/876449798306283600/492.jpg"></v-img>
 
-		<v-list active-color="primary" variant="contained">
+		<v-list active-color="primary">
 			<v-list-group v-for="group in listItems" v-show="group.isVisible">
 				<template v-slot:activator="{ props }">
 					<v-list-item v-bind="props" :title="group.name" :prepend-icon="group.icon"></v-list-item>
