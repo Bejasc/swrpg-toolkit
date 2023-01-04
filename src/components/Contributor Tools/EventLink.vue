@@ -43,7 +43,7 @@
 						</v-expansion-panel-title>
 
 						<v-expansion-panel-text>
-							<EventEditorComponent :eventData="event" :allowEdit="allowEdit"></EventEditorComponent>
+							<EventEditorComponent :eventData="event" :allowEdit="allowEdit" :allItems="allItems"></EventEditorComponent>
 						</v-expansion-panel-text>
 					</v-expansion-panel>
 				</v-expansion-panels>
@@ -64,6 +64,7 @@
 
 <script lang="ts">
 import type { IEventBase, IEventLink } from "@/types/SwrpgTypes/IEventBase";
+import type IItem from "@/types/SwrpgTypes/IItem";
 import mongoose from "mongoose";
 import { defineComponent, type PropType } from "vue";
 export default defineComponent({
@@ -83,6 +84,10 @@ export default defineComponent({
 		allowEdit: Boolean,
 		removeEventLink: {
 			type: Function,
+			required: true,
+		},
+		allItems: {
+			type: Object as PropType<IItem[]>,
 			required: true,
 		},
 	},

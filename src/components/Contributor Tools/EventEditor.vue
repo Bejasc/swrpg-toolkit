@@ -96,6 +96,7 @@
 					v-for="(eventLink, index) in eventData.eventLinks"
 					:key="index"
 					:remove-event-link="removeEventLink"
+					:all-items="allItems"
 				></EventLinkComponent>
 
 				<div class="text-center mt-5">
