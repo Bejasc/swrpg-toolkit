@@ -8,7 +8,7 @@ import ItemPackageCreatorVue from "../views/Contributor Tools/ItemPackageCreator
 import LocationPackageCreator from "../views/Contributor Tools/LocationPackageCreator.vue";
 import HomeView from "../views/HomeView.vue";
 const router = createRouter({
-	history: createWebHistory(import.meta.env.BASE_URL),
+	history: createWebHistory("."),
 	routes: [
 		{
 			path: "/",
