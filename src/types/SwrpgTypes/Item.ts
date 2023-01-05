@@ -22,7 +22,7 @@ export interface IItemQuantity {
 	count: number;
 }
 
-export interface IItem extends IDrpgItemBase, Document {
+export interface IItem extends IDrpgItemBase {
 	_id: string;
 	image?: string;
 	description?: string;

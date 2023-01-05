@@ -162,7 +162,7 @@ import LocationFullView from "@/components/Contributor Tools/LocationFullView.vu
 import DrpgLoader from "@/components/DrpgLoader.vue";
 import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
-import type { ILocationData } from "@/types/SwrpgTypes/ILocation";
+import { ISwrpgLocationData } from "@/types/SwrpgTypes";
 import FileSaver from "file-saver";
 import mongoose from "mongoose";
 import { defineComponent } from "vue";
@@ -175,7 +175,7 @@ export default defineComponent({
 		return {
 			panels: [0, 1],
 			incompleteSnackbar: true,
-			selectedLocation: {} as ILocationData,
+			selectedLocation: {} as ISwrpgLocationData,
 			dialog: false,
 			dialogConfirmClear: false,
 			dialogFullView: false,
@@ -194,10 +194,10 @@ export default defineComponent({
 			this.dialogConfirmClear = false;
 			this.packageData = {
 				packageInfo: {},
-				locations: [] as ILocationData[],
+				locations: [] as ISwrpgLocationData[],
 			} as IPackageDefinition;
 		},
-		saveLocation(locData: ILocationData) {
+		saveLocation(locData: ISwrpgLocationData) {
 			// this.itemPackageData.items.push({
 			// 	_id: new mongoose.Types.ObjectId().toString(),
 			// 	category: "Unknown",
@@ -216,18 +216,18 @@ export default defineComponent({
 				this.packageData.locations.push(locData);
 			}
 		},
-		duplicateLocation(locData: ILocationData) {
-			const newObj: ILocationData = JSON.parse(JSON.stringify(locData));
+		duplicateLocation(locData: ISwrpgLocationData) {
+			const newObj: ISwrpgLocationData = JSON.parse(JSON.stringify(locData));
 			newObj.location._id = new mongoose.Types.ObjectId().toString();
 			if (newObj.market) {
 				//TODO give market new ID
 			}
 			this.packageData.locations.push(newObj);
 		},
-		removeLocation(locData: ILocationData) {
+		removeLocation(locData: ISwrpgLocationData) {
 			this.packageData.locations = this.packageData.locations.filter((e) => e.location._id !== locData.location._id);
 		},
-		openLocation(locData?: ILocationData, editMode = true) {
+		openLocation(locData?: ISwrpgLocationData, editMode = true) {
 			console.log(locData?.location.name ?? "None");
 			if (!locData)
 				locData = {
@@ -247,7 +247,9 @@ export default defineComponent({
 							autoCreate: true,
 							category: "Planets",
 						},
+						initialPoints: [],
 					},
+					market: {},
 				};
 
 			this.dialogFullView = true;

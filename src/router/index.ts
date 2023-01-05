@@ -2,13 +2,13 @@ import ContentCreationVue from "@/views/Contributor Tools/ContentCreation.vue";
 import ContributorDirectoryVue from "@/views/Contributor Tools/ContributorDirectory.vue";
 import ItemsDataSetVue from "@/views/Data Sets/ItemsDataSet.vue";
 import LocationDataSetVue from "@/views/Data Sets/LocationDataSet.vue";
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHashHistory } from "vue-router";
 import EventPackageCreator from "../views/Contributor Tools/EventPackageCreator.vue";
 import ItemPackageCreatorVue from "../views/Contributor Tools/ItemPackageCreator.vue";
 import LocationPackageCreator from "../views/Contributor Tools/LocationPackageCreator.vue";
 import HomeView from "../views/HomeView.vue";
 const router = createRouter({
-	history: createWebHistory("."),
+	history: createWebHashHistory(),
 	routes: [
 		{
 			path: "/",
@@ -21,9 +21,9 @@ const router = createRouter({
 			component: ContributorDirectoryVue, //async () => import("../views/Contributor Tools/ContributorDirectory.vue"),
 			children: [
 				{
-					path: "packages",
-					name: "Content Creation",
-					component: ContentCreationVue, //async () => import("../views/Contributor Tools/ContentCreation.vue"),
+					path: "packages/about",
+					name: "About Contributing",
+					component: ContentCreationVue, //async () => import("../views/Contributor Tools/ContributorDirectory.vue"),
 				},
 				{
 					path: "packages/item",
@@ -36,7 +36,7 @@ const router = createRouter({
 					component: LocationPackageCreator, //async () => import("../views/Contributor Tools/ItemPackageCreator.vue"),
 				},
 				{
-					path: "packages/events",
+					path: "packages/event",
 					name: "Event Package Creator",
 					component: EventPackageCreator, //async () => import("../views/Contributor Tools/ItemPackageCreator.vue"),
 				},

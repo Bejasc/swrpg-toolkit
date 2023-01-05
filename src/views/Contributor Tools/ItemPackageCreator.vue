@@ -171,8 +171,7 @@ import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
 import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
-import type { ILocation } from "@/types/SwrpgTypes/ILocation";
-import type IItem from "@/types/SwrpgTypes/v1/IItem";
+import { IItem, ILocation } from "@/types/SwrpgTypes";
 import FileSaver from "file-saver";
 import mongoose from "mongoose";
 import { defineComponent } from "vue";
@@ -246,6 +245,7 @@ export default defineComponent({
 					image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
 					encumbrance: 1,
 					tradeProperties: {
+						isTradeable: true,
 						baseValue: 100,
 						itemRarity: "Common",
 					},
