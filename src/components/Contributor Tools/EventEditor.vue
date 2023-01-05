@@ -58,6 +58,10 @@
 				<div align="left" class="text-caption font-italic text-medium-emphasis ma-4" v-if="isTopLevel">
 					Results are the affects that are applied to the player when this node of the Event is hit. <br />
 					They could be awarded or penalized Credits, Skill Points or Items, or something else.
+					<span v-if="eventData.results.changes.some((e) => e.type === 'item')"
+						><br />
+						<br />Not seeing an Item you want? Head to the Item Creator to create the item and have it added!</span
+					>
 				</div>
 				<EventResult
 					:allow-edit="allowEdit"

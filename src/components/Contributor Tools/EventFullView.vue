@@ -68,7 +68,7 @@ export default defineComponent({
 		async loadAllItems() {
 			this.showLoader = true;
 			this.items = [];
-			this.items = await getData<IItem>("items");
+			this.items = await getData<IItem>("item", null, "v2");
 
 			console.table(this.items);
 			this.showLoader = false;
