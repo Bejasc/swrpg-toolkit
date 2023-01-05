@@ -1,11 +1,11 @@
 import axios from "axios";
 
-type allowedMongoCollections = "items" | "location" | "skills" | "npcs";
-
-export async function getData<T>(collection: allowedMongoCollections, id?: string): Promise<T[]> {
+export async function getData<T>(collection: string, id?: string, version?: string): Promise<T[]> {
 	const swrpgApi = "https://swrpg.bejasc.dev/api"; //import.meta.env.VITE_SWRPG_API ?? "NOT PROVIDED";
 
-	let url = swrpgApi + "/" + collection;
+	let url = swrpgApi;
+	if (version) url = `${url}/${version}`;
+	url = `${url}/${collection}`;
 
 	//if ID provided, add to the request
 	if (id) url += `/${id}`;
@@ -23,7 +23,7 @@ export async function getData<T>(collection: allowedMongoCollections, id?: strin
 	return result;
 }
 
-export async function postData<T>(collection: allowedMongoCollections, item: T): Promise<T | null> {
+export async function postData<T>(collection: string, item: T): Promise<T | null> {
 	const swrpgApi = "https://swrpg.bejasc.dev/api"; //process.env.VUE_APP_SWRPG_API ?? "NOT PROVIDED";
 
 	const url = swrpgApi + collection;
@@ -48,9 +48,4 @@ export async function postData<T>(collection: allowedMongoCollections, item: T):
 		//TODO handle ot her response types
 		return null;
 	}
-}
-
-export async function getFromMongo<T>(collection: allowedMongoCollections): Promise<T[]> {
-	console.error("DEPRECATED");
-	return [];
 }
