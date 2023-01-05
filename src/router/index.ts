@@ -1,12 +1,12 @@
-import ContentCreationVue from "@/views/Contributor Tools/ContentCreation.vue";
 import ContributorDirectoryVue from "@/views/Contributor Tools/ContributorDirectory.vue";
-import ItemsDataSetVue from "@/views/Data Sets/ItemsDataSet.vue";
-import LocationDataSetVue from "@/views/Data Sets/LocationDataSet.vue";
+import ItemsDataSetVue from "@/views/Contributor Tools/Data Sets/ItemsDataSet.vue";
+import LocationDataSetVue from "@/views/Contributor Tools/Data Sets/LocationDataSet.vue";
+import ContentCreationVue from "@/views/Contributor Tools/Package Creation/AboutPackages.vue";
+import EventPackageCreator from "@/views/Contributor Tools/Package Creation/EventPackageCreator.vue";
+import ItemPackageCreatorVue from "@/views/Contributor Tools/Package Creation/ItemPackageCreator.vue";
+import LocationPackageCreator from "@/views/Contributor Tools/Package Creation/LocationPackageCreator.vue";
+import HomeView from "@/views/HomeView.vue";
 import { createRouter, createWebHashHistory } from "vue-router";
-import EventPackageCreator from "../views/Contributor Tools/EventPackageCreator.vue";
-import ItemPackageCreatorVue from "../views/Contributor Tools/ItemPackageCreator.vue";
-import LocationPackageCreator from "../views/Contributor Tools/LocationPackageCreator.vue";
-import HomeView from "../views/HomeView.vue";
 const router = createRouter({
 	history: createWebHashHistory(),
 	routes: [

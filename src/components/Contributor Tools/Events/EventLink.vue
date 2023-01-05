@@ -70,7 +70,7 @@ import { defineComponent, type PropType } from "vue";
 export default defineComponent({
 	name: "EventLink",
 	components: {
-		EventEditor: () => import("@/components/Contributor Tools/EventEditor.vue"),
+		EventEditor: () => import("@/components/Contributor Tools/Events/EventEditor.vue"),
 	},
 	props: {
 		// rootEvent: {

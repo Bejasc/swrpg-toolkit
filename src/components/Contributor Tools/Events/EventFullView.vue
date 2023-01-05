@@ -33,7 +33,7 @@ a {
 </style>
 
 <script lang="ts">
-import EventEditor from "@/components/Contributor Tools/EventEditor.vue";
+import EventEditor from "@/components/Contributor Tools/Events/EventEditor.vue";
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
 import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";

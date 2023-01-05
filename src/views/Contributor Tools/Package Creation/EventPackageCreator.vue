@@ -158,7 +158,7 @@
 </style>
 
 <script lang="ts">
-import EventFullView from "@/components/Contributor Tools/EventFullView.vue";
+import EventFullView from "@/components/Contributor Tools/Events/EventFullView.vue";
 import DrpgLoader from "@/components/DrpgLoader.vue";
 import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";

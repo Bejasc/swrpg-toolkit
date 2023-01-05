@@ -17,9 +17,9 @@
 </style>
 
 <script lang="ts">
+import ContributorSidebar from "@/components/Contributor Tools/ContributorSidebar.vue";
+import FeatureImageCard from "@/components/FeatureImageCard.vue";
 import { defineComponent } from "vue";
-import ContributorSidebar from "../../components/Contributor Tools/ContributorSidebar.vue";
-import FeatureImageCard from "../../components/FeatureImageCard.vue";
 
 // Components
 

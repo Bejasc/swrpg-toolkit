@@ -1,7 +1,7 @@
+import EventEditor from "@/components/Contributor Tools/Events/EventEditor.vue";
+import EventLink from "@/components/Contributor Tools/Events/EventLink.vue";
 import { createApp } from "vue";
 import App from "./App.vue";
-import EventEditor from "./components/Contributor Tools/EventEditor.vue";
-import EventLink from "./components/Contributor Tools/EventLink.vue";
 import vuetify from "./plugins/vuetify";
 import { loadFonts } from "./plugins/webfontloader";
 import router from "./router";
