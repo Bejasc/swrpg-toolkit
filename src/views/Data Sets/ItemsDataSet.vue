@@ -37,7 +37,7 @@
 import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
 import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
-import type IItem from "@/types/SwrpgTypes/IItem";
+import { IItem } from "@/types/SwrpgTypes/Item";
 import { defineComponent } from "vue";
 // Components
 export default defineComponent({
@@ -62,7 +62,7 @@ export default defineComponent({
 		async loadAllItems() {
 			this.showLoader = true;
 			this.items = [];
-			this.items = await getData<IItem>("items");
+			this.items = await getData<IItem>("item");
 
 			console.table(this.items);
 			this.showLoader = false;

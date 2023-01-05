@@ -40,7 +40,7 @@
 <script lang="ts">
 import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
-import type { ILocation } from "@/types/SwrpgTypes/ILocation";
+import { ILocation } from "@/types/SwrpgTypes";
 import { defineComponent } from "vue";
 // Components
 export default defineComponent({

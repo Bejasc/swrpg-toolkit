@@ -1,4 +1,4 @@
-import type { ILocation } from "./SwrpgTypes/ILocation";
+import { ILocation } from "./SwrpgTypes";
 
 export class MarketHelper {
 	public isAvailableEverywhere: boolean;

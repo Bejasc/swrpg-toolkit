@@ -37,8 +37,8 @@ import EventEditor from "@/components/Contributor Tools/EventEditor.vue";
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
 import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
+import { IItem } from "@/types/SwrpgTypes";
 import type { IEventBase } from "@/types/SwrpgTypes/IEventBase";
-import type IItem from "@/types/SwrpgTypes/IItem";
 import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
@@ -68,7 +68,7 @@ export default defineComponent({
 		async loadAllItems() {
 			this.showLoader = true;
 			this.items = [];
-			this.items = await getData<IItem>("item", null, "v2");
+			this.items = await getData<IItem>("item");
 
 			console.table(this.items);
 			this.showLoader = false;

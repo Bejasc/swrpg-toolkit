@@ -151,8 +151,7 @@
 
 <script lang="ts">
 import { MarketHelper } from "@/types/MarketHelper";
-import type IItem from "@/types/SwrpgTypes/IItem";
-import type { ILocation } from "@/types/SwrpgTypes/ILocation";
+import { IItem, ILocation } from "@/types/SwrpgTypes";
 import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({

@@ -1,6 +1,6 @@
+import { ILocationData } from "drpg-economy";
 import type { IEventBase } from "../SwrpgTypes/IEventBase";
-import type IItem from "../SwrpgTypes/IItem";
-import type { ILocationData } from "../SwrpgTypes/ILocation";
+import { IItem } from "../SwrpgTypes/v2";
 import type { IBasePackage } from "./BasePackage";
 
 export interface IPackageDefinition extends IBasePackage {
