@@ -2,6 +2,9 @@ import ContentCreationVue from "@/views/Contributor Tools/ContentCreation.vue";
 import ContributorDirectoryVue from "@/views/Contributor Tools/ContributorDirectory.vue";
 import ItemsDataSetVue from "@/views/Data Sets/ItemsDataSet.vue";
 import LocationDataSetVue from "@/views/Data Sets/LocationDataSet.vue";
+import LoginView from "@/views/Login.vue";
+import LogoutView from "@/views/Logout.vue";
+import UserView from "@/views/User.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import EventPackageCreator from "../views/Contributor Tools/EventPackageCreator.vue";
 import ItemPackageCreatorVue from "../views/Contributor Tools/ItemPackageCreator.vue";
@@ -14,6 +17,21 @@ const router = createRouter({
 			path: "/",
 			name: "Home",
 			component: HomeView,
+		},
+		{
+			path: "/login",
+			name: "Login",
+			component: LoginView,
+		},
+		{
+			path: "/logout",
+			name: "Logout",
+			component: LogoutView,
+		},
+		{
+			path: "/user",
+			name: "User",
+			component: UserView,
 		},
 		{
 			path: "/contributor",
