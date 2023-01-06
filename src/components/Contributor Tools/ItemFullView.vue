@@ -76,21 +76,26 @@
 										<v-checkbox
 											v-model="marketProperties.availableEverywhere"
 											:label="`Is Available Everywhere: ${marketProperties.availableEverywhere ? 'Yes' : 'No'}`"
+											:readonly="!allowEdit"
+											v-if="allowEdit == true"
 										></v-checkbox>
 										<!-- <v-switch v-model="marketHelper.isWhitelist" :label="`Treat list as ${marketHelper.isWhitelist ? 'Whitelist' : 'Blacklist'}`"> </v-switch> -->
 										<v-radio-group
 											inline
-											v-if="!marketProperties.availableEverywhere"
+											v-if="!marketProperties.availableEverywhere && allowEdit == true"
 											v-model="marketProperties.mode"
 											@update:model-value="whitelistModeChanged"
+											:readonly="!allowEdit"
 										>
 											<v-radio label="Whitelist" value="whitelist"></v-radio>
 											<v-radio label="Blacklist" value="blacklist"></v-radio>
 										</v-radio-group>
 									</v-row>
-									<p class="text-caption">{{ marketHelperText }}</p>
-
-									<v-col cols="12" v-if="!marketProperties.availableEverywhere">
+									<p class="text-caption" v-if="allowEdit">{{ marketHelperText }}</p>
+									<v-alert density="compact" type="info" variant="outlined" v-else>
+										{{ marketHelperText }}
+									</v-alert>
+									<v-col cols="12" v-if="!marketProperties.availableEverywhere && allowEdit == true">
 										<LocationPicker @selection-changed="selectedLocationsChanged"></LocationPicker>
 									</v-col>
 									<!-- <v-row>
@@ -220,10 +225,8 @@ export default defineComponent({
 
 			if (val === "whitelist") {
 				(tradeProperties.locationWhitelist = tradeProperties.locationBlacklist), (tradeProperties.locationBlacklist = undefined);
-				alert(JSON.stringify(tradeProperties));
 			} else {
 				(tradeProperties.locationBlacklist = tradeProperties.locationWhitelist), (tradeProperties.locationWhitelist = undefined);
-				alert(JSON.stringify(tradeProperties));
 			}
 		},
 		selectedLocationsChanged(newValue?: string[]) {
@@ -245,10 +248,9 @@ export default defineComponent({
 		},
 	},
 	mounted() {
-		if (this.item.tradeProperties) {
-			this.isTradeable = true;
-			const tradeProperties: ITradeProperties = this.item.tradeProperties;
+		const tradeProperties: ITradeProperties = this.item.tradeProperties;
 
+		if (tradeProperties) {
 			if (tradeProperties.locationBlacklist?.length > 0 || tradeProperties.locationWhitelist?.length > 0) {
 				//Set available everywhere false
 				this.marketProperties.availableEverywhere = false;
@@ -260,10 +262,10 @@ export default defineComponent({
 
 				this.marketProperties.locationNames = this.getLocationNames([...tradeProperties.locationBlacklist, ...tradeProperties.locationWhitelist]);
 			} else {
-				//Set available everywher true
 				this.marketProperties.availableEverywhere = true;
 			}
 		}
+
 		if (this.item?.aliases?.length > 0) this.aliasString = this.getItemAliases();
 	},
 });
