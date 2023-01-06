@@ -11,6 +11,6 @@ loadFonts();
 
 const app = createApp(App);
 app.use(router).use(vuetify).use(stateStore).mount("#app");
-
+stateStore.commit("setShowLoader", false);
 app.component("EventLinkComponent", EventLink);
 app.component("EventEditorComponent", EventEditor);

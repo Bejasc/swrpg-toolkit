@@ -1,13 +1,13 @@
 <template>
 	<v-card class="ma-1 pa-2" outlined flat style="cursor: pointer">
 		<v-row no-gutters style="flex-wrap: nowrap" @click="checked = !checked">
-			<v-col cols="2" class="flex-grow-0 flex-shrink-0">
+			<v-col cols="3" class="flex-grow-0 flex-shrink-0">
 				<div style="display: flex; align-items: center; height: 100%">
-					<img :src="image" style="max-height: 60px" />
-					<!-- <v-img :src="image"></v-img> -->
+					<!-- <img :src="image" style="max-height: 60px" /> -->
+					<v-img :src="image"></v-img>
 				</div>
 			</v-col>
-			<v-col cols="8" style="min-width: 100px; max-width: 80%" class="pl-4 flex-gorw-1 flex-shrink-0">
+			<v-col cols="7" style="min-width: 100px; max-width: 80%" class="pl-4 flex-gorw-1 flex-shrink-0">
 				<div style="display: flex; align-items: center; height: 100%">
 					{{ title }}
 				</div>
