@@ -33,7 +33,8 @@
 			</v-alert>
 			<br />
 			<br />
-
+			<LocationPicker @selection-changed="selectedLocationsChanged"></LocationPicker>
+			{{ selectedLocations }}
 			<h2>Get Started</h2>
 			<v-row class="my-4">
 				<FeatureImageCard v-for="section in sections" :cols="section.cols" :image="section.image" :text="section.text" :route="(section.route as string)" />
@@ -67,9 +68,13 @@ export default defineComponent({
 		clicked(x: unknown) {
 			console.log(x);
 		},
+		selectedLocationsChanged(newValue: string[]) {
+			this.selectedLocations = newValue;
+		},
 	},
 	data: () => {
 		return {
+			selectedLocations: [],
 			sections: [
 				{
 					cols: 4,
