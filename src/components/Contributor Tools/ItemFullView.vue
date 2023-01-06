@@ -47,11 +47,11 @@
 
 						<v-row no-gutters>
 							<v-col cols="4">
-								<v-checkbox v-if="allowEdit" v-model="isTradeable" :label="`Is Tradeable: ${isTradeable ? 'Yes' : 'No'}`"></v-checkbox>
+								<v-checkbox v-if="allowEdit" v-model="item.tradeProperties.isTradeable" :label="`Is Tradeable`"></v-checkbox>
 							</v-col>
 						</v-row>
 
-						<div id="tradeProperties" v-if="isTradeable">
+						<div id="tradeProperties" v-if="item.tradeProperties.isTradeable">
 							<v-row no-gutters>
 								<v-col cols="5">
 									<v-select :items="itemRarities" v-model="item.tradeProperties.itemRarity" label="Rarity" density="compact"></v-select>
@@ -66,7 +66,7 @@
 									></v-text-field>
 								</v-col>
 
-								<v-col cols="6" v-if="isTradeable">
+								<v-col cols="6">
 									<v-checkbox
 										v-model="marketHelper.isAvailableEverywhere"
 										:label="`Is Available Everywhere: ${marketHelper.isAvailableEverywhere ? 'Yes' : 'No'}`"
@@ -89,31 +89,7 @@
 									</v-switch>
 								</v-col>
 
-								<v-col cols="12" v-if="!marketHelper.isAvailableEverywhere">
-									<v-card :title="`Locations ${marketHelper.isWhitelist ? 'Whitelist' : 'Blacklist'}`" color="grey-darken-3" flat tile>
-										<v-row style="max-height: 250px" class="mx-3 overflow-y-auto" no-gutters>
-											<v-col cols="4" v-for="loc in locations">
-												<v-card class="ma-1 pa-2" outlined flat @click="">
-													<v-row no-gutters style="flex-wrap: nowrap">
-														<v-col cols="2" class="flex-grow-0 flex-shrink-0">
-															<div style="display: flex; align-items: center; height: 100%">
-																<v-img :src="loc.planetImage"></v-img>
-															</div>
-														</v-col>
-														<v-col cols="8" style="min-width: 100px; max-width: 80%" class="pl-4 flex-gorw-1 flex-shrink-0">
-															<div style="display: flex; align-items: center; height: 100%">
-																{{ loc.name }}
-															</div>
-														</v-col>
-														<v-col cols="1" style="min-width: 100px" class="flex-grow-0 flex-shrink-1">
-															<v-checkbox hide-details></v-checkbox>
-														</v-col>
-													</v-row>
-												</v-card>
-											</v-col>
-										</v-row>
-									</v-card>
-								</v-col>
+								<v-col cols="12" v-if="!marketHelper.isAvailableEverywhere"> </v-col>
 							</v-row>
 							<!-- <v-row>
 								<v-expansion-panels>
@@ -186,7 +162,6 @@ export default defineComponent({
 				"Chemicals",
 			],
 			aliasString: "",
-			isTradeable: false,
 			itemRarities: ["Abundant", "Common", "Uncommon", "Rare", "Legendary", "Unique"],
 			marketHelper: new MarketHelper(),
 		};
@@ -196,14 +171,11 @@ export default defineComponent({
 			return this.item.aliases?.join(", ") ?? "";
 		},
 		async saveNewItem() {
-			(this.$parent as any).showLoader = true;
 			const a = this.aliasString.replace(" ", "").split(",");
 
 			this.item.aliases = a;
 
 			if (!this.isTradeable) this.item.tradeProperties = undefined;
-
-			(this.$parent as any).showLoader = false;
 
 			this.$emit("saveItem", this.item);
 		},
@@ -216,7 +188,6 @@ export default defineComponent({
 		},
 	},
 	mounted() {
-		console.log(this.item.name ?? "asdasd");
 		if (this.item.tradeProperties) this.isTradeable = true;
 		if (this.item?.aliases?.length > 0) this.aliasString = this.getItemAliases();
 	},

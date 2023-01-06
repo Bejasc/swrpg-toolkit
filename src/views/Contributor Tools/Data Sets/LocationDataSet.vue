@@ -21,7 +21,6 @@
 			</v-col>
 		</v-row>
 	</v-col>
-	<DrpgLoader :showLoader="showLoader" />
 </template>
 
 <style scoped>
@@ -38,14 +37,12 @@
 </style>
 
 <script lang="ts">
-import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
 import { ILocation } from "@/types/SwrpgTypes";
 import { defineComponent } from "vue";
 // Components
 export default defineComponent({
 	name: "LocationDataSet",
-	components: { DrpgLoader },
 	emits: ["pageNavigation"],
 	data: () => {
 		return {
@@ -61,12 +58,12 @@ export default defineComponent({
 	},
 	methods: {
 		async loadAllItems() {
-			this.showLoader = true;
+			this.$store.dispatch("showLoader", true);
 			this.locations = [];
 			this.locations = await getData<ILocation>("location");
 
 			console.table(this.locations);
-			this.showLoader = false;
+			this.$store.dispatch("showLoader", false);
 		},
 	},
 	computed: {

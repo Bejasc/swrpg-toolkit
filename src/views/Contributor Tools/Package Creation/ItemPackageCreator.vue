@@ -149,7 +149,6 @@
 			@closeFullView="dialogItemFullView = false"
 		/>
 	</v-col>
-	<DrpgLoader :showLoader="showLoader" />
 </template>
 
 <style scoped>
@@ -167,7 +166,6 @@
 
 <script lang="ts">
 import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
-import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
 import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
@@ -179,7 +177,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
 	name: "Item Package Creator",
 	emits: ["pageNavigation"],
-	components: { ItemFullView, DrpgLoader },
+	components: { ItemFullView },
 	data: () => {
 		return {
 			panels: [0, 1],
@@ -196,7 +194,6 @@ export default defineComponent({
 				items: [] as IItem[],
 			} as IPackageDefinition,
 			locations: [] as ILocation[],
-			showLoader: false,
 		};
 	},
 	methods: {

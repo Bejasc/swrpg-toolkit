@@ -33,6 +33,7 @@
 			</v-alert>
 			<br />
 			<br />
+
 			<h2>Get Started</h2>
 			<v-row class="my-4">
 				<FeatureImageCard v-for="section in sections" :cols="section.cols" :image="section.image" :text="section.text" :route="(section.route as string)" />
@@ -55,13 +56,13 @@
 <script lang="ts">
 import ContributorSidebar from "@/components/Contributor Tools/ContributorSidebar.vue";
 import FeatureImageCard from "@/components/FeatureImageCard.vue";
+import LocationPicker from "@/components/LocationSelector.vue";
 import { defineComponent } from "vue";
-
 // Components
 
 export default defineComponent({
 	name: "ContentCreation",
-	components: { ContributorSidebar, FeatureImageCard },
+	components: { ContributorSidebar, FeatureImageCard, LocationPicker },
 	methods: {
 		clicked(x: unknown) {
 			console.log(x);

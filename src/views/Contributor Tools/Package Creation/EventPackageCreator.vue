@@ -141,7 +141,6 @@
 		</v-card>
 	</v-col>
 	<EventFullView :show="dialogFullView" :eventData="selectedEvent" :allowEdit="allowEdit" @eventSaved="saveEvent($event)" @closeFullView="dialogFullView = false" />
-	<DrpgLoader :showLoader="showLoader" />
 </template>
 
 <style scoped>
@@ -159,7 +158,6 @@
 
 <script lang="ts">
 import EventFullView from "@/components/Contributor Tools/Events/EventFullView.vue";
-import DrpgLoader from "@/components/DrpgLoader.vue";
 import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
 import type { IEventBase } from "@/types/SwrpgTypes/IEventBase";
@@ -170,7 +168,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
 	name: "Event Package Creator",
 	emits: ["pageNavigation"],
-	components: { DrpgLoader, EventFullView },
+	components: { EventFullView },
 	data: () => {
 		return {
 			panels: [0, 1],
@@ -186,7 +184,6 @@ export default defineComponent({
 				packageInfo: {},
 				events: [],
 			} as IPackageDefinition,
-			showLoader: false,
 		};
 	},
 	methods: {

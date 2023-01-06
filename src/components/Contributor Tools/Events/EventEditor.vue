@@ -145,10 +145,7 @@ export default defineComponent({
 	},
 	methods: {
 		async saveEvent() {
-			(this.$parent as any).showLoader = true;
-
 			this.$emit("eventSaved", this.eventData);
-			(this.$parent as any).showLoader = false;
 		},
 		addEventLink() {
 			const newLink: IEventLink = {

@@ -14,7 +14,6 @@
 			</v-card>
 		</v-dialog>
 	</v-row>
-	<DrpgLoader :showLoader="showLoader" />
 </template>
 
 <style scoped>
@@ -35,7 +34,6 @@ a {
 <script lang="ts">
 import EventEditor from "@/components/Contributor Tools/Events/EventEditor.vue";
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
-import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
 import { IItem } from "@/types/SwrpgTypes";
 import type { IEventBase } from "@/types/SwrpgTypes/IEventBase";
@@ -43,7 +41,7 @@ import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
 	name: "EventFullView",
-	components: { DiscordEmbed, EventEditor, DrpgLoader },
+	components: { DiscordEmbed, EventEditor },
 	props: {
 		show: Boolean,
 		eventData: {
@@ -54,24 +52,20 @@ export default defineComponent({
 	},
 	data: () => {
 		return {
-			showLoader: false,
 			items: [] as IItem[],
 		};
 	},
 	methods: {
 		async saveEvent() {
-			(this.$parent as any).showLoader = true;
-
 			this.$emit("eventSaved", this.eventData);
-			(this.$parent as any).showLoader = false;
 		},
 		async loadAllItems() {
-			this.showLoader = true;
+			this.$store.dispatch("showLoader", true);
 			this.items = [];
 			this.items = await getData<IItem>("item");
 
 			console.table(this.items);
-			this.showLoader = false;
+			this.$store.dispatch("showLoader", false);
 		},
 	},
 	mounted() {

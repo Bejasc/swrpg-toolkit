@@ -176,13 +176,11 @@ export default defineComponent({
 			return this.locData.location.aliases?.join(", ") ?? "";
 		},
 		async saveLocation() {
-			(this.$parent as any).showLoader = true;
 			const a = this.aliasString.replace(" ", "").split(",");
 
 			this.locData.location.aliases = a;
 
 			this.$emit("locationSaved", this.locData);
-			(this.$parent as any).showLoader = false;
 		},
 		changePlanetImage() {
 			if (!this.allowEdit) return;

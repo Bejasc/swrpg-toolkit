@@ -141,7 +141,6 @@
 		</v-card>
 	</v-col>
 	<LocationFullView :show="dialogFullView" :locData="selectedLocation" :allowEdit="allowEdit" @locationSaved="saveLocation($event)" @closeFullView="dialogFullView = false" />
-	<DrpgLoader :showLoader="showLoader" />
 </template>
 
 <style scoped>
@@ -159,7 +158,6 @@
 
 <script lang="ts">
 import LocationFullView from "@/components/Contributor Tools/LocationFullView.vue";
-import DrpgLoader from "@/components/DrpgLoader.vue";
 import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
 import { ISwrpgLocationData } from "@/types/SwrpgTypes";
@@ -170,7 +168,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
 	name: "Location Package Creator",
 	emits: ["pageNavigation"],
-	components: { LocationFullView, DrpgLoader },
+	components: { LocationFullView },
 	data: () => {
 		return {
 			panels: [0, 1],
@@ -186,7 +184,6 @@ export default defineComponent({
 				packageInfo: {},
 				locations: [],
 			} as IPackageDefinition,
-			showLoader: false,
 		};
 	},
 	methods: {

@@ -1,6 +1,7 @@
 <template>
 	<v-app-bar app permanent color="background">
 		<v-toolbar-title>SWRPG - {{ $route.name }}</v-toolbar-title>
+		<DrpgLoader></DrpgLoader>
 		<v-spacer />
 		<!-- <v-btn outlined>View docs</v-btn> -->
 		<v-menu anchor="start" min-width="800">
@@ -37,6 +38,7 @@
 
 <script lang="ts">
 import router from "@/router";
+import DrpgLoader from "./DrpgLoader.vue";
 export default {
 	name: "TopBar",
 	methods: {
@@ -46,6 +48,7 @@ export default {
 	},
 	data() {
 		return {
+			showMainLoader: true,
 			items: [
 				{
 					text: "Home",
@@ -71,5 +74,6 @@ export default {
 			],
 		};
 	},
+	components: { DrpgLoader },
 };
 </script>
