@@ -13,7 +13,13 @@
 		</v-card-title>
 		<v-row style="max-height: 250px" class="mx-2 mb-3 overflow-y-auto" no-gutters>
 			<v-col cols="3" v-if="filteredLocations.length > 0" v-for="loc in filteredLocations" :key="loc._id">
-				<SmallEntityCard :title="loc.name" :image="loc.planetImage" :id="loc._id" @check-toggled="checkToggled"></SmallEntityCard>
+				<SmallEntityCard
+					:title="loc.name"
+					:image="loc.planetImage"
+					:id="loc._id"
+					:initially-checked="checkedByDefault(loc._id)"
+					@check-toggled="checkToggled"
+				></SmallEntityCard>
 			</v-col>
 			<p v-else>No Locations Found</p>
 		</v-row>
@@ -26,27 +32,27 @@
 //
 import { getData } from "@/plugins/MongoConnector";
 import { ILocation } from "@/types/SwrpgTypes";
+import { stringEmail } from "@sapphire/shapeshift";
 import { computed, onMounted, PropType, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import SmallEntityCard from "./SmallEntityCard.vue";
 const store = useStore();
 
-const props = defineProps({
-	title: {
-		type: String,
-		default: "Locations",
-	},
-	enableSearch: {
-		type: Boolean,
-		default: false,
-	},
+interface IProps {
+	title: string;
+	selectedValues: string[];
+	enableSearch: boolean;
+}
+
+const props = withDefaults(defineProps<IProps>(), {
+	enableSearch: false,
+	selectedValues: () => [],
+	title: "Locations",
 });
 
 const search: Ref<string> = ref("");
 
 const allLocations: Ref<ILocation[]> = ref();
-
-const selection = ref([]);
 
 onMounted(async () => {
 	store.dispatch("showLoader", true);
@@ -63,12 +69,16 @@ const filteredLocations = computed(() => {
 
 const emit = defineEmits(["selectionChanged"]);
 
+function checkedByDefault(id: string) {
+	return props.selectedValues.includes(id);
+}
+
 function checkToggled(id: string, checked: boolean) {
 	if (checked) {
-		selection.value.push(id);
+		props.selectedValues.push(id);
 	} else {
-		selection.value = selection.value.filter((e) => e != id);
+		props.selectedValues = props.selectedValues.filter((e) => e != id);
 	}
-	emit("selectionChanged", selection.value);
+	emit("selectionChanged", props.selectedValues);
 }
 </script>

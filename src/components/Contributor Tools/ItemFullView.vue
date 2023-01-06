@@ -96,7 +96,7 @@
 										{{ marketHelperText }}
 									</v-alert>
 									<v-col cols="12" v-if="!marketProperties.availableEverywhere && allowEdit == true">
-										<LocationPicker @selection-changed="selectedLocationsChanged"></LocationPicker>
+										<LocationPicker :selected-values="marketProperties.locationIds" @selection-changed="selectedLocationsChanged"></LocationPicker>
 									</v-col>
 									<!-- <v-row>
 								<v-expansion-panels>
@@ -185,6 +185,7 @@ export default defineComponent({
 				availableEverywhere: false,
 				mode: "blacklist",
 				locationNames: "",
+				locationIds: [],
 			},
 		};
 	},
@@ -247,7 +248,7 @@ export default defineComponent({
 			return matchingLocations.map((e) => e.name).join(", ");
 		},
 	},
-	mounted() {
+	updated() {
 		const tradeProperties: ITradeProperties = this.item.tradeProperties;
 
 		if (tradeProperties) {
@@ -256,11 +257,13 @@ export default defineComponent({
 				this.marketProperties.availableEverywhere = false;
 				if (tradeProperties.locationWhitelist?.length > 0) {
 					this.marketProperties.mode = "whitelist";
+					this.marketProperties.locationNames = this.getLocationNames(tradeProperties.locationWhitelist);
+					this.marketProperties.locationIds = tradeProperties.locationWhitelist;
 				} else {
 					this.marketProperties.mode = "blacklist";
+					this.marketProperties.locationNames = this.getLocationNames(tradeProperties.locationBlacklist);
+					this.marketProperties.locationIds = tradeProperties.locationBlacklist;
 				}
-
-				this.marketProperties.locationNames = this.getLocationNames([...tradeProperties.locationBlacklist, ...tradeProperties.locationWhitelist]);
 			} else {
 				this.marketProperties.availableEverywhere = true;
 			}

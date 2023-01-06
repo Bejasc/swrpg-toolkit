@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 const props = defineProps({
 	id: {
@@ -35,8 +35,12 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	initiallyChecked: {
+		type: Boolean,
+		default: false,
+	},
 });
-const checked = ref(false);
+const checked = ref(props.initiallyChecked);
 
 const emit = defineEmits(["checkToggled"]);
 
