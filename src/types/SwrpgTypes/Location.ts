@@ -1,5 +1,14 @@
 import { IDrpgLocationBase } from "drpg-economy";
 import IBasePackage from "drpg-utils/dist/types/IBasePackage";
+import { invariant } from "../../plugins/Utils";
+
+export function getMatchingLocation(value: string, locations: ILocation[]): ILocation {
+	value = invariant(value);
+
+	const location = locations.find((e) => invariant(e._id) === value || invariant(e.name) === value || e.aliases.map((a) => invariant(a)).includes(value));
+
+	return location;
+}
 
 export interface ISwrpgLocationData {
 	location: ILocation;

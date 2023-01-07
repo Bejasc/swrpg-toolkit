@@ -136,7 +136,8 @@
 
 <script setup lang="ts">
 import LocationPicker from "@/components/LocationSelector.vue";
-import { IItem, ILocation } from "@/types/SwrpgTypes";
+import { joinString } from "@/plugins/Utils";
+import { getMatchingLocation, IItem, ILocation } from "@/types/SwrpgTypes";
 import { computed, reactive, ref, Ref, watch } from "vue";
 
 const props = defineProps<{
@@ -189,7 +190,7 @@ const itemRarities = computed(() => {
 
 const marketHelperText = computed(() => {
 	const matchingLocations = props.locations.filter((e) => helpers.tradeLocationIds.includes(e._id));
-	const matchingLocationNames = matchingLocations.map((e) => e.name).join(", "); //TODO joinstr
+	const matchingLocationNames = joinString(matchingLocations.map((e) => e.name));
 	if (helpers.tradeAvailableEverywhere) {
 		return `${props.item.name} can be bought and sold everywhere.`;
 	} else {
@@ -234,6 +235,12 @@ function setHelper() {
 				newState.tradeMode = "blacklist";
 				newState.tradeLocationIds = props.item.tradeProperties.locationBlacklist;
 			}
+
+			newState.tradeLocationIds = newState.tradeLocationIds.map((e) => {
+				const location = getMatchingLocation(e, props.locations);
+				if (e != location._id) console.log(`${props.item.name} provided ${e} as a trade location. Overriding to ID based value instead. ${location._id}`);
+				return location._id;
+			});
 		} else {
 			newState.tradeAvailableEverywhere = true;
 		}
@@ -245,6 +252,7 @@ function setHelper() {
 watch(
 	() => props.item._id,
 	(newVal, oldVal) => {
+		alert(JSON.stringify(props.item));
 		setHelper();
 	},
 );
