@@ -4,125 +4,110 @@
 			<v-card class="pa-4" :title="item.name">
 				<v-card-text>
 					<v-container>
-						<v-row no-gutters>
-							<v-col cols="7">
-								<v-text-field label="Item Name*" :readonly="!allowEdit" v-model="item.name" density="compact" required></v-text-field>
-								<v-text-field
-									label="Aliases"
-									placeholder="Other names, separated by comma"
-									:readonly="!allowEdit"
-									v-model="aliasString"
-									density="compact"
-								></v-text-field>
-							</v-col>
-							<v-spacer />
-							<v-col cols="4" style="margin-top: -30px">
-								<v-img :src="item.image" :disabled="!allowEdit" class="itemThumbnail" width="140px" @click="changeItemImage()" />
-								<div v-if="allowEdit" align="center" class="text-caption font-italic">Click image to change</div>
-							</v-col>
-						</v-row>
+						<v-expansion-panels accordion>
+							<v-expansion-panel title="General Properties">
+								<v-expansion-panel-text>
+									<v-row no-gutters>
+										<v-col cols="7">
+											<v-text-field label="Item Name*" :readonly="!allowEdit" v-model="item.name" density="compact" required></v-text-field>
+											<v-text-field
+												label="Aliases"
+												placeholder="Other names, separated by comma"
+												:readonly="!allowEdit"
+												v-model="helpers.aliasString"
+												density="compact"
+											></v-text-field>
+										</v-col>
+										<v-spacer />
+										<v-col cols="4">
+											<v-img :src="item.image" :disabled="!allowEdit" class="itemThumbnail" height="100px" @click="changeItemImage()" />
+											<div v-if="allowEdit" align="center" class="text-caption font-italic">Click image to change</div>
+										</v-col>
+									</v-row>
 
-						<v-row no-gutters>
-							<v-row>
-								<v-col cols="6">
-									<v-autocomplete v-model="item.category" :readonly="!allowEdit" :items="itemCategories" label="Category" density="compact"></v-autocomplete>
-								</v-col>
-								<v-col cols="6">
-									<v-text-field
-										v-model="item.encumbrance"
-										v-bind:readonly="!allowEdit"
-										prepend-inner-icon="mdi-weight"
-										type="number"
-										label="Encumbrance"
-										density="compact"
-									></v-text-field>
-								</v-col>
-							</v-row>
-							<v-col cols="12">
-								<v-textarea v-model="item.description" :readonly="!allowEdit" label="Description" required rows="2"></v-textarea>
-							</v-col>
-						</v-row>
-
-						<v-divider class="mb-7" />
-
-						<v-row no-gutters>
-							<v-col cols="4">
-								<v-checkbox v-if="allowEdit" v-model="isTradeable" :label="`Is Tradeable: ${isTradeable ? 'Yes' : 'No'}`"></v-checkbox>
-							</v-col>
-						</v-row>
-
-						<div id="tradeProperties" v-if="isTradeable">
-							<v-row no-gutters>
-								<v-col cols="5">
-									<v-select :items="itemRarities" v-model="item.tradeProperties.itemRarity" label="Rarity" density="compact"></v-select>
-								</v-col>
-								<v-col cols="7">
-									<v-text-field
-										v-model="item.tradeProperties.baseValue"
-										prepend-inner-icon="mdi-cash"
-										type="number"
-										label="Base Value"
-										density="compact"
-									></v-text-field>
-								</v-col>
-
-								<v-col cols="6" v-if="isTradeable">
-									<v-checkbox
-										v-model="marketHelper.isAvailableEverywhere"
-										:label="`Is Available Everywhere: ${marketHelper.isAvailableEverywhere ? 'Yes' : 'No'}`"
-									></v-checkbox>
-								</v-col>
-								<v-col cols="5" v-if="!marketHelper.isAvailableEverywhere">
-									<!-- <v-switch v-model="marketHelper.isWhitelist" :label="`Treat list as ${marketHelper.isWhitelist ? 'Whitelist' : 'Blacklist'}`"> </v-switch> -->
-									<v-switch v-model="marketHelper.isWhitelist">
-										<template v-slot:label>
-											<span v-if="marketHelper.isWhitelist">Treat list as Whitelist</span>
-											<span v-else>Treat list as Blacklist</span>
-											<v-tooltip bottom>
-												<template v-slot:activator="{ props }">
-													<v-icon v-bind="props" v-on="props"> mdi-help </v-icon>
-												</template>
-												<span v-if="marketHelper.isWhitelist">This item will appear <b>only on</b> Locations shown below</span>
-												<span v-else>This item will appear everywhere <b>except</b> on Locations shown below</span>
-											</v-tooltip>
-										</template>
-									</v-switch>
-								</v-col>
-
-								<v-col cols="12" v-if="!marketHelper.isAvailableEverywhere">
-									<v-card :title="`Locations ${marketHelper.isWhitelist ? 'Whitelist' : 'Blacklist'}`" color="grey-darken-3" flat tile>
-										<v-row style="max-height: 250px" class="mx-3 overflow-y-auto" no-gutters>
-											<v-col cols="4" v-for="loc in locations">
-												<v-card class="ma-1 pa-2" outlined flat @click="">
-													<v-row no-gutters style="flex-wrap: nowrap">
-														<v-col cols="2" class="flex-grow-0 flex-shrink-0">
-															<div style="display: flex; align-items: center; height: 100%">
-																<v-img :src="loc.planetImage"></v-img>
-															</div>
-														</v-col>
-														<v-col cols="8" style="min-width: 100px; max-width: 80%" class="pl-4 flex-gorw-1 flex-shrink-0">
-															<div style="display: flex; align-items: center; height: 100%">
-																{{ loc.name }}
-															</div>
-														</v-col>
-														<v-col cols="1" style="min-width: 100px" class="flex-grow-0 flex-shrink-1">
-															<v-checkbox hide-details></v-checkbox>
-														</v-col>
-													</v-row>
-												</v-card>
+									<v-row no-gutters>
+										<v-row>
+											<v-col cols="6">
+												<v-autocomplete
+													v-model="item.category"
+													:readonly="!allowEdit"
+													:items="itemCategories"
+													label="Category"
+													density="compact"
+												></v-autocomplete>
+											</v-col>
+											<v-col cols="6">
+												<v-text-field
+													v-model="item.encumbrance"
+													v-bind:readonly="!allowEdit"
+													prepend-inner-icon="mdi-weight"
+													type="number"
+													label="Encumbrance"
+													density="compact"
+												></v-text-field>
 											</v-col>
 										</v-row>
-									</v-card>
-								</v-col>
-							</v-row>
-							<!-- <v-row>
+										<v-col cols="12">
+											<v-textarea v-model="item.description" :readonly="!allowEdit" label="Description" required rows="2"></v-textarea>
+										</v-col>
+										<v-col cols="4">
+											<v-checkbox v-if="allowEdit" v-model="item.tradeProperties.isTradeable" :label="`Is Tradeable`"></v-checkbox>
+										</v-col>
+									</v-row>
+								</v-expansion-panel-text>
+							</v-expansion-panel>
+							<v-expansion-panel title="Trade Properties" v-if="item.tradeProperties.isTradeable">
+								<v-expansion-panel-text>
+									<v-row>
+										<v-col cols="5">
+											<v-select :items="itemRarities" v-model="item.tradeProperties.itemRarity" label="Rarity" density="compact"></v-select>
+										</v-col>
+										<v-col cols="7">
+											<v-text-field
+												v-model="item.tradeProperties.baseValue"
+												prepend-inner-icon="mdi-cash"
+												type="number"
+												label="Base Value"
+												density="compact"
+											></v-text-field>
+										</v-col>
+									</v-row>
+									<v-row>
+										<v-checkbox
+											v-model="helpers.tradeAvailableEverywhere"
+											:label="`Is Available Everywhere: ${helpers.tradeAvailableEverywhere ? 'Yes' : 'No'}`"
+											:readonly="!allowEdit"
+											v-if="allowEdit == true"
+										></v-checkbox>
+										<!-- <v-switch v-model="marketHelper.isWhitelist" :label="`Treat list as ${marketHelper.isWhitelist ? 'Whitelist' : 'Blacklist'}`"> </v-switch> -->
+										<v-radio-group
+											inline
+											v-if="!helpers.tradeAvailableEverywhere && allowEdit == true"
+											v-model="helpers.tradeMode"
+											@update:model-value="whitelistModeChanged"
+											:readonly="!allowEdit"
+										>
+											<v-radio label="Whitelist" value="whitelist"></v-radio>
+											<v-radio label="Blacklist" value="blacklist"></v-radio>
+										</v-radio-group>
+									</v-row>
+									<p class="text-caption" v-if="allowEdit">{{ marketHelperText }}</p>
+									<v-alert density="compact" type="info" variant="outlined" v-else>
+										{{ marketHelperText }}
+									</v-alert>
+									<v-col cols="12" v-if="!helpers.tradeAvailableEverywhere && allowEdit == true">
+										<LocationPicker :selected-values="helpers.tradeLocationIds" @selection-changed="selectedLocationsChanged"></LocationPicker>
+									</v-col>
+									<!-- <v-row>
 								<v-expansion-panels>
 									<v-expansion-panel title="Market Overrides" color="blue">
 										<v-expansion-panel-text> </v-expansion-panel-text>
 									</v-expansion-panel>
 								</v-expansion-panels>
 							</v-row> -->
-						</div>
+								</v-expansion-panel-text>
+							</v-expansion-panel>
+						</v-expansion-panels>
 					</v-container>
 				</v-card-text>
 				<v-card-actions>
@@ -149,77 +134,118 @@
 }
 </style>
 
-<script lang="ts">
-import { MarketHelper } from "@/types/MarketHelper";
-import type IItem from "@/types/SwrpgTypes/IItem";
-import type { ILocation } from "@/types/SwrpgTypes/ILocation";
-import { defineComponent, type PropType } from "vue";
+<script setup lang="ts">
+import LocationPicker from "@/components/LocationSelector.vue";
+import { IItem, ILocation } from "@/types/SwrpgTypes";
+import { computed, reactive, ref, Ref, watch } from "vue";
 
-export default defineComponent({
-	name: "ItemFullView",
-	props: {
-		show: Boolean,
-		item: {
-			type: Object as PropType<IItem>,
-			required: true,
-		},
-		allowEdit: Boolean,
-		locations: {
-			type: Object as PropType<ILocation[]>,
-		},
-	},
-	data: () => {
-		return {
-			itemCategories: [
-				"Unknown",
-				"Food",
-				"Armour",
-				"Weapons",
-				"Medical",
-				"Tools",
-				"Clothing",
-				"Resources",
-				"Minerals",
-				"Luxuries",
-				"Waste",
-				"Technology",
-				"Salvage",
-				"Chemicals",
-			],
-			aliasString: "",
-			isTradeable: false,
-			itemRarities: ["Abundant", "Common", "Uncommon", "Rare", "Legendary", "Unique"],
-			marketHelper: new MarketHelper(),
-		};
-	},
-	methods: {
-		getItemAliases(): string {
-			return this.item.aliases?.join(", ") ?? "";
-		},
-		async saveNewItem() {
-			(this.$parent as any).showLoader = true;
-			const a = this.aliasString.replace(" ", "").split(",");
+const props = defineProps<{
+	show: boolean;
+	allowEdit: boolean;
+	item: IItem;
+	locations: ILocation[];
+}>();
 
-			this.item.aliases = a;
+const emit = defineEmits(["saveItem"]);
 
-			if (!this.isTradeable) this.item.tradeProperties = undefined;
+function saveNewItem() {
+	const a = helpers.aliasString.replace(" ", "").split(",");
+	props.item.aliases = a;
+	emit("saveItem", props.item);
+}
 
-			(this.$parent as any).showLoader = false;
+function changeItemImage() {
+	if (!this.allowEdit) return;
+	const imageUrl = prompt("Enter the URL for the new image", props.item.image);
+	if (imageUrl != null) props.item.image = imageUrl;
+}
 
-			this.$emit("saveItem", this.item);
-		},
-		changeItemImage() {
-			if (!this.allowEdit) return;
+function whitelistModeChanged(val) {
+	if (val === "whitelist") {
+		props.item.tradeProperties.locationWhitelist = props.item.tradeProperties.locationBlacklist;
+		props.item.tradeProperties.locationBlacklist = undefined;
+	} else {
+		props.item.tradeProperties.locationBlacklist = props.item.tradeProperties.locationWhitelist;
+		props.item.tradeProperties.locationWhitelist = undefined;
+	}
+}
 
-			//TODO Change to dialog
-			const imageUrl = prompt("Enter the URL for the new image", this.item.image);
-			if (imageUrl != null) this.item.image = imageUrl;
-		},
-	},
-	mounted() {
-		console.log(this.item.name ?? "asdasd");
-		if (this.item.tradeProperties) this.isTradeable = true;
-		if (this.item?.aliases?.length > 0) this.aliasString = this.getItemAliases();
-	},
+function selectedLocationsChanged(newValue?: string[]) {
+	helpers.tradeLocationIds = newValue;
+	if (helpers.tradeMode === "whitelist") {
+		props.item.tradeProperties.locationWhitelist = newValue;
+	} else {
+		props.item.tradeProperties.locationBlacklist = newValue;
+	}
+}
+
+const itemCategories = computed(() => {
+	return ["Unknown", "Food", "Armour", "Weapons", "Medical", "Tools", "Clothing", "Resources", "Minerals", "Luxuries", "Waste", "Technology", "Salvage", "Chemicals"];
 });
+
+const itemRarities = computed(() => {
+	return ["Abundant", "Common", "Uncommon", "Rare", "Legendary", "Unique"];
+});
+
+const marketHelperText = computed(() => {
+	const matchingLocations = props.locations.filter((e) => helpers.tradeLocationIds.includes(e._id));
+	const matchingLocationNames = matchingLocations.map((e) => e.name).join(", "); //TODO joinstr
+	if (helpers.tradeAvailableEverywhere) {
+		return `${props.item.name} can be bought and sold everywhere.`;
+	} else {
+		if (helpers.tradeMode === "whitelist") {
+			return `${props.item.name} can *ONLY* be bought and sold on ${matchingLocationNames}.`;
+		} else {
+			return `${props.item.name} can be bought and sold everywhere *EXCEPT* on ${matchingLocationNames}`;
+		}
+	}
+});
+
+//-------------
+
+interface IHelpers {
+	aliasString: string;
+	tradeAvailableEverywhere: boolean;
+	tradeMode: "blacklist" | "whitelist";
+	tradeLocationIds: string[];
+}
+
+const initialState: IHelpers = {
+	aliasString: "",
+	tradeAvailableEverywhere: true,
+	tradeMode: "whitelist",
+	tradeLocationIds: [],
+};
+
+const helpers = reactive({ ...initialState });
+
+function setHelper() {
+	const newState: IHelpers = initialState;
+	newState.aliasString = props.item.aliases?.join(", ") ?? "";
+
+	if (props.item.tradeProperties) {
+		if (props.item.tradeProperties.locationBlacklist?.length > 0 || props.item.tradeProperties.locationWhitelist?.length > 0) {
+			newState.tradeAvailableEverywhere = false;
+
+			if (props.item.tradeProperties.locationWhitelist?.length > 0) {
+				newState.tradeMode = "whitelist";
+				newState.tradeLocationIds = props.item.tradeProperties.locationWhitelist;
+			} else {
+				newState.tradeMode = "blacklist";
+				newState.tradeLocationIds = props.item.tradeProperties.locationBlacklist;
+			}
+		} else {
+			newState.tradeAvailableEverywhere = true;
+		}
+	}
+
+	Object.assign(helpers, JSON.parse(JSON.stringify(newState)));
+}
+
+watch(
+	() => props.item._id,
+	(newVal, oldVal) => {
+		setHelper();
+	},
+);
 </script>

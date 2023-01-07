@@ -152,7 +152,7 @@ a {
 </style>
 
 <script lang="ts">
-import type { ILocationData } from "@/types/SwrpgTypes/ILocation";
+import { ISwrpgLocationData } from "@/types/SwrpgTypes";
 import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
@@ -160,7 +160,7 @@ export default defineComponent({
 	props: {
 		show: Boolean,
 		locData: {
-			type: Object as PropType<ILocationData>,
+			type: Object as PropType<ISwrpgLocationData>,
 			required: true,
 		},
 		allowEdit: Boolean,
@@ -176,13 +176,11 @@ export default defineComponent({
 			return this.locData.location.aliases?.join(", ") ?? "";
 		},
 		async saveLocation() {
-			(this.$parent as any).showLoader = true;
 			const a = this.aliasString.replace(" ", "").split(",");
 
 			this.locData.location.aliases = a;
 
 			this.$emit("locationSaved", this.locData);
-			(this.$parent as any).showLoader = false;
 		},
 		changePlanetImage() {
 			if (!this.allowEdit) return;

@@ -2,7 +2,7 @@
 	<v-col cols="11">
 		<v-card>
 			<v-card-title class="d-flex">
-				{{ packageData.packageInfo.name }} ({{ packageData.items.length }} Items)
+				{{ packageData.packageInfo.name }} ({{ packageData.locations.length }} Locations)
 				<v-spacer />
 				<v-card-actions>
 					<div>
@@ -30,7 +30,7 @@
 
 							<v-dialog v-model="dialogConfirmClear" activator="parent" transition="fade-transition" persistent>
 								<v-card>
-									<v-card-text> Are you sure you want to remove the Package Info and all of the Package Items? This cannot be undone </v-card-text>
+									<v-card-text> Are you sure you want to remove the Package Info and all of the Package Locations? This cannot be undone </v-card-text>
 									<v-card-actions>
 										<v-spacer />
 										<v-btn color="blue" @click="dialogConfirmClear = false">Cancel</v-btn>
@@ -72,20 +72,20 @@
 				</v-expansion-panel>
 
 				<!--EXTRACT ME END-->
-				<v-expansion-panel title="Items">
+				<v-expansion-panel title="Locations">
 					<v-expansion-panel-text class="ma-2">
 						<v-row style="max-height: 550px" class="overflow-y-auto">
-							<v-col v-for="item in packageData.items" :key="item._id" cols="2">
-								<v-card width="200px" @click="openItem(item, false)">
+							<v-col v-for="locData in packageData.locations" :key="locData.location._id" cols="2">
+								<v-card width="200px" @click="openLocation(locData, false)">
 									<v-img
-										:src="item.image"
-										:lazy-src="item.image"
+										:src="locData.location.planetImage"
+										:lazy-src="locData.location.planetImage"
 										contain
 										class="white--text imageMouseover"
 										gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
 										height="200px"
 									>
-										<v-menu anchor="bottom" v-model="showContextMenu">
+										<v-menu anchor="bottom">
 											<template v-slot:activator="{ props }">
 												<v-btn class="float-right" variant="text" icon="mdi-dots-vertical" v-bind="props"></v-btn>
 											</template>
@@ -93,28 +93,28 @@
 												<v-list-item
 													title="View"
 													@click="
-														openItem(item, false);
+														openLocation(locData, false);
 														showContextMenu = false;
 													"
 												/>
 												<v-list-item
 													title="Duplicate"
 													@click="
-														duplicateItem(item);
+														duplicateLocation(locData);
 														showContextMenu = false;
 													"
 												/>
 												<v-list-item
 													title="Remove"
 													@click="
-														removeItem(item);
+														removeLocation(locData);
 														showContextMenu = false;
 													"
 												/>
 												<v-list-item
 													title="Edit"
 													@click="
-														openItem(item, true);
+														openLocation(locData, true);
 														showContextMenu = false;
 													"
 												/>
@@ -123,14 +123,14 @@
 									</v-img>
 									<v-card-actions color="red">
 										<span class="subtitle-1">
-											{{ item.name }}
+											{{ locData.location.name }}
 										</span>
 									</v-card-actions>
 								</v-card>
 							</v-col>
 
 							<v-col cols="1">
-								<v-card style="border: 3px dashed grey" width="200px" @click="openItem(undefined, true)">
+								<v-card style="border: 3px dashed grey" width="200px" @click="openLocation(null, true)">
 									<v-icon size="200px" color="grey">mdi-plus</v-icon>
 								</v-card>
 							</v-col>
@@ -139,17 +139,8 @@
 				</v-expansion-panel>
 			</v-expansion-panels>
 		</v-card>
-
-		<ItemFullView
-			:show="dialogItemFullView"
-			:item="selectedItem"
-			:locations="locations"
-			:allowEdit="allowEdit"
-			@saveItem="saveItem($event)"
-			@closeFullView="dialogItemFullView = false"
-		/>
 	</v-col>
-	<DrpgLoader :showLoader="showLoader" />
+	<LocationFullView :show="dialogFullView" :locData="selectedLocation" :allowEdit="allowEdit" @locationSaved="saveLocation($event)" @closeFullView="dialogFullView = false" />
 </template>
 
 <style scoped>
@@ -166,38 +157,33 @@
 </style>
 
 <script lang="ts">
-import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
-import DrpgLoader from "@/components/DrpgLoader.vue";
-import { getData } from "@/plugins/MongoConnector";
+import LocationFullView from "@/components/Contributor Tools/LocationFullView.vue";
 import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
-import type IItem from "@/types/SwrpgTypes/IItem";
-import type { ILocation } from "@/types/SwrpgTypes/ILocation";
+import { ISwrpgLocationData } from "@/types/SwrpgTypes";
 import FileSaver from "file-saver";
 import mongoose from "mongoose";
 import { defineComponent } from "vue";
 // Components
 export default defineComponent({
-	name: "Item Package Creator",
+	name: "Location Package Creator",
 	emits: ["pageNavigation"],
-	components: { ItemFullView, DrpgLoader },
+	components: { LocationFullView },
 	data: () => {
 		return {
 			panels: [0, 1],
 			incompleteSnackbar: true,
-			selectedItem: {} as IItem,
+			selectedLocation: {} as ISwrpgLocationData,
 			dialog: false,
 			dialogConfirmClear: false,
-			dialogItemFullView: false,
+			dialogFullView: false,
 			showContextMenu: false,
 			allowEdit: true,
 			pastedPackage: "",
 			packageData: {
 				packageInfo: {},
-				items: [] as IItem[],
+				locations: [],
 			} as IPackageDefinition,
-			locations: [] as ILocation[],
-			showLoader: false,
 		};
 	},
 	methods: {
@@ -205,55 +191,67 @@ export default defineComponent({
 			this.dialogConfirmClear = false;
 			this.packageData = {
 				packageInfo: {},
-				items: [] as IItem[],
+				locations: [] as ISwrpgLocationData[],
 			} as IPackageDefinition;
 		},
-		saveItem(item: IItem) {
+		saveLocation(locData: ISwrpgLocationData) {
 			// this.itemPackageData.items.push({
 			// 	_id: new mongoose.Types.ObjectId().toString(),
 			// 	category: "Unknown",
 			// 	name: "New Item",
 			// 	image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
 			// });
-			this.dialogItemFullView = false;
+			this.dialogFullView = false;
+			this.packageData.locations.push(locData);
 
-			const existingItem = this.packageData.items.find((e) => e._id === item._id);
+			const existingLocation = this.packageData.locations.find((e) => e.location._id === locData.location._id);
 
-			if (existingItem) {
-				const i = this.packageData.items.indexOf(existingItem);
-				this.packageData.items[i] = item;
+			if (existingLocation) {
+				const i = this.packageData.locations.indexOf(existingLocation);
+				this.packageData.locations[i] = locData;
 			} else {
-				this.packageData.items.push(item);
+				this.packageData.locations.push(locData);
 			}
 		},
-		duplicateItem(item: IItem) {
-			const newObj: IItem = JSON.parse(JSON.stringify(item));
-			newObj._id = new mongoose.Types.ObjectId().toString();
-			this.packageData.items.push(newObj);
+		duplicateLocation(locData: ISwrpgLocationData) {
+			const newObj: ISwrpgLocationData = JSON.parse(JSON.stringify(locData));
+			newObj.location._id = new mongoose.Types.ObjectId().toString();
+			if (newObj.market) {
+				//TODO give market new ID
+			}
+			this.packageData.locations.push(newObj);
 		},
-		removeItem(item: IItem) {
-			this.packageData.items = this.packageData.items.filter((e) => e._id !== item._id);
+		removeLocation(locData: ISwrpgLocationData) {
+			this.packageData.locations = this.packageData.locations.filter((e) => e.location._id !== locData.location._id);
 		},
-		openItem(item?: IItem, editMode = true) {
-			console.log(item?.name ?? "Create new Item", editMode);
-
-			if (!item)
-				item = {
-					_id: new mongoose.Types.ObjectId().toString(),
-					category: "Unknown",
-					name: "New Item",
-					description: "Not much is known about this item.",
-					image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
-					encumbrance: 1,
-					tradeProperties: {
-						baseValue: 100,
-						itemRarity: "Common",
+		openLocation(locData?: ISwrpgLocationData, editMode = true) {
+			console.log(locData?.location.name ?? "None");
+			if (!locData)
+				locData = {
+					location: {
+						_id: new mongoose.Types.ObjectId().toString(),
+						coordinates: {
+							hyperlaneProximity: 0,
+							x: 0,
+							y: 0,
+						},
+						name: "New Planet",
+						image: "https://cdn.discordapp.com/attachments/964554539539771412/985579435317157918/unknown_environment.png",
+						planetImage: "https://cdn.discordapp.com/attachments/964554539539771412/985578348191313990/unknown_planet.png",
+						description: "Not much is known about this planet.",
+						channelOptions: {
+							name: "New Planet",
+							autoCreate: true,
+							category: "Planets",
+						},
+						initialPoints: [],
 					},
+					market: {},
 				};
 
-			this.dialogItemFullView = true;
+			this.dialogFullView = true;
 
-			this.selectedItem = item;
+			this.selectedLocation = locData;
 			this.allowEdit = editMode;
 		},
 		exportPackage() {
@@ -262,12 +260,11 @@ export default defineComponent({
 				return;
 			}
 
+			const packageAsJson = JSON.stringify(this.packageData, null, "\t");
 			const fileName = `${stringToCamelCase(this.packageData.packageInfo.author)}.${stringToCamelCase(this.packageData.packageInfo.name)}`;
 
-			const packageAsJson = JSON.stringify(this.packageData, null, "\t");
-
 			var blob = new Blob([packageAsJson], { type: "text/plain;charset=utf-8" });
-			FileSaver.saveAs(blob, `${fileName}.items.json`);
+			FileSaver.saveAs(blob, `${fileName}.locations.json`);
 			// navigator.clipboard.writeText(packageAsJson);
 			// alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
 		},
@@ -277,17 +274,9 @@ export default defineComponent({
 			this.packageData = packageFromJson;
 			this.pastedPackage = "";
 		},
-		async loadAllLocations() {
-			this.showLoader = true;
-			this.locations = [];
-			this.locations = await getData<ILocation>("location");
-
-			this.showLoader = false;
-		},
 	},
 	mounted() {
 		this.$emit("pageNavigation", this.$route.name);
-		this.loadAllLocations();
 	},
 });
 </script>

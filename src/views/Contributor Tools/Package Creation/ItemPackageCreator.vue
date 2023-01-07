@@ -2,7 +2,7 @@
 	<v-col cols="11">
 		<v-card>
 			<v-card-title class="d-flex">
-				{{ packageData.packageInfo.name }} ({{ packageData.events.length }} Events)
+				{{ packageData.packageInfo.name }} ({{ packageData.items.length }} Items)
 				<v-spacer />
 				<v-card-actions>
 					<div>
@@ -30,7 +30,7 @@
 
 							<v-dialog v-model="dialogConfirmClear" activator="parent" transition="fade-transition" persistent>
 								<v-card>
-									<v-card-text> Are you sure you want to remove the Package Info and all of the Package Events? This cannot be undone </v-card-text>
+									<v-card-text> Are you sure you want to remove the Package Info and all of the Package Items? This cannot be undone </v-card-text>
 									<v-card-actions>
 										<v-spacer />
 										<v-btn color="blue" @click="dialogConfirmClear = false">Cancel</v-btn>
@@ -72,20 +72,20 @@
 				</v-expansion-panel>
 
 				<!--EXTRACT ME END-->
-				<v-expansion-panel title="Events">
+				<v-expansion-panel title="Items">
 					<v-expansion-panel-text class="ma-2">
 						<v-row style="max-height: 550px" class="overflow-y-auto">
-							<v-col v-for="eventData in packageData.events" :key="eventData.id" cols="2">
-								<v-card width="200px" @click="openEvent(eventData, false)">
+							<v-col v-for="item in packageData.items" :key="item._id" cols="2">
+								<v-card width="200px" @click="openItem(item, false)">
 									<v-img
-										:src="eventData.embedOptions.image ?? eventData.embedOptions.thumbnail"
-										:lazy-src="eventData.embedOptions.image ?? eventData.embedOptions.thumbnail"
+										:src="item.image"
+										:lazy-src="item.image"
 										contain
 										class="white--text imageMouseover"
 										gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
 										height="200px"
 									>
-										<v-menu anchor="bottom" v-model="showContextMenu">
+										<v-menu anchor="bottom">
 											<template v-slot:activator="{ props }">
 												<v-btn class="float-right" variant="text" icon="mdi-dots-vertical" v-bind="props"></v-btn>
 											</template>
@@ -93,28 +93,28 @@
 												<v-list-item
 													title="View"
 													@click="
-														openEvent(eventData, false);
+														openItem(item, false);
 														showContextMenu = false;
 													"
 												/>
 												<v-list-item
 													title="Duplicate"
 													@click="
-														duplicateEvent(eventData);
+														duplicateItem(item);
 														showContextMenu = false;
 													"
 												/>
 												<v-list-item
 													title="Remove"
 													@click="
-														removeEvent(eventData);
+														removeItem(item);
 														showContextMenu = false;
 													"
 												/>
 												<v-list-item
 													title="Edit"
 													@click="
-														openEvent(eventData, true);
+														openItem(item, true);
 														showContextMenu = false;
 													"
 												/>
@@ -123,14 +123,14 @@
 									</v-img>
 									<v-card-actions color="red">
 										<span class="subtitle-1">
-											{{ eventData.id }}
+											{{ item.name }}
 										</span>
 									</v-card-actions>
 								</v-card>
 							</v-col>
 
 							<v-col cols="1">
-								<v-card style="border: 3px dashed grey" width="200px" @click="openEvent(null, true)">
+								<v-card style="border: 3px dashed grey" width="200px" @click="openItem(undefined, true)">
 									<v-icon size="200px" color="grey">mdi-plus</v-icon>
 								</v-card>
 							</v-col>
@@ -139,9 +139,16 @@
 				</v-expansion-panel>
 			</v-expansion-panels>
 		</v-card>
+
+		<ItemFullView
+			:show="dialogItemFullView"
+			:item="selectedItem"
+			:locations="locations"
+			:allowEdit="allowEdit"
+			@saveItem="saveItem($event)"
+			@closeFullView="dialogItemFullView = false"
+		/>
 	</v-col>
-	<EventFullView :show="dialogFullView" :eventData="selectedEvent" :allowEdit="allowEdit" @eventSaved="saveEvent($event)" @closeFullView="dialogFullView = false" />
-	<DrpgLoader :showLoader="showLoader" />
 </template>
 
 <style scoped>
@@ -158,35 +165,35 @@
 </style>
 
 <script lang="ts">
-import EventFullView from "@/components/Contributor Tools/EventFullView.vue";
-import DrpgLoader from "@/components/DrpgLoader.vue";
+import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
+import { getData } from "@/plugins/MongoConnector";
 import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
-import type { IEventBase } from "@/types/SwrpgTypes/IEventBase";
+import { IItem, ILocation } from "@/types/SwrpgTypes";
 import FileSaver from "file-saver";
 import mongoose from "mongoose";
 import { defineComponent } from "vue";
 // Components
 export default defineComponent({
-	name: "Event Package Creator",
+	name: "Item Package Creator",
 	emits: ["pageNavigation"],
-	components: { DrpgLoader, EventFullView },
+	components: { ItemFullView },
 	data: () => {
 		return {
 			panels: [0, 1],
 			incompleteSnackbar: true,
-			selectedEvent: {} as IEventBase,
+			selectedItem: {} as IItem,
 			dialog: false,
 			dialogConfirmClear: false,
-			dialogFullView: false,
+			dialogItemFullView: false,
 			showContextMenu: false,
 			allowEdit: true,
 			pastedPackage: "",
 			packageData: {
 				packageInfo: {},
-				events: [],
+				items: [] as IItem[],
 			} as IPackageDefinition,
-			showLoader: false,
+			locations: [] as ILocation[],
 		};
 	},
 	methods: {
@@ -194,53 +201,56 @@ export default defineComponent({
 			this.dialogConfirmClear = false;
 			this.packageData = {
 				packageInfo: {},
-				events: [] as IEventBase[],
+				items: [] as IItem[],
 			} as IPackageDefinition;
 		},
-		saveEvent(eventData: IEventBase) {
+		saveItem(item: IItem) {
 			// this.itemPackageData.items.push({
 			// 	_id: new mongoose.Types.ObjectId().toString(),
 			// 	category: "Unknown",
 			// 	name: "New Item",
 			// 	image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
 			// });
-			this.dialogFullView = false;
-			this.packageData.events.push(eventData);
+			this.dialogItemFullView = false;
 
-			const existingEvent = this.packageData.events.find((e) => e.id === eventData.id);
+			const existingItem = this.packageData.items.find((e) => e._id === item._id);
 
-			if (existingEvent) {
-				const i = this.packageData.events.indexOf(existingEvent);
-				this.packageData.events[i] = eventData;
+			if (existingItem) {
+				const i = this.packageData.items.indexOf(existingItem);
+				this.packageData.items[i] = item;
 			} else {
-				this.packageData.events.push(eventData);
+				this.packageData.items.push(item);
 			}
 		},
-		duplicateEvent(eventData: IEventBase) {
-			const newObj: IEventBase = JSON.parse(JSON.stringify(eventData));
-			newObj.id = new mongoose.Types.ObjectId().toString();
-			this.packageData.events.push(newObj);
+		duplicateItem(item: IItem) {
+			const newObj: IItem = JSON.parse(JSON.stringify(item));
+			newObj._id = new mongoose.Types.ObjectId().toString();
+			this.packageData.items.push(newObj);
 		},
-		removeEvent(eventdata: IEventBase) {
-			this.packageData.events = this.packageData.events.filter((e) => e.id !== eventdata.id);
+		removeItem(item: IItem) {
+			this.packageData.items = this.packageData.items.filter((e) => e._id !== item._id);
 		},
-		openEvent(eventData?: IEventBase, editMode = true) {
-			if (!eventData)
-				eventData = {
-					id: new mongoose.Types.ObjectId().toString(),
-					embedOptions: {
-						color: "#E6A00E",
+		openItem(item?: IItem, editMode = true) {
+			console.log(item?.name ?? "Create new Item", editMode);
+
+			if (!item)
+				item = {
+					_id: new mongoose.Types.ObjectId().toString(),
+					category: "Unknown",
+					name: "New Item",
+					description: "Not much is known about this item.",
+					image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
+					encumbrance: 1,
+					tradeProperties: {
+						isTradeable: true,
+						baseValue: 100,
+						itemRarity: "Common",
 					},
-					results: {
-						pickRandom: false,
-						changes: [],
-					},
-					eventLinks: [],
 				};
 
-			this.dialogFullView = true;
+			this.dialogItemFullView = true;
 
-			this.selectedEvent = eventData;
+			this.selectedItem = item;
 			this.allowEdit = editMode;
 		},
 		exportPackage() {
@@ -249,11 +259,12 @@ export default defineComponent({
 				return;
 			}
 
-			const packageAsJson = JSON.stringify(this.packageData, null, "\t");
 			const fileName = `${stringToCamelCase(this.packageData.packageInfo.author)}.${stringToCamelCase(this.packageData.packageInfo.name)}`;
 
+			const packageAsJson = JSON.stringify(this.packageData, null, "\t");
+
 			var blob = new Blob([packageAsJson], { type: "text/plain;charset=utf-8" });
-			FileSaver.saveAs(blob, `${fileName}.events.json`);
+			FileSaver.saveAs(blob, `${fileName}.items.json`);
 			// navigator.clipboard.writeText(packageAsJson);
 			// alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
 		},
@@ -263,9 +274,17 @@ export default defineComponent({
 			this.packageData = packageFromJson;
 			this.pastedPackage = "";
 		},
+		async loadAllLocations() {
+			this.showLoader = true;
+			this.locations = [];
+			this.locations = await getData<ILocation>("location");
+
+			this.showLoader = false;
+		},
 	},
 	mounted() {
 		this.$emit("pageNavigation", this.$route.name);
+		this.loadAllLocations();
 	},
 });
 </script>

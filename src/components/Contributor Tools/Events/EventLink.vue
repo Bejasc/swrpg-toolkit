@@ -63,14 +63,14 @@
 </style>
 
 <script lang="ts">
+import { IItem } from "@/types/SwrpgTypes";
 import type { IEventBase, IEventLink } from "@/types/SwrpgTypes/IEventBase";
-import type IItem from "@/types/SwrpgTypes/IItem";
 import mongoose from "mongoose";
 import { defineComponent, type PropType } from "vue";
 export default defineComponent({
 	name: "EventLink",
 	components: {
-		EventEditor: () => import("@/components/Contributor Tools/EventEditor.vue"),
+		EventEditor: () => import("@/components/Contributor Tools/Events/EventEditor.vue"),
 	},
 	props: {
 		// rootEvent: {

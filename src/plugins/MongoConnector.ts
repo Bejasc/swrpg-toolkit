@@ -1,11 +1,11 @@
 import axios from "axios";
 
-export async function getData<T>(collection: string, id?: string, version?: string): Promise<T[]> {
-	const swrpgApi = "https://swrpg.bejasc.dev/api"; //import.meta.env.VITE_SWRPG_API ?? "NOT PROVIDED";
+export type ALLOWED_COLLECTIONS = "item" | "location";
 
-	let url = swrpgApi;
-	if (version) url = `${url}/${version}`;
-	url = `${url}/${collection}`;
+export async function getData<T>(collection: ALLOWED_COLLECTIONS, id?: string): Promise<T[]> {
+	const swrpgApi = "https://swrpg.bejasc.dev/api/v2";
+
+	let url = `${swrpgApi}/${collection}`;
 
 	//if ID provided, add to the request
 	if (id) url += `/${id}`;

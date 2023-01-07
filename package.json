@@ -12,6 +12,8 @@
 	"dependencies": {
 		"@mdi/font": "5.9.55",
 		"axios": "^0.26.1",
+		"drpg-economy": "^0.1.8",
+		"drpg-utils": "^1.3.3",
 		"execa": "^6.1.0",
 		"file-saver": "^2.0.5",
 		"material-design-icons": "^3.0.1",
@@ -21,6 +23,7 @@
 		"vue-emoji-picker": "^1.0.3",
 		"vue-router": "^4.0.14",
 		"vuetify": "^3.0.6",
+		"vuex": "^4.1.0",
 		"webfontloader": "^1.0.0"
 	},
 	"devDependencies": {

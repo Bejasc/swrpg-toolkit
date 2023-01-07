@@ -16,7 +16,6 @@
 			</v-col>
 		</v-row>
 	</v-col>
-	<DrpgLoader :showLoader="showLoader" />
 	<ItemFullView :show="dialogItemFullView" :item="selectedItem" :allowEdit="false" @closeFullView="dialogItemFullView = false" />
 </template>
 
@@ -35,21 +34,19 @@
 
 <script lang="ts">
 import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
-import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
-import type IItem from "@/types/SwrpgTypes/IItem";
+import { IItem } from "@/types/SwrpgTypes/Item";
 import { defineComponent } from "vue";
 // Components
 export default defineComponent({
 	name: "LocationDataSet",
-	components: { DrpgLoader, ItemFullView },
+	components: { ItemFullView },
 	emits: ["pageNavigation"],
 	data: () => {
 		return {
 			selectedItem: {} as IItem,
 			dialogItemFullView: false,
 			search: "",
-			showLoader: false,
 			items: [] as IItem[],
 		};
 	},
@@ -60,12 +57,12 @@ export default defineComponent({
 	},
 	methods: {
 		async loadAllItems() {
-			this.showLoader = true;
+			this.$store.dispatch("showLoader", true);
 			this.items = [];
-			this.items = await getData<IItem>("items");
+			this.items = await getData<IItem>("item");
 
 			console.table(this.items);
-			this.showLoader = false;
+			this.$store.dispatch("showLoader", false);
 		},
 		openItemFullView(item: IItem) {
 			this.selectedItem = item;
