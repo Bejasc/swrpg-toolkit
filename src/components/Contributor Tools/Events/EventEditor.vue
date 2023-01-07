@@ -114,8 +114,8 @@
 <script lang="ts">
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
 import DrpgSwatches from "@/types/DrpgColors";
+import { IItem } from "@/types/SwrpgTypes";
 import type { IEventBase, IEventLink, IEventResult } from "@/types/SwrpgTypes/IEventBase";
-import type IItem from "@/types/SwrpgTypes/IItem";
 import mongoose from "mongoose";
 import { defineComponent, type PropType } from "vue";
 import EventResult from "./EventResult.vue";
@@ -145,10 +145,7 @@ export default defineComponent({
 	},
 	methods: {
 		async saveEvent() {
-			(this.$parent as any).showLoader = true;
-
 			this.$emit("eventSaved", this.eventData);
-			(this.$parent as any).showLoader = false;
 		},
 		addEventLink() {
 			const newLink: IEventLink = {

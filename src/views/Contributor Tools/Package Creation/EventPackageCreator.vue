@@ -2,7 +2,7 @@
 	<v-col cols="11">
 		<v-card>
 			<v-card-title class="d-flex">
-				{{ packageData.packageInfo.name }} ({{ packageData.locations.length }} Locations)
+				{{ packageData.packageInfo.name }} ({{ packageData.events.length }} Events)
 				<v-spacer />
 				<v-card-actions>
 					<div>
@@ -30,7 +30,7 @@
 
 							<v-dialog v-model="dialogConfirmClear" activator="parent" transition="fade-transition" persistent>
 								<v-card>
-									<v-card-text> Are you sure you want to remove the Package Info and all of the Package Locations? This cannot be undone </v-card-text>
+									<v-card-text> Are you sure you want to remove the Package Info and all of the Package Events? This cannot be undone </v-card-text>
 									<v-card-actions>
 										<v-spacer />
 										<v-btn color="blue" @click="dialogConfirmClear = false">Cancel</v-btn>
@@ -72,20 +72,20 @@
 				</v-expansion-panel>
 
 				<!--EXTRACT ME END-->
-				<v-expansion-panel title="Locations">
+				<v-expansion-panel title="Events">
 					<v-expansion-panel-text class="ma-2">
 						<v-row style="max-height: 550px" class="overflow-y-auto">
-							<v-col v-for="locData in packageData.locations" :key="locData.location._id" cols="2">
-								<v-card width="200px" @click="openLocation(locData, false)">
+							<v-col v-for="eventData in packageData.events" :key="eventData.id" cols="2">
+								<v-card width="200px" @click="openEvent(eventData, false)">
 									<v-img
-										:src="locData.location.planetImage"
-										:lazy-src="locData.location.planetImage"
+										:src="eventData.embedOptions.image ?? eventData.embedOptions.thumbnail"
+										:lazy-src="eventData.embedOptions.image ?? eventData.embedOptions.thumbnail"
 										contain
 										class="white--text imageMouseover"
 										gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
 										height="200px"
 									>
-										<v-menu anchor="bottom" v-model="showContextMenu">
+										<v-menu anchor="bottom">
 											<template v-slot:activator="{ props }">
 												<v-btn class="float-right" variant="text" icon="mdi-dots-vertical" v-bind="props"></v-btn>
 											</template>
@@ -93,28 +93,28 @@
 												<v-list-item
 													title="View"
 													@click="
-														openLocation(locData, false);
+														openEvent(eventData, false);
 														showContextMenu = false;
 													"
 												/>
 												<v-list-item
 													title="Duplicate"
 													@click="
-														duplicateLocation(locData);
+														duplicateEvent(eventData);
 														showContextMenu = false;
 													"
 												/>
 												<v-list-item
 													title="Remove"
 													@click="
-														removeLocation(locData);
+														removeEvent(eventData);
 														showContextMenu = false;
 													"
 												/>
 												<v-list-item
 													title="Edit"
 													@click="
-														openLocation(locData, true);
+														openEvent(eventData, true);
 														showContextMenu = false;
 													"
 												/>
@@ -123,14 +123,14 @@
 									</v-img>
 									<v-card-actions color="red">
 										<span class="subtitle-1">
-											{{ locData.location.name }}
+											{{ eventData.id }}
 										</span>
 									</v-card-actions>
 								</v-card>
 							</v-col>
 
 							<v-col cols="1">
-								<v-card style="border: 3px dashed grey" width="200px" @click="openLocation(null, true)">
+								<v-card style="border: 3px dashed grey" width="200px" @click="openEvent(null, true)">
 									<v-icon size="200px" color="grey">mdi-plus</v-icon>
 								</v-card>
 							</v-col>
@@ -140,8 +140,7 @@
 			</v-expansion-panels>
 		</v-card>
 	</v-col>
-	<LocationFullView :show="dialogFullView" :locData="selectedLocation" :allowEdit="allowEdit" @locationSaved="saveLocation($event)" @closeFullView="dialogFullView = false" />
-	<DrpgLoader :showLoader="showLoader" />
+	<EventFullView :show="dialogFullView" :eventData="selectedEvent" :allowEdit="allowEdit" @eventSaved="saveEvent($event)" @closeFullView="dialogFullView = false" />
 </template>
 
 <style scoped>
@@ -158,24 +157,23 @@
 </style>
 
 <script lang="ts">
-import LocationFullView from "@/components/Contributor Tools/LocationFullView.vue";
-import DrpgLoader from "@/components/DrpgLoader.vue";
+import EventFullView from "@/components/Contributor Tools/Events/EventFullView.vue";
 import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
-import type { ILocationData } from "@/types/SwrpgTypes/ILocation";
+import type { IEventBase } from "@/types/SwrpgTypes/IEventBase";
 import FileSaver from "file-saver";
 import mongoose from "mongoose";
 import { defineComponent } from "vue";
 // Components
 export default defineComponent({
-	name: "Location Package Creator",
+	name: "Event Package Creator",
 	emits: ["pageNavigation"],
-	components: { LocationFullView, DrpgLoader },
+	components: { EventFullView },
 	data: () => {
 		return {
 			panels: [0, 1],
 			incompleteSnackbar: true,
-			selectedLocation: {} as ILocationData,
+			selectedEvent: {} as IEventBase,
 			dialog: false,
 			dialogConfirmClear: false,
 			dialogFullView: false,
@@ -184,9 +182,8 @@ export default defineComponent({
 			pastedPackage: "",
 			packageData: {
 				packageInfo: {},
-				locations: [],
+				events: [],
 			} as IPackageDefinition,
-			showLoader: false,
 		};
 	},
 	methods: {
@@ -194,10 +191,10 @@ export default defineComponent({
 			this.dialogConfirmClear = false;
 			this.packageData = {
 				packageInfo: {},
-				locations: [] as ILocationData[],
+				events: [] as IEventBase[],
 			} as IPackageDefinition;
 		},
-		saveLocation(locData: ILocationData) {
+		saveEvent(eventData: IEventBase) {
 			// this.itemPackageData.items.push({
 			// 	_id: new mongoose.Types.ObjectId().toString(),
 			// 	category: "Unknown",
@@ -205,54 +202,42 @@ export default defineComponent({
 			// 	image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
 			// });
 			this.dialogFullView = false;
-			this.packageData.locations.push(locData);
+			this.packageData.events.push(eventData);
 
-			const existingLocation = this.packageData.locations.find((e) => e.location._id === locData.location._id);
+			const existingEvent = this.packageData.events.find((e) => e.id === eventData.id);
 
-			if (existingLocation) {
-				const i = this.packageData.locations.indexOf(existingLocation);
-				this.packageData.locations[i] = locData;
+			if (existingEvent) {
+				const i = this.packageData.events.indexOf(existingEvent);
+				this.packageData.events[i] = eventData;
 			} else {
-				this.packageData.locations.push(locData);
+				this.packageData.events.push(eventData);
 			}
 		},
-		duplicateLocation(locData: ILocationData) {
-			const newObj: ILocationData = JSON.parse(JSON.stringify(locData));
-			newObj.location._id = new mongoose.Types.ObjectId().toString();
-			if (newObj.market) {
-				//TODO give market new ID
-			}
-			this.packageData.locations.push(newObj);
+		duplicateEvent(eventData: IEventBase) {
+			const newObj: IEventBase = JSON.parse(JSON.stringify(eventData));
+			newObj.id = new mongoose.Types.ObjectId().toString();
+			this.packageData.events.push(newObj);
 		},
-		removeLocation(locData: ILocationData) {
-			this.packageData.locations = this.packageData.locations.filter((e) => e.location._id !== locData.location._id);
+		removeEvent(eventdata: IEventBase) {
+			this.packageData.events = this.packageData.events.filter((e) => e.id !== eventdata.id);
 		},
-		openLocation(locData?: ILocationData, editMode = true) {
-			console.log(locData?.location.name ?? "None");
-			if (!locData)
-				locData = {
-					location: {
-						_id: new mongoose.Types.ObjectId().toString(),
-						coordinates: {
-							hyperlaneProximity: 0,
-							x: 0,
-							y: 0,
-						},
-						name: "New Planet",
-						image: "https://cdn.discordapp.com/attachments/964554539539771412/985579435317157918/unknown_environment.png",
-						planetImage: "https://cdn.discordapp.com/attachments/964554539539771412/985578348191313990/unknown_planet.png",
-						description: "Not much is known about this planet.",
-						channelOptions: {
-							name: "New Planet",
-							autoCreate: true,
-							category: "Planets",
-						},
+		openEvent(eventData?: IEventBase, editMode = true) {
+			if (!eventData)
+				eventData = {
+					id: new mongoose.Types.ObjectId().toString(),
+					embedOptions: {
+						color: "#E6A00E",
 					},
+					results: {
+						pickRandom: false,
+						changes: [],
+					},
+					eventLinks: [],
 				};
 
 			this.dialogFullView = true;
 
-			this.selectedLocation = locData;
+			this.selectedEvent = eventData;
 			this.allowEdit = editMode;
 		},
 		exportPackage() {
@@ -265,7 +250,7 @@ export default defineComponent({
 			const fileName = `${stringToCamelCase(this.packageData.packageInfo.author)}.${stringToCamelCase(this.packageData.packageInfo.name)}`;
 
 			var blob = new Blob([packageAsJson], { type: "text/plain;charset=utf-8" });
-			FileSaver.saveAs(blob, `${fileName}.locations.json`);
+			FileSaver.saveAs(blob, `${fileName}.events.json`);
 			// navigator.clipboard.writeText(packageAsJson);
 			// alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
 		},

@@ -16,8 +16,7 @@
 			</v-col>
 		</v-row>
 	</v-col>
-	<DrpgLoader :showLoader="showLoader" />
-	<ItemFullView :show="dialogItemFullView" :item="selectedItem" :allowEdit="false" @closeFullView="dialogItemFullView = false" />
+	<ItemFullView :show="dialogItemFullView" :item="selectedItem" :allowEdit="false" @closeFullView="dialogItemFullView = false" :locations="locations" />
 </template>
 
 <style scoped>
@@ -35,37 +34,46 @@
 
 <script lang="ts">
 import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
-import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
-import type IItem from "@/types/SwrpgTypes/IItem";
+import { ILocation } from "@/types/SwrpgTypes";
+import { IItem } from "@/types/SwrpgTypes/Item";
 import { defineComponent } from "vue";
 // Components
 export default defineComponent({
 	name: "LocationDataSet",
-	components: { DrpgLoader, ItemFullView },
+	components: { ItemFullView },
 	emits: ["pageNavigation"],
 	data: () => {
 		return {
 			selectedItem: {} as IItem,
 			dialogItemFullView: false,
 			search: "",
-			showLoader: false,
 			items: [] as IItem[],
+			locations: [] as ILocation[],
 		};
 	},
 	mounted() {
 		this.$emit("pageNavigation", this.$route.name);
 
+		this.loadAllLocations();
 		this.loadAllItems();
 	},
 	methods: {
 		async loadAllItems() {
-			this.showLoader = true;
+			this.$store.dispatch("showLoader", true);
 			this.items = [];
-			this.items = await getData<IItem>("items");
+			this.items = await getData<IItem>("item");
 
 			console.table(this.items);
-			this.showLoader = false;
+			this.$store.dispatch("showLoader", false);
+		},
+		async loadAllLocations() {
+			this.$store.dispatch("showLoader", true);
+			this.locations = [];
+			this.locations = await getData<ILocation>("location");
+
+			console.table(this.items);
+			this.$store.dispatch("showLoader", false);
 		},
 		openItemFullView(item: IItem) {
 			this.selectedItem = item;

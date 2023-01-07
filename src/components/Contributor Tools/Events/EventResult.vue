@@ -21,8 +21,8 @@
 </template>
 
 <script lang="ts">
+import { IItem } from "@/types/SwrpgTypes";
 import type { IEventResult } from "@/types/SwrpgTypes/IEventBase";
-import type IItem from "@/types/SwrpgTypes/IItem";
 import { defineComponent, type PropType } from "vue";
 export default defineComponent({
 	name: "EventResult",

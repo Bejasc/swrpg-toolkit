@@ -31,7 +31,7 @@
 								label="Aliases"
 								placeholder="Other names, separated by comma"
 								:readonly="!allowEdit"
-								v-model="aliasString"
+								v-model="helpers.aliasString"
 								density="compact"
 							></v-text-field>
 						</v-row>
@@ -47,7 +47,6 @@
 									label="Landing Site Name"
 									density="compact"
 								></v-text-field>
-								<v-checkbox v-if="allowEdit" v-model="hasMarket" :label="`Has Market: ${hasMarket ? 'Yes' : 'No'}`"></v-checkbox>
 							</v-col>
 							<v-col cols="6">
 								<v-img :src="locData.location.image" :disabled="!allowEdit" class="itemThumbnail" @click="changeEnvironmentImage()" />
@@ -61,21 +60,22 @@
 							<v-col cols="6">
 								<v-text-field
 									class="pa-1"
-									v-model="locData.location.coordinates.region"
-									v-bind:readonly="!allowEdit"
-									label="Region"
-									density="compact"
-								></v-text-field>
-							</v-col>
-							<v-col cols="6">
-								<v-text-field
-									class="pa-1"
 									v-model="locData.location.coordinates.sector"
 									v-bind:readonly="!allowEdit"
 									label="Sector"
 									density="compact"
 								></v-text-field>
 							</v-col>
+							<v-col cols="6">
+								<v-text-field
+									class="pa-1"
+									v-model="locData.location.coordinates.region"
+									v-bind:readonly="!allowEdit"
+									label="Region"
+									density="compact"
+								></v-text-field>
+							</v-col>
+
 							<v-col cols="6">
 								<v-row no-gutters>
 									<v-col cols="6" class="pa-1">
@@ -103,21 +103,12 @@
 									class="pa-1"
 									v-model="locData.location.coordinates.hyperlaneProximity"
 									v-bind:readonly="!allowEdit"
-									label="Hyperlane Proximity (TODO)"
+									label="Hyperlane Proximity"
 									type="number"
 									density="compact"
-									disabled
 								></v-text-field>
 							</v-col>
 						</v-row>
-
-						<div v-if="hasMarket" id="marketProperties">
-							<v-divider class="ma-4" />
-
-							<div align="left" class="text-caption font-italic">
-								Market definition is coming soon = including the ability to whitelist/blacklist items and set 'activity level'
-							</div>
-						</div>
 					</v-container>
 				</v-card-text>
 				<v-card-actions>
@@ -151,52 +142,56 @@ a {
 }
 </style>
 
-<script lang="ts">
-import type { ILocationData } from "@/types/SwrpgTypes/ILocation";
-import { defineComponent, type PropType } from "vue";
+<script setup lang="ts">
+import { ISwrpgLocationData } from "@/types/SwrpgTypes";
+import { computed, reactive, watch } from "vue";
 
-export default defineComponent({
-	name: "LocationFullView",
-	props: {
-		show: Boolean,
-		locData: {
-			type: Object as PropType<ILocationData>,
-			required: true,
-		},
-		allowEdit: Boolean,
+const props = defineProps<{
+	show: boolean;
+	allowEdit: boolean;
+	locData: ISwrpgLocationData;
+}>();
+
+const emit = defineEmits(["locationSaved"]);
+
+function saveLocation() {
+	const a = helpers.aliasString.replace(" ", "").split(",");
+	props.locData.location.aliases = a;
+	emit("locationSaved", props.locData);
+}
+
+function changePlanetImage() {
+	if (!props.allowEdit) return;
+	const imageUrl = prompt("Enter the URL for the new image", props.locData.location.planetImage);
+	if (imageUrl != null) props.locData.location.planetImage = imageUrl;
+}
+function changeEnvironmentImage() {
+	if (!props.allowEdit) return;
+	const imageUrl = prompt("Enter the URL for the new image", props.locData.location.image);
+	if (imageUrl != null) props.locData.location.image = imageUrl;
+}
+
+interface IHelpers {
+	aliasString: string;
+}
+
+const initialState: IHelpers = {
+	aliasString: "",
+};
+
+const helpers = reactive({ ...initialState });
+
+function setHelper() {
+	const newState: IHelpers = initialState;
+	newState.aliasString = props.locData.location.aliases?.join(", ") ?? "";
+
+	Object.assign(helpers, JSON.parse(JSON.stringify(newState)));
+}
+
+watch(
+	() => props.locData?.location?._id,
+	(newVal, oldVal) => {
+		setHelper();
 	},
-	data: () => {
-		return {
-			aliasString: "",
-			hasMarket: false,
-		};
-	},
-	methods: {
-		getAliases(): string {
-			return this.locData.location.aliases?.join(", ") ?? "";
-		},
-		async saveLocation() {
-			(this.$parent as any).showLoader = true;
-			const a = this.aliasString.replace(" ", "").split(",");
-
-			this.locData.location.aliases = a;
-
-			this.$emit("locationSaved", this.locData);
-			(this.$parent as any).showLoader = false;
-		},
-		changePlanetImage() {
-			if (!this.allowEdit) return;
-			//TODO Change to dialog
-			const imageUrl = prompt("Enter the URL for the new image", this.locData.location.planetImage);
-			if (imageUrl != null) this.locData.location.planetImage = imageUrl;
-		},
-		changeEnvironmentImage() {
-			if (!this.allowEdit) return;
-
-			//TODO Change to dialog
-			const imageUrl = prompt("Enter the URL for the new image", this.locData.location.image);
-			if (imageUrl != null) this.locData.location.image = imageUrl;
-		},
-	},
-});
+);
 </script>

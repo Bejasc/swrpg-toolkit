@@ -1,6 +1,6 @@
 <template>
 	<v-col cols="11">
-		<v-text-field dense v-model="search" label="Search" prepend-inner-icon="mdi-magnify" single-line></v-text-field>
+		<v-text-field dense v-model="search" clearable label="Search" prepend-inner-icon="mdi-magnify" single-line></v-text-field>
 		<v-row no-gutters style="max-height: 70vh" class="overflow-y-auto">
 			<v-col v-for="loc in filteredItems" :key="loc.name" cols="3">
 				<v-card class="ma-4">
@@ -9,7 +9,7 @@
 							<v-img style="margin-left: 0" :src="loc.planetImage" :lazy-src="loc.planetImage" contain> </v-img>
 						</div>
 					</v-img>
-					<v-card-title>
+					<v-card-title class="text-h6 d-inline-block text-truncate" style="max-width: 100%">
 						{{ loc.name }}
 					</v-card-title>
 
@@ -21,7 +21,6 @@
 			</v-col>
 		</v-row>
 	</v-col>
-	<DrpgLoader :showLoader="showLoader" />
 </template>
 
 <style scoped>
@@ -38,14 +37,12 @@
 </style>
 
 <script lang="ts">
-import DrpgLoader from "@/components/DrpgLoader.vue";
 import { getData } from "@/plugins/MongoConnector";
-import type { ILocation } from "@/types/SwrpgTypes/ILocation";
+import { ILocation } from "@/types/SwrpgTypes";
 import { defineComponent } from "vue";
 // Components
 export default defineComponent({
 	name: "LocationDataSet",
-	components: { DrpgLoader },
 	emits: ["pageNavigation"],
 	data: () => {
 		return {
@@ -61,12 +58,12 @@ export default defineComponent({
 	},
 	methods: {
 		async loadAllItems() {
-			this.showLoader = true;
+			this.$store.dispatch("showLoader", true);
 			this.locations = [];
 			this.locations = await getData<ILocation>("location");
 
 			console.table(this.locations);
-			this.showLoader = false;
+			this.$store.dispatch("showLoader", false);
 		},
 	},
 	computed: {
