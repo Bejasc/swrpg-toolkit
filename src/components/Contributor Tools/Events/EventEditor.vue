@@ -150,7 +150,7 @@ export default defineComponent({
 		addEventLink() {
 			const newLink: IEventLink = {
 				title: null,
-				eventId: [
+				event: [
 					{
 						id: new mongoose.Types.ObjectId().toString(),
 						embedOptions: {

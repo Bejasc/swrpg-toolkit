@@ -31,7 +31,7 @@
 				</v-row>
 
 				<v-expansion-panels variant="accordion">
-					<v-expansion-panel v-for="(event, index) in eventLink.eventId">
+					<v-expansion-panel v-for="(event, index) in eventLink.event">
 						<v-expansion-panel-title>
 							<template v-slot:default="{ expanded }">
 								{{ event.embedOptions.title ?? `Result ${index + 1}` }}
@@ -109,10 +109,10 @@ export default defineComponent({
 					changes: [],
 				},
 			};
-			this.eventLink.eventId.push(newEvent);
+			this.eventLink.event.push(newEvent);
 		},
 		removeEventFromLink(event: IEventBase) {
-			this.eventLink.eventId = this.eventLink.eventId.filter((e) => e != event);
+			this.eventLink.event = this.eventLink.event.filter((e) => e != event);
 		},
 	},
 });
