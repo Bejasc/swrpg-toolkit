@@ -252,7 +252,6 @@ function setHelper() {
 watch(
 	() => props.item._id,
 	(newVal, oldVal) => {
-		alert(JSON.stringify(props.item));
 		setHelper();
 	},
 );
