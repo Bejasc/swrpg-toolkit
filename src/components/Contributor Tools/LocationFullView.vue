@@ -155,8 +155,11 @@ const props = defineProps<{
 const emit = defineEmits(["locationSaved"]);
 
 function saveLocation() {
-	const a = helpers.aliasString.replace(" ", "").split(",");
+	const a = helpers.aliasString.replace(/\s/g, "").split(",");
 	props.locData.location.aliases = a;
+
+	props.locData.location.channelOptions.name = props.locData.location.name;
+
 	emit("locationSaved", props.locData);
 }
 
