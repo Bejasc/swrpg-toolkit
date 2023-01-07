@@ -16,7 +16,7 @@
 			</v-col>
 		</v-row>
 	</v-col>
-	<ItemFullView :show="dialogItemFullView" :item="selectedItem" :allowEdit="false" @closeFullView="dialogItemFullView = false" />
+	<ItemFullView :show="dialogItemFullView" :item="selectedItem" :allowEdit="false" @closeFullView="dialogItemFullView = false" :locations="locations" />
 </template>
 
 <style scoped>
@@ -35,6 +35,7 @@
 <script lang="ts">
 import ItemFullView from "@/components/Contributor Tools/ItemFullView.vue";
 import { getData } from "@/plugins/MongoConnector";
+import { ILocation } from "@/types/SwrpgTypes";
 import { IItem } from "@/types/SwrpgTypes/Item";
 import { defineComponent } from "vue";
 // Components
@@ -48,11 +49,13 @@ export default defineComponent({
 			dialogItemFullView: false,
 			search: "",
 			items: [] as IItem[],
+			locations: [] as ILocation[],
 		};
 	},
 	mounted() {
 		this.$emit("pageNavigation", this.$route.name);
 
+		this.loadAllLocations();
 		this.loadAllItems();
 	},
 	methods: {
@@ -60,6 +63,14 @@ export default defineComponent({
 			this.$store.dispatch("showLoader", true);
 			this.items = [];
 			this.items = await getData<IItem>("item");
+
+			console.table(this.items);
+			this.$store.dispatch("showLoader", false);
+		},
+		async loadAllLocations() {
+			this.$store.dispatch("showLoader", true);
+			this.locations = [];
+			this.locations = await getData<ILocation>("location");
 
 			console.table(this.items);
 			this.$store.dispatch("showLoader", false);
