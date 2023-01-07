@@ -91,7 +91,7 @@ export default {
 							},
 						},
 						{
-							text: "Items",
+							text: "Item Creator",
 							isVisible: true,
 							icon: "mdi-toolbox",
 							click: function () {
@@ -99,7 +99,7 @@ export default {
 							},
 						},
 						{
-							text: "Locations",
+							text: "Location Creator",
 							isVisible: true,
 							icon: "mdi-earth",
 							click: function () {
@@ -107,7 +107,7 @@ export default {
 							},
 						},
 						{
-							text: "Event",
+							text: "Event Creator",
 							isVisible: true,
 							icon: "mdi-calendar-text",
 							click: function () {
