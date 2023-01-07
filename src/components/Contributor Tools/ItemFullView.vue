@@ -74,16 +74,16 @@
 									</v-row>
 									<v-row>
 										<v-checkbox
-											v-model="helpers.marketProperties.availableEverywhere"
-											:label="`Is Available Everywhere: ${helpers.marketProperties.availableEverywhere ? 'Yes' : 'No'}`"
+											v-model="helpers.tradeAvailableEverywhere"
+											:label="`Is Available Everywhere: ${helpers.tradeAvailableEverywhere ? 'Yes' : 'No'}`"
 											:readonly="!allowEdit"
 											v-if="allowEdit == true"
 										></v-checkbox>
 										<!-- <v-switch v-model="marketHelper.isWhitelist" :label="`Treat list as ${marketHelper.isWhitelist ? 'Whitelist' : 'Blacklist'}`"> </v-switch> -->
 										<v-radio-group
 											inline
-											v-if="!helpers.marketProperties.availableEverywhere && allowEdit == true"
-											v-model="helpers.marketProperties.mode"
+											v-if="!helpers.tradeAvailableEverywhere && allowEdit == true"
+											v-model="helpers.tradeMode"
 											@update:model-value="whitelistModeChanged"
 											:readonly="!allowEdit"
 										>
@@ -95,8 +95,8 @@
 									<v-alert density="compact" type="info" variant="outlined" v-else>
 										{{ marketHelperText }}
 									</v-alert>
-									<v-col cols="12" v-if="!helpers.marketProperties.availableEverywhere && allowEdit == true">
-										<LocationPicker :selected-values="helpers.marketProperties.locationIds" @selection-changed="selectedLocationsChanged"></LocationPicker>
+									<v-col cols="12" v-if="!helpers.tradeAvailableEverywhere && allowEdit == true">
+										<LocationPicker :selected-values="helpers.tradeLocationIds" @selection-changed="selectedLocationsChanged"></LocationPicker>
 									</v-col>
 									<!-- <v-row>
 								<v-expansion-panels>
@@ -171,8 +171,8 @@ function whitelistModeChanged(val) {
 }
 
 function selectedLocationsChanged(newValue?: string[]) {
-	helpers.marketProperties.locationIds = newValue;
-	if (helpers.marketProperties.mode === "whitelist") {
+	helpers.tradeLocationIds = newValue;
+	if (helpers.tradeMode === "whitelist") {
 		props.item.tradeProperties.locationWhitelist = newValue;
 	} else {
 		props.item.tradeProperties.locationBlacklist = newValue;
@@ -188,12 +188,12 @@ const itemRarities = computed(() => {
 });
 
 const marketHelperText = computed(() => {
-	const matchingLocations = props.locations.filter((e) => helpers.marketProperties.locationIds.includes(e._id));
+	const matchingLocations = props.locations.filter((e) => helpers.tradeLocationIds.includes(e._id));
 	const matchingLocationNames = matchingLocations.map((e) => e.name).join(", "); //TODO joinstr
-	if (helpers.marketProperties.availableEverywhere) {
+	if (helpers.tradeAvailableEverywhere) {
 		return `${props.item.name} can be bought and sold everywhere.`;
 	} else {
-		if (helpers.marketProperties.mode === "whitelist") {
+		if (helpers.tradeMode === "whitelist") {
 			return `${props.item.name} can *ONLY* be bought and sold on ${matchingLocationNames}.`;
 		} else {
 			return `${props.item.name} can be bought and sold everywhere *EXCEPT* on ${matchingLocationNames}`;
@@ -205,56 +205,41 @@ const marketHelperText = computed(() => {
 
 interface IHelpers {
 	aliasString: string;
-	marketProperties: {
-		availableEverywhere: boolean;
-		mode: "blacklist" | "whitelist";
-		locationIds: string[];
-	};
-}
-
-interface IMarketProperties {
-	availableEverywhere: boolean;
-	mode: "whitelist" | "blacklist";
-	locationIds: string[];
+	tradeAvailableEverywhere: boolean;
+	tradeMode: "blacklist" | "whitelist";
+	tradeLocationIds: string[];
 }
 
 const initialState: IHelpers = {
 	aliasString: "",
-	marketProperties: {
-		availableEverywhere: true,
-		mode: "whitelist",
-		locationIds: [],
-	},
+	tradeAvailableEverywhere: true,
+	tradeMode: "whitelist",
+	tradeLocationIds: [],
 };
 
 const helpers = reactive({ ...initialState });
 
 function setHelper() {
-	console.log(`Helper was set for ${props.item.name}`);
-	const aliasString = props.item.aliases?.join(", ") ?? "";
-
-	const marketProperties: IMarketProperties = initialState.marketProperties;
+	const newState: IHelpers = initialState;
+	newState.aliasString = props.item.aliases?.join(", ") ?? "";
 
 	if (props.item.tradeProperties) {
 		if (props.item.tradeProperties.locationBlacklist?.length > 0 || props.item.tradeProperties.locationWhitelist?.length > 0) {
-			//Set available everywhere false
-			marketProperties.availableEverywhere = false;
+			newState.tradeAvailableEverywhere = false;
+
 			if (props.item.tradeProperties.locationWhitelist?.length > 0) {
-				marketProperties.mode = "whitelist";
-				marketProperties.locationIds = props.item.tradeProperties.locationWhitelist;
+				newState.tradeMode = "whitelist";
+				newState.tradeLocationIds = props.item.tradeProperties.locationWhitelist;
 			} else {
-				marketProperties.mode = "blacklist";
-				marketProperties.locationIds = props.item.tradeProperties.locationBlacklist;
+				newState.tradeMode = "blacklist";
+				newState.tradeLocationIds = props.item.tradeProperties.locationBlacklist;
 			}
 		} else {
-			marketProperties.availableEverywhere = true;
+			newState.tradeAvailableEverywhere = true;
 		}
 	}
 
-	Object.assign(helpers, {
-		aliasString,
-		marketProperties,
-	});
+	Object.assign(helpers, JSON.parse(JSON.stringify(newState)));
 }
 
 watch(

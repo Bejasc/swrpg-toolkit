@@ -32,7 +32,6 @@
 //
 import { getData } from "@/plugins/MongoConnector";
 import { ILocation } from "@/types/SwrpgTypes";
-import { stringEmail } from "@sapphire/shapeshift";
 import { computed, onMounted, PropType, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import SmallEntityCard from "./SmallEntityCard.vue";
