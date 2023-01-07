@@ -195,14 +195,7 @@ export default defineComponent({
 			} as IPackageDefinition;
 		},
 		saveLocation(locData: ISwrpgLocationData) {
-			// this.itemPackageData.items.push({
-			// 	_id: new mongoose.Types.ObjectId().toString(),
-			// 	category: "Unknown",
-			// 	name: "New Item",
-			// 	image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
-			// });
 			this.dialogFullView = false;
-			this.packageData.locations.push(locData);
 
 			const existingLocation = this.packageData.locations.find((e) => e.location._id === locData.location._id);
 
@@ -210,6 +203,7 @@ export default defineComponent({
 				const i = this.packageData.locations.indexOf(existingLocation);
 				this.packageData.locations[i] = locData;
 			} else {
+				alert(`${locData.location._id} DIDNT MATCH ANY ${this.packageData.locations.map((e) => e.location._id).join(", ")}`);
 				this.packageData.locations.push(locData);
 			}
 		},
@@ -246,7 +240,6 @@ export default defineComponent({
 						},
 						initialPoints: [],
 					},
-					market: {},
 				};
 
 			this.dialogFullView = true;

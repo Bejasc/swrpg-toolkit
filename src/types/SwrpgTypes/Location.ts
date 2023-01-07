@@ -1,6 +1,7 @@
 import { IDrpgLocationBase } from "drpg-economy";
 import IBasePackage from "drpg-utils/dist/types/IBasePackage";
 import { invariant } from "../../plugins/Utils";
+import { IDrpgMarketBase } from "./Market";
 
 export function getMatchingLocation(value: string, locations: ILocation[]): ILocation {
 	value = invariant(value);
@@ -12,7 +13,7 @@ export function getMatchingLocation(value: string, locations: ILocation[]): ILoc
 
 export interface ISwrpgLocationData {
 	location: ILocation;
-	market: unknown; //TODO
+	market?: IDrpgMarketBase;
 }
 
 export interface ILocation extends IDrpgLocationBase {

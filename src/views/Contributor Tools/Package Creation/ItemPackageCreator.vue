@@ -205,12 +205,6 @@ export default defineComponent({
 			} as IPackageDefinition;
 		},
 		saveItem(item: IItem) {
-			// this.itemPackageData.items.push({
-			// 	_id: new mongoose.Types.ObjectId().toString(),
-			// 	category: "Unknown",
-			// 	name: "New Item",
-			// 	image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
-			// });
 			this.dialogItemFullView = false;
 
 			const existingItem = this.packageData.items.find((e) => e._id === item._id);

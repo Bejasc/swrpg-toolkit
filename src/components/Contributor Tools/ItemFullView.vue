@@ -156,7 +156,7 @@ function saveNewItem() {
 }
 
 function changeItemImage() {
-	if (!this.allowEdit) return;
+	if (!props.allowEdit) return;
 	const imageUrl = prompt("Enter the URL for the new image", props.item.image);
 	if (imageUrl != null) props.item.image = imageUrl;
 }
