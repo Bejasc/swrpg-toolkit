@@ -14,7 +14,7 @@
 												label="Aliases"
 												placeholder="Other names, separated by comma"
 												:readonly="!allowEdit"
-												v-model="aliasString"
+												v-model="helpers.aliasString"
 												density="compact"
 											></v-text-field>
 										</v-col>
@@ -74,16 +74,16 @@
 									</v-row>
 									<v-row>
 										<v-checkbox
-											v-model="marketProperties.availableEverywhere"
-											:label="`Is Available Everywhere: ${marketProperties.availableEverywhere ? 'Yes' : 'No'}`"
+											v-model="helpers.marketProperties.availableEverywhere"
+											:label="`Is Available Everywhere: ${helpers.marketProperties.availableEverywhere ? 'Yes' : 'No'}`"
 											:readonly="!allowEdit"
 											v-if="allowEdit == true"
 										></v-checkbox>
 										<!-- <v-switch v-model="marketHelper.isWhitelist" :label="`Treat list as ${marketHelper.isWhitelist ? 'Whitelist' : 'Blacklist'}`"> </v-switch> -->
 										<v-radio-group
 											inline
-											v-if="!marketProperties.availableEverywhere && allowEdit == true"
-											v-model="marketProperties.mode"
+											v-if="!helpers.marketProperties.availableEverywhere && allowEdit == true"
+											v-model="helpers.marketProperties.mode"
 											@update:model-value="whitelistModeChanged"
 											:readonly="!allowEdit"
 										>
@@ -95,8 +95,8 @@
 									<v-alert density="compact" type="info" variant="outlined" v-else>
 										{{ marketHelperText }}
 									</v-alert>
-									<v-col cols="12" v-if="!marketProperties.availableEverywhere && allowEdit == true">
-										<LocationPicker :selected-values="marketProperties.locationIds" @selection-changed="selectedLocationsChanged"></LocationPicker>
+									<v-col cols="12" v-if="!helpers.marketProperties.availableEverywhere && allowEdit == true">
+										<LocationPicker :selected-values="helpers.marketProperties.locationIds" @selection-changed="selectedLocationsChanged"></LocationPicker>
 									</v-col>
 									<!-- <v-row>
 								<v-expansion-panels>
@@ -134,142 +134,133 @@
 }
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import LocationPicker from "@/components/LocationSelector.vue";
 import { IItem, ILocation } from "@/types/SwrpgTypes";
-import { ITradeProperties } from "drpg-economy/dist/types/IDrpgItemBase";
-import { defineComponent, type PropType } from "vue";
+import { computed, reactive, ref, Ref, watch } from "vue";
+
+const props = defineProps<{
+	show: boolean;
+	allowEdit: boolean;
+	item: IItem;
+	locations: ILocation[];
+}>();
+
+const emit = defineEmits(["saveItem"]);
+
+function saveNewItem() {
+	const a = helpers.aliasString.replace(" ", "").split(",");
+	props.item.aliases = a;
+	emit("saveItem", props.item);
+}
+
+function changeItemImage() {
+	if (!this.allowEdit) return;
+	const imageUrl = prompt("Enter the URL for the new image", props.item.image);
+	if (imageUrl != null) props.item.image = imageUrl;
+}
+
+function whitelistModeChanged(val) {
+	if (val === "whitelist") {
+		props.item.tradeProperties.locationWhitelist = props.item.tradeProperties.locationBlacklist;
+		props.item.tradeProperties.locationBlacklist = undefined;
+	} else {
+		props.item.tradeProperties.locationBlacklist = props.item.tradeProperties.locationWhitelist;
+		props.item.tradeProperties.locationWhitelist = undefined;
+	}
+}
+
+function selectedLocationsChanged(newValue?: string[]) {
+	helpers.marketProperties.locationIds = newValue;
+	if (helpers.marketProperties.mode === "whitelist") {
+		props.item.tradeProperties.locationWhitelist = newValue;
+	} else {
+		props.item.tradeProperties.locationBlacklist = newValue;
+	}
+}
+
+const itemCategories = computed(() => {
+	return ["Unknown", "Food", "Armour", "Weapons", "Medical", "Tools", "Clothing", "Resources", "Minerals", "Luxuries", "Waste", "Technology", "Salvage", "Chemicals"];
+});
+
+const itemRarities = computed(() => {
+	return ["Abundant", "Common", "Uncommon", "Rare", "Legendary", "Unique"];
+});
+
+const marketHelperText = computed(() => {
+	const matchingLocations = props.locations.filter((e) => helpers.marketProperties.locationIds.includes(e._id));
+	const matchingLocationNames = matchingLocations.map((e) => e.name).join(", "); //TODO joinstr
+	if (helpers.marketProperties.availableEverywhere) {
+		return `${props.item.name} can be bought and sold everywhere.`;
+	} else {
+		if (helpers.marketProperties.mode === "whitelist") {
+			return `${props.item.name} can *ONLY* be bought and sold on ${matchingLocationNames}.`;
+		} else {
+			return `${props.item.name} can be bought and sold everywhere *EXCEPT* on ${matchingLocationNames}`;
+		}
+	}
+});
+
+//-------------
+
+interface IHelpers {
+	aliasString: string;
+	marketProperties: {
+		availableEverywhere: boolean;
+		mode: "blacklist" | "whitelist";
+		locationIds: string[];
+	};
+}
 
 interface IMarketProperties {
 	availableEverywhere: boolean;
-	mode: "blacklist" | "whitelist";
-	locationNames: string;
-	//Location IDs?
+	mode: "whitelist" | "blacklist";
+	locationIds: string[];
 }
 
-export default defineComponent({
-	name: "ItemFullView",
-	components: { LocationPicker },
-	props: {
-		show: Boolean,
-		item: {
-			type: Object as PropType<IItem>,
-			required: true,
-		},
-		allowEdit: Boolean,
-		locations: {
-			type: Object as PropType<ILocation[]>,
-		},
+const initialState: IHelpers = {
+	aliasString: "",
+	marketProperties: {
+		availableEverywhere: true,
+		mode: "whitelist",
+		locationIds: [],
 	},
-	data: () => {
-		return {
-			itemCategories: [
-				"Unknown",
-				"Food",
-				"Armour",
-				"Weapons",
-				"Medical",
-				"Tools",
-				"Clothing",
-				"Resources",
-				"Minerals",
-				"Luxuries",
-				"Waste",
-				"Technology",
-				"Salvage",
-				"Chemicals",
-			],
-			aliasString: "",
-			itemRarities: ["Abundant", "Common", "Uncommon", "Rare", "Legendary", "Unique"],
-			marketProperties: {
-				availableEverywhere: false,
-				mode: "blacklist",
-				locationNames: "",
-				locationIds: [],
-			},
-		};
-	},
-	computed: {
-		marketHelperText(): string {
-			const locationNames = this.marketProperties.locationNames.length > 0 ? this.marketProperties.locationNames : "selected locations";
-			if (this.marketProperties.availableEverywhere) {
-				return `${this.item.name} can be bought and sold everywhere.`;
+};
+
+const helpers = reactive({ ...initialState });
+
+function setHelper() {
+	console.log(`Helper was set for ${props.item.name}`);
+	const aliasString = props.item.aliases?.join(", ") ?? "";
+
+	const marketProperties: IMarketProperties = initialState.marketProperties;
+
+	if (props.item.tradeProperties) {
+		if (props.item.tradeProperties.locationBlacklist?.length > 0 || props.item.tradeProperties.locationWhitelist?.length > 0) {
+			//Set available everywhere false
+			marketProperties.availableEverywhere = false;
+			if (props.item.tradeProperties.locationWhitelist?.length > 0) {
+				marketProperties.mode = "whitelist";
+				marketProperties.locationIds = props.item.tradeProperties.locationWhitelist;
 			} else {
-				if (this.marketProperties.mode === "whitelist") {
-					return `${this.item.name} can *ONLY* be bought and sold on ${locationNames}.`;
-				} else {
-					return `${this.item.name} can be bought and sold everywhere *EXCEPT* on ${locationNames}`;
-				}
+				marketProperties.mode = "blacklist";
+				marketProperties.locationIds = props.item.tradeProperties.locationBlacklist;
 			}
-		},
-	},
-	methods: {
-		getItemAliases(): string {
-			return this.item.aliases?.join(", ") ?? "";
-		},
-		async saveNewItem() {
-			const a = this.aliasString.replace(" ", "").split(",");
-
-			this.item.aliases = a;
-
-			this.$emit("saveItem", this.item);
-		},
-		changeItemImage() {
-			if (!this.allowEdit) return;
-
-			//TODO Change to dialog
-			const imageUrl = prompt("Enter the URL for the new image", this.item.image);
-			if (imageUrl != null) this.item.image = imageUrl;
-		},
-		whitelistModeChanged(val) {
-			const tradeProperties: ITradeProperties = this.item.tradeProperties;
-
-			if (val === "whitelist") {
-				(tradeProperties.locationWhitelist = tradeProperties.locationBlacklist), (tradeProperties.locationBlacklist = undefined);
-			} else {
-				(tradeProperties.locationBlacklist = tradeProperties.locationWhitelist), (tradeProperties.locationWhitelist = undefined);
-			}
-		},
-		selectedLocationsChanged(newValue?: string[]) {
-			const tradeProperties: ITradeProperties = this.item.tradeProperties;
-
-			this.marketProperties.locationNames = this.getLocationNames(newValue);
-
-			if (this.marketProperties.mode === "whitelist") {
-				console.log(`${this.item.name} trade whitelist set to ${this.marketProperties.locationNames}`);
-				tradeProperties.locationWhitelist = newValue;
-			} else {
-				console.log(`${this.item.name} trade blacklist set to ${this.marketProperties.locationNames}`);
-				tradeProperties.locationBlacklist = newValue;
-			}
-		},
-		getLocationNames(ids: string[]): string {
-			const matchingLocations = this.locations.filter((e) => ids.includes(e._id));
-			return matchingLocations.map((e) => e.name).join(", ");
-		},
-	},
-	updated() {
-		const tradeProperties: ITradeProperties = this.item.tradeProperties;
-
-		if (tradeProperties) {
-			if (tradeProperties.locationBlacklist?.length > 0 || tradeProperties.locationWhitelist?.length > 0) {
-				//Set available everywhere false
-				this.marketProperties.availableEverywhere = false;
-				if (tradeProperties.locationWhitelist?.length > 0) {
-					this.marketProperties.mode = "whitelist";
-					this.marketProperties.locationNames = this.getLocationNames(tradeProperties.locationWhitelist);
-					this.marketProperties.locationIds = tradeProperties.locationWhitelist;
-				} else {
-					this.marketProperties.mode = "blacklist";
-					this.marketProperties.locationNames = this.getLocationNames(tradeProperties.locationBlacklist);
-					this.marketProperties.locationIds = tradeProperties.locationBlacklist;
-				}
-			} else {
-				this.marketProperties.availableEverywhere = true;
-			}
+		} else {
+			marketProperties.availableEverywhere = true;
 		}
+	}
 
-		if (this.item?.aliases?.length > 0) this.aliasString = this.getItemAliases();
+	Object.assign(helpers, {
+		aliasString,
+		marketProperties,
+	});
+}
+
+watch(
+	() => props.item._id,
+	(newVal, oldVal) => {
+		setHelper();
 	},
-});
+);
 </script>
