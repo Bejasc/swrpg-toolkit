@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 export interface IEventBase {
 	id: string;
 	author?: string;
@@ -16,7 +18,11 @@ export interface IEventBase {
 	postOnNoReact?: boolean;
 	embedOptions?: IEmbedOptions;
 	eventLinks?: IEventLink[];
-	requirements?: IEventRequirement;
+	requirements?: {
+		match: RequirementMatch;
+		conditions: IEventCondition[];
+		failEvent: IEventBase;
+	};
 	results?: {
 		pickRandom?: boolean;
 		changes: IEventResult[];
@@ -55,48 +61,15 @@ export interface IEmbedOptions {
 }
 
 export type RequirementMatch = "One of" | "All of" | "None of";
-
-export interface IRequirementDetail {
-	/**How the requirements are matched.. Either `One of`, `All of`, or `None of` */
+export type ValueMatch = "Less than" | "Greater than";
+interface IEventNumericalOperator {
+	modifier: "Less than" | "Greater than";
+}
+export interface IEventCondition {
 	match: RequirementMatch;
-	/** The values to use for this requirement. Array of any of the types `string`, `IItemQuantity`, and `ISkillLevel`.
-	 * Location and Race requirements proved as `string[]`, `IItemQuantity[]` for item requirements,
-	 * and `ISkillLevel[]` for skill requirements */
-	values: string[] | IItemQuantity[] | ISkillLevel[] | IAffinity;
-}
-
-export interface IRequirement {
-	/**How the requirements are matched.. Either `One of`, `All of`, or `None of` */
-	match: RequirementMatch;
-	/**Require certain race conditions for this event. */
-	species?: IRequirementDetail;
-	/**Require certain Item conditions for this event. Treated separately from Items removed via event results*/
-	itemInInventory?: IRequirementDetail;
-	/**Require certain Location conditions for this event. Treated separately from Event location whitelist/blacklist*/
-	location?: IRequirementDetail;
-	/**Require certain Skill conditions for this event. Can also be provided as Credits or Renown */
-	skill?: IRequirementDetail;
-	/**Require certain Faction Affinity for this event. */
-	affinity?: IRequirementDetail;
-	/**Require the character to be wearing or holding certain armor or weapons */
-	itemEquipped?: IRequirementDetail;
-}
-
-export interface IEventRequirement extends IRequirement {
-	/**Require the character to win combat against an NPC. */
-	combat?: IEventCombat;
-
-	/**The event that is presented when the conditions faile. */
-	failEvent: string[];
-	onFail: string;
-}
-
-export interface IEventCombat {
-	npcId: string;
-	playerEndAtHp?: number;
-	npcEndAtHp?: number;
-	forceWeapon?: string;
-	fleeEvent?: [];
+	type: "item" | "credits" | "skill" | "location" | "species";
+	values: string[] | (IItemQuantity & IEventNumericalOperator)[] | (ISkillLevel & IEventNumericalOperator)[] | (IAffinity & IEventNumericalOperator)[];
+	//failEvent?: IEventBase; //TODO: Eventually, allow Requirements themselves to specify failure events so failing different requirements can do different things
 }
 
 export interface IEventResult {
@@ -120,3 +93,11 @@ export interface IAffinity {
 	faction: string;
 	points: number;
 }
+
+export const DEFAULT_EVENT_STATE: IEventBase = {
+	id: new mongoose.Types.ObjectId().toString(),
+	embedOptions: {
+		title: "Event Title",
+		color: "#E6A00E",
+	},
+};

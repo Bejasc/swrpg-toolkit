@@ -32,7 +32,7 @@
 
 				<v-expansion-panels variant="accordion">
 					<v-expansion-panel v-for="(event, index) in eventLink.event">
-						<v-expansion-panel-title>
+						<v-expansion-panel-title color="blue-darken-3">
 							<template v-slot:default="{ expanded }">
 								{{ event.embedOptions.title ?? `Result ${index + 1}` }}
 								<v-spacer />
@@ -64,8 +64,7 @@
 
 <script lang="ts">
 import { IItem } from "@/types/SwrpgTypes";
-import type { IEventBase, IEventLink } from "@/types/SwrpgTypes/IEventBase";
-import mongoose from "mongoose";
+import { DEFAULT_EVENT_STATE, IEventBase, IEventLink } from "@/types/SwrpgTypes/IEventBase";
 import { defineComponent, type PropType } from "vue";
 export default defineComponent({
 	name: "EventLink",
@@ -98,17 +97,7 @@ export default defineComponent({
 	},
 	methods: {
 		addEvent() {
-			const newEvent: IEventBase = {
-				id: new mongoose.Types.ObjectId().toString(),
-				embedOptions: {
-					color: "#E6A00E",
-				},
-				eventLinks: [],
-				results: {
-					pickRandom: false,
-					changes: [],
-				},
-			};
+			const newEvent: IEventBase = JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE));
 			this.eventLink.event.push(newEvent);
 		},
 		removeEventFromLink(event: IEventBase) {

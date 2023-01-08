@@ -52,30 +52,63 @@
 				</v-dialog>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
-		<!-- <v-expansion-panel title="Conditions"> </v-expansion-panel> -->
+		<v-expansion-panel title="Conditions">
+			<v-expansion-panel-text>
+				<div align="left" class="text-caption font-italic text-medium-emphasis ma-4" v-if="isTopLevel">
+					Conditions can be set for events.<br />
+					When entering *this node* of an event, if the condition is not met, the onFail event will trigger, instead of continuing to the EventLinks..
+				</div>
+				<v-select v-if="eventData.requirements" label="Match Strategy" :items="matchStrategies" v-model="eventData.requirements.match" variant="solo"></v-select>
+
+				<div class="mx-3 mt-3">
+					<p class="text-h6">Conditions</p>
+					<v-btn color="blue" variant="outlined" @click="addCondition()">Add Condition</v-btn>
+				</div>
+				<br />
+				<div v-if="eventData.requirements">
+					<EventCondition
+						:allow-edit="allowEdit"
+						v-for="condition in eventData.requirements.conditions"
+						:condition="condition"
+						:remove-condition="removeCondition"
+						:items="allItems"
+					></EventCondition>
+
+					<v-expansion-panels variant="accordion">
+						<v-expansion-panel title="Event - On Fail" color="red-darken-4">
+							<v-expansion-panel-text>
+								<EventEditorComponent :eventData="eventData.requirements.failEvent" :allowEdit="allowEdit" :allItems="allItems"></EventEditorComponent>
+							</v-expansion-panel-text>
+						</v-expansion-panel>
+					</v-expansion-panels>
+				</div>
+			</v-expansion-panel-text>
+		</v-expansion-panel>
 		<v-expansion-panel title="Results">
 			<v-expansion-panel-text>
 				<div align="left" class="text-caption font-italic text-medium-emphasis ma-4" v-if="isTopLevel">
 					Results are the affects that are applied to the player when this node of the Event is hit. <br />
 					They could be awarded or penalized Credits, Skill Points or Items, or something else.
-					<span v-if="eventData.results.changes.some((e) => e.type === 'item')"
+					<span v-if="eventData.results?.changes.some((e) => e.type === 'item')"
 						><br />
 						<br />Not seeing an Item you want? Head to the Item Creator to create the item and have it added!</span
 					>
 				</div>
-				<EventResult
-					:allow-edit="allowEdit"
-					v-for="result in eventData.results.changes"
-					:event-result="result"
-					:remove-result="removeResult"
-					:all-items="allItems"
-				></EventResult>
+				<div v-if="eventData.results">
+					<EventResult
+						:allow-edit="allowEdit"
+						v-for="result in eventData.results.changes"
+						:event-result="result"
+						:remove-result="removeResult"
+						:all-items="allItems"
+					></EventResult>
+				</div>
 				<v-row>
 					<v-col cols="1" class="ma-3">
 						<v-btn color="green" variant="text" @click="addResult()">Add Result</v-btn>
 					</v-col>
 					<v-col cols="4">
-						<v-checkbox v-if="eventData.results.changes.length > 1" v-model="eventData.results.pickRandom" label="Pick one at random"></v-checkbox>
+						<v-checkbox v-if="eventData.results?.changes.length > 1" v-model="eventData.results.pickRandom" label="Pick one at random"></v-checkbox>
 					</v-col>
 				</v-row>
 			</v-expansion-panel-text>
@@ -94,14 +127,16 @@
 					<br />
 					If no link is provided - this event ({{ eventData.embedOptions.title }}) will be considered as the conclusion.
 				</div>
-				<EventLinkComponent
-					:allow-edit="allowEdit"
-					:event-link="eventLink"
-					v-for="(eventLink, index) in eventData.eventLinks"
-					:key="index"
-					:remove-event-link="removeEventLink"
-					:all-items="allItems"
-				></EventLinkComponent>
+				<div v-if="eventData.eventLinks">
+					<EventLinkComponent
+						:allow-edit="allowEdit"
+						:event-link="eventLink"
+						v-for="(eventLink, index) in eventData.eventLinks"
+						:key="index"
+						:remove-event-link="removeEventLink"
+						:all-items="allItems"
+					></EventLinkComponent>
+				</div>
 
 				<div class="text-center mt-5">
 					<v-btn class="ma-2" icon="mdi-plus" size="small" variant="outlined" color="green" @click="addEventLink"> </v-btn>
@@ -115,13 +150,13 @@
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
 import DrpgSwatches from "@/types/DrpgColors";
 import { IItem } from "@/types/SwrpgTypes";
-import type { IEventBase, IEventLink, IEventResult } from "@/types/SwrpgTypes/IEventBase";
-import mongoose from "mongoose";
+import { DEFAULT_EVENT_STATE, IEventBase, IEventCondition, IEventLink, IEventResult } from "@/types/SwrpgTypes/IEventBase";
 import { defineComponent, type PropType } from "vue";
+import EventCondition from "./EventCondition.vue";
 import EventResult from "./EventResult.vue";
 export default defineComponent({
 	name: "EventEditor",
-	components: { DiscordEmbed, EventResult },
+	components: { DiscordEmbed, EventResult, EventCondition },
 	props: {
 		eventData: {
 			type: Object as PropType<IEventBase>,
@@ -141,6 +176,7 @@ export default defineComponent({
 		return {
 			previewEmbed: false,
 			swatches: DrpgSwatches,
+			matchStrategies: ["All of", "One of", "None of"],
 		};
 	},
 	methods: {
@@ -148,38 +184,56 @@ export default defineComponent({
 			this.$emit("eventSaved", this.eventData);
 		},
 		addEventLink() {
+			if (!this.eventData.eventLinks) this.eventData.eventLinks = [];
+
 			const newLink: IEventLink = {
 				title: null,
-				event: [
-					{
-						id: new mongoose.Types.ObjectId().toString(),
-						embedOptions: {
-							color: "#E6A00E",
-						},
-						eventLinks: [],
-						results: {
-							pickRandom: false,
-							changes: [],
-						},
-					},
-				],
+				event: [JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE))],
 			};
 			this.eventData.eventLinks.push(newLink);
 		},
 		removeEventLink(eventLink: IEventLink) {
 			this.eventData.eventLinks = this.eventData.eventLinks.filter((e) => e != eventLink);
+			if (this.eventData.eventLinks.length === 0) delete this.eventData.eventLinks;
 		},
 		addResult() {
+			if (!this.eventData.results) this.eventData.results = { pickRandom: false, changes: [] };
+
 			const newResult: IEventResult = {
 				modifier: "add",
 				type: "item",
 				key: null,
 				value: null,
 			};
+
 			this.eventData.results.changes.push(newResult);
 		},
 		removeResult(result: IEventResult) {
 			this.eventData.results.changes = this.eventData.results.changes.filter((e) => e != result);
+			if (this.eventData.results.changes.length == 0) delete this.eventData.results;
+		},
+		addCondition() {
+			if (!this.eventData.requirements) {
+				this.eventData.requirements = {
+					match: "All of",
+					conditions: [],
+					failEvent: JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE)),
+				};
+			}
+
+			const newCondition: IEventCondition = {
+				match: "All of",
+				type: null,
+				values: null,
+			};
+
+			this.eventData.requirements.conditions.push(newCondition);
+		},
+		removeCondition(condition: IEventCondition) {
+			this.eventData.requirements.conditions = this.eventData.requirements.conditions.filter((e) => e != condition);
+			if (this.eventData.requirements.conditions.length == 0) delete this.eventData.requirements;
+			//If requirement object contains no definitions, delete it from thing
+			//if (this.eventData.requirements.changes.length == 0) delete this.eventData.results;
 		},
 	},
 });

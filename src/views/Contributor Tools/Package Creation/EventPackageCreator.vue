@@ -160,7 +160,7 @@
 import EventFullView from "@/components/Contributor Tools/Events/EventFullView.vue";
 import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
-import type { IEventBase } from "@/types/SwrpgTypes/IEventBase";
+import { DEFAULT_EVENT_STATE, IEventBase } from "@/types/SwrpgTypes/IEventBase";
 import FileSaver from "file-saver";
 import mongoose from "mongoose";
 import { defineComponent } from "vue";
@@ -222,18 +222,7 @@ export default defineComponent({
 			this.packageData.events = this.packageData.events.filter((e) => e.id !== eventdata.id);
 		},
 		openEvent(eventData?: IEventBase, editMode = true) {
-			if (!eventData)
-				eventData = {
-					id: new mongoose.Types.ObjectId().toString(),
-					embedOptions: {
-						color: "#E6A00E",
-					},
-					results: {
-						pickRandom: false,
-						changes: [],
-					},
-					eventLinks: [],
-				};
+			if (!eventData) eventData = JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE));
 
 			this.dialogFullView = true;
 
