@@ -69,7 +69,7 @@ export interface IRequirement {
 	/**How the requirements are matched.. Either `One of`, `All of`, or `None of` */
 	match: RequirementMatch;
 	/**Require certain race conditions for this event. */
-	race?: IRequirementDetail;
+	species?: IRequirementDetail;
 	/**Require certain Item conditions for this event. Treated separately from Items removed via event results*/
 	itemInInventory?: IRequirementDetail;
 	/**Require certain Location conditions for this event. Treated separately from Event location whitelist/blacklist*/
