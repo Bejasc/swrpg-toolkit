@@ -195,17 +195,9 @@ export default defineComponent({
 			} as IPackageDefinition;
 		},
 		saveEvent(eventData: IEventBase) {
-			// this.itemPackageData.items.push({
-			// 	_id: new mongoose.Types.ObjectId().toString(),
-			// 	category: "Unknown",
-			// 	name: "New Item",
-			// 	image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
-			// });
 			this.dialogFullView = false;
-			this.packageData.events.push(eventData);
 
 			const existingEvent = this.packageData.events.find((e) => e.id === eventData.id);
-
 			if (existingEvent) {
 				const i = this.packageData.events.indexOf(existingEvent);
 				this.packageData.events[i] = eventData;

@@ -86,9 +86,7 @@ const helpers = reactive({ ...initialState });
 
 function setHelper() {
 	const newState: IEventHelper = initialState;
-	alert(JSON.stringify(props.eventData.circulationOptions));
 	if (props.eventData.circulationOptions.locationOptions) {
-		alert("b");
 		if (props.eventData.circulationOptions.locationOptions.values.length > 0) {
 			newState.spawnEverywhere = false;
 
@@ -111,8 +109,6 @@ function setHelper() {
 watch(
 	() => props.eventData?.id,
 	(newVal, oldVal) => {
-		console.log(":WAAAAATCH");
-		alert("a"); //This watch is not working
 		setHelper();
 	},
 );
