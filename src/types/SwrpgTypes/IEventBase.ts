@@ -33,7 +33,7 @@ export type Frequency = "Disabled" | "Common" | "Regular" | "Uncommon" | "Rare" 
 
 export interface ILocationOptions {
 	/**When set to Whitelist, Locations will *only* be selected from values. When set to Blacklist, any location in values will be ignored. */
-	type: "Whitelist" | "Blacklist";
+	type: "whitelist" | "blacklist";
 	/**List of Location names or IDs to use */
 	values: string[];
 }
@@ -94,10 +94,19 @@ export interface IAffinity {
 	points: number;
 }
 
-export const DEFAULT_EVENT_STATE: IEventBase = {
-	id: new mongoose.Types.ObjectId().toString(),
-	embedOptions: {
-		title: "Event Title",
-		color: "#E6A00E",
-	},
-};
+export function DEFAULT_EVENT_STATE(): IEventBase {
+	const event: IEventBase = {
+		id: new mongoose.Types.ObjectId().toString(),
+		embedOptions: {
+			title: "Event Title",
+			color: "#E6A00E",
+		},
+	};
+	return event;
+}
+
+export interface IEventHelper {
+	locationMode: "blacklist" | "whitelist";
+	locationValues: string[];
+	spawnEverywhere: boolean;
+}

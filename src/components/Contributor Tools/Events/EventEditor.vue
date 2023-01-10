@@ -1,5 +1,32 @@
 <template>
 	<v-expansion-panels variant="accordion">
+		<v-expansion-panel title="Circulation Options" v-if="isTopLevel">
+			<v-expansion-panel-text>
+				<v-row no-gutters>
+					<v-select label="Frequency" :items="frequencies" v-model="eventData.circulationOptions.frequency" variant="solo"></v-select>
+				</v-row>
+				<v-row no-gutters>
+					<v-checkbox
+						v-model="props.helper.spawnEverywhere"
+						:label="`Spawn Everywhere: ${props.helper.spawnEverywhere ? 'Yes' : 'No'}`"
+						:readonly="!allowEdit"
+						@update:focused="availableEverywhereChanged"
+						v-if="allowEdit == true"
+					></v-checkbox>
+					<v-radio-group inline v-if="!props.helper.spawnEverywhere && allowEdit == true" v-model="props.helper.locationMode" :readonly="!allowEdit">
+						<v-radio label="Whitelist" value="whitelist"></v-radio>
+						<v-radio label="Blacklist" value="blacklist"></v-radio>
+					</v-radio-group>
+				</v-row>
+				<p class="text-caption" v-if="allowEdit">{{ eventSpawnHelperText }}</p>
+				<v-alert density="compact" type="info" variant="outlined" v-else>
+					{{ eventSpawnHelperText }}
+				</v-alert>
+				<v-col cols="12" v-if="!props.helper.spawnEverywhere && allowEdit == true">
+					<LocationPicker :selected-values="props.helper.locationValues" @selection-changed="selectedLocationsChanged"></LocationPicker>
+				</v-col>
+			</v-expansion-panel-text>
+		</v-expansion-panel>
 		<v-expansion-panel title="Embed Options">
 			<v-expansion-panel-text>
 				<v-row no-gutters>
@@ -77,7 +104,12 @@
 					<v-expansion-panels variant="accordion">
 						<v-expansion-panel title="Event - On Fail" color="red-darken-4">
 							<v-expansion-panel-text>
-								<EventEditorComponent :eventData="eventData.requirements.failEvent" :allowEdit="allowEdit" :allItems="allItems"></EventEditorComponent>
+								<EventEditorComponent
+									:eventData="eventData.requirements.failEvent"
+									:allowEdit="allowEdit"
+									:allItems="allItems"
+									:allLocations="allLocations"
+								></EventEditorComponent>
 							</v-expansion-panel-text>
 						</v-expansion-panel>
 					</v-expansion-panels>
@@ -146,95 +178,122 @@
 	</v-expansion-panels>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
+import { joinString } from "@/plugins/Utils";
 import DrpgSwatches from "@/types/DrpgColors";
-import { IItem } from "@/types/SwrpgTypes";
-import { DEFAULT_EVENT_STATE, IEventBase, IEventCondition, IEventLink, IEventResult } from "@/types/SwrpgTypes/IEventBase";
-import { defineComponent, type PropType } from "vue";
+import { getMatchingLocation, IItem, ILocation } from "@/types/SwrpgTypes";
+import { DEFAULT_EVENT_STATE, IEventBase, IEventCondition, IEventHelper, IEventLink, IEventResult } from "@/types/SwrpgTypes/IEventBase";
+import { computed, onMounted, reactive, ref, Ref, watch } from "vue";
 import EventCondition from "./EventCondition.vue";
 import EventResult from "./EventResult.vue";
-export default defineComponent({
-	name: "EventEditor",
-	components: { DiscordEmbed, EventResult, EventCondition },
-	props: {
-		eventData: {
-			type: Object as PropType<IEventBase>,
-			required: true,
-		},
-		allowEdit: Boolean,
-		isTopLevel: {
-			type: Boolean,
-			default: false,
-		},
-		allItems: {
-			type: Object as PropType<IItem[]>,
-			required: true,
-		},
-	},
-	data: () => {
-		return {
-			previewEmbed: false,
-			swatches: DrpgSwatches,
-			matchStrategies: ["All of", "One of", "None of"],
+import LocationPicker from "@/components/LocationSelector.vue";
+
+const props = defineProps<{
+	eventData: IEventBase;
+	allowEdit: boolean;
+	isTopLevel: boolean;
+	allItems: IItem[];
+	allLocations: ILocation[];
+	helper: IEventHelper;
+}>();
+
+const swatches = DrpgSwatches;
+const matchStrategies = ["All of", "One of", "None of"];
+const frequencies = ["Common", "Regular", "Uncommon", "Rare", "Legendary"];
+
+const previewEmbed: Ref<boolean> = ref(false);
+
+function availableEverywhereChanged() {
+	if (props.helper.spawnEverywhere) delete props.eventData.circulationOptions.locationOptions;
+	else {
+		props.eventData.circulationOptions.locationOptions = {
+			type: props.helper.locationMode,
+			values: props.helper.locationValues,
 		};
-	},
-	methods: {
-		async saveEvent() {
-			this.$emit("eventSaved", this.eventData);
-		},
-		addEventLink() {
-			if (!this.eventData.eventLinks) this.eventData.eventLinks = [];
+	}
+}
 
-			const newLink: IEventLink = {
-				title: null,
-				event: [JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE))],
-			};
-			this.eventData.eventLinks.push(newLink);
-		},
-		removeEventLink(eventLink: IEventLink) {
-			this.eventData.eventLinks = this.eventData.eventLinks.filter((e) => e != eventLink);
-			if (this.eventData.eventLinks.length === 0) delete this.eventData.eventLinks;
-		},
-		addResult() {
-			if (!this.eventData.results) this.eventData.results = { pickRandom: false, changes: [] };
+function addEventLink() {
+	if (!props.eventData.eventLinks) props.eventData.eventLinks = [];
 
-			const newResult: IEventResult = {
-				modifier: "add",
-				type: "item",
-				key: null,
-				value: null,
-			};
+	const newLink: IEventLink = {
+		title: null,
+		event: [JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE()))],
+	};
+	props.eventData.eventLinks.push(newLink);
+}
 
-			this.eventData.results.changes.push(newResult);
-		},
-		removeResult(result: IEventResult) {
-			this.eventData.results.changes = this.eventData.results.changes.filter((e) => e != result);
-			if (this.eventData.results.changes.length == 0) delete this.eventData.results;
-		},
-		addCondition() {
-			if (!this.eventData.requirements) {
-				this.eventData.requirements = {
-					match: "All of",
-					conditions: [],
-					failEvent: JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE)),
-				};
-			}
+function removeEventLink(eventLink: IEventLink) {
+	props.eventData.eventLinks = props.eventData.eventLinks.filter((e) => e != eventLink);
+	if (props.eventData.eventLinks.length === 0) delete props.eventData.eventLinks;
+}
 
-			const newCondition: IEventCondition = {
-				match: "All of",
-				type: null,
-				values: null,
-			};
+function addResult() {
+	if (!props.eventData.results) props.eventData.results = { pickRandom: false, changes: [] };
 
-			this.eventData.requirements.conditions.push(newCondition);
-		},
-		removeCondition(condition: IEventCondition) {
-			this.eventData.requirements.conditions = this.eventData.requirements.conditions.filter((e) => e != condition);
-			if (this.eventData.requirements.conditions.length == 0) delete this.eventData.requirements;
-			//If requirement object contains no definitions, delete it from thing
-			//if (this.eventData.requirements.changes.length == 0) delete this.eventData.results;
-		},
-	},
+	const newResult: IEventResult = {
+		modifier: "add",
+		type: "item",
+		key: null,
+		value: null,
+	};
+
+	props.eventData.results.changes.push(newResult);
+}
+
+function removeResult(result: IEventResult) {
+	props.eventData.results.changes = props.eventData.results.changes.filter((e) => e != result);
+	if (props.eventData.results.changes.length == 0) delete props.eventData.results;
+}
+
+function addCondition() {
+	if (!props.eventData.requirements) {
+		props.eventData.requirements = {
+			match: "All of",
+			conditions: [],
+			failEvent: JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE())),
+		};
+	}
+
+	const newCondition: IEventCondition = {
+		match: "All of",
+		type: null,
+		values: null,
+	};
+
+	props.eventData.requirements.conditions.push(newCondition);
+}
+
+function removeCondition(condition: IEventCondition) {
+	props.eventData.requirements.conditions = props.eventData.requirements.conditions.filter((e) => e != condition);
+	if (props.eventData.requirements.conditions.length == 0) delete props.eventData.requirements;
+	//If requirement object contains no definitions, delete it from thing
+	//if (props.eventData.requirements.changes.length == 0) delete props.eventData.results;
+}
+
+function selectedLocationsChanged(newValue?: string[]) {
+	props.helper.locationValues = newValue;
+	props.eventData.circulationOptions.locationOptions.values = newValue;
+}
+
+const eventSpawnHelperText = computed(() => {
+	const title = props.eventData.embedOptions.title;
+	const frequency = props.eventData.circulationOptions.frequency;
+
+	const matchingLocations = props.allLocations.filter((e) => props.helper.locationValues.includes(e._id));
+	const matchingLocationNames = joinString(matchingLocations.map((e) => e.name));
+
+	if (props.helper.spawnEverywhere) {
+		return `${title} will spawn ${frequency} everywhere.`;
+	} else {
+		if (props.helper.locationValues.length == 0) return "Make a selection to continue";
+
+		if (props.helper.locationMode === "whitelist") {
+			return `${title} will *ONLY* spawn ${frequency} on ${matchingLocationNames}.`;
+		} else {
+			return `${title} will spawn ${frequency} everywhere *EXCEPT* on ${matchingLocationNames}`;
+		}
+	}
 });
 </script>

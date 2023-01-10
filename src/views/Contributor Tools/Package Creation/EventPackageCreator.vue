@@ -130,7 +130,7 @@
 							</v-col>
 
 							<v-col cols="1">
-								<v-card style="border: 3px dashed grey" width="200px" @click="openEvent(null, true)">
+								<v-card style="border: 3px dashed grey" width="200px" @click="openEvent(undefined, true)">
 									<v-icon size="200px" color="grey">mdi-plus</v-icon>
 								</v-card>
 							</v-col>
@@ -222,8 +222,13 @@ export default defineComponent({
 			this.packageData.events = this.packageData.events.filter((e) => e.id !== eventdata.id);
 		},
 		openEvent(eventData?: IEventBase, editMode = true) {
-			if (!eventData) eventData = JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE));
-
+			if (!eventData) {
+				eventData = JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE()));
+				eventData.circulationOptions = {
+					allowCirculation: true,
+					frequency: "Common",
+				};
+			}
 			this.dialogFullView = true;
 
 			this.selectedEvent = eventData;

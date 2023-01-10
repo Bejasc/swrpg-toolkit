@@ -43,7 +43,7 @@
 						</v-expansion-panel-title>
 
 						<v-expansion-panel-text>
-							<EventEditorComponent :eventData="event" :allowEdit="allowEdit" :allItems="allItems"></EventEditorComponent>
+							<EventEditorComponent :eventData="event" :allowEdit="allowEdit" :allItems="allItems" :allLocations="allLocations"></EventEditorComponent>
 						</v-expansion-panel-text>
 					</v-expansion-panel>
 				</v-expansion-panels>
@@ -63,7 +63,7 @@
 </style>
 
 <script lang="ts">
-import { IItem } from "@/types/SwrpgTypes";
+import { IItem, ILocation } from "@/types/SwrpgTypes";
 import { DEFAULT_EVENT_STATE, IEventBase, IEventLink } from "@/types/SwrpgTypes/IEventBase";
 import { defineComponent, type PropType } from "vue";
 export default defineComponent({
@@ -89,6 +89,10 @@ export default defineComponent({
 			type: Object as PropType<IItem[]>,
 			required: true,
 		},
+		allLocations: {
+			type: Object as PropType<ILocation[]>,
+			required: true,
+		},
 	},
 	data: () => {
 		return {
@@ -97,7 +101,7 @@ export default defineComponent({
 	},
 	methods: {
 		addEvent() {
-			const newEvent: IEventBase = JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE));
+			const newEvent: IEventBase = JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE()));
 			this.eventLink.event.push(newEvent);
 		},
 		removeEventFromLink(event: IEventBase) {

@@ -3,7 +3,7 @@
 		<v-dialog v-model="show" persistent width="1200">
 			<v-card width="1200px" max-height="800px" :title="eventData.embedOptions.title">
 				<v-card-text style="max-height: 80vh" class="mx-3 overflow-y-auto"> </v-card-text>
-				<EventEditor :allow-edit="allowEdit" :event-data="eventData" :is-top-level="true" :all-items="items"></EventEditor>
+				<EventEditor :allow-edit="allowEdit" :event-data="eventData" :is-top-level="true" :all-items="items" :all-locations="locations" :helper="helpers"></EventEditor>
 				<v-card-actions>
 					<small style="opacity: 0.2">Event ID: {{ eventData.id }}</small>
 
@@ -31,45 +31,89 @@ a {
 }
 </style>
 
-<script lang="ts">
+<script setup lang="ts">
 import EventEditor from "@/components/Contributor Tools/Events/EventEditor.vue";
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
 import { getData } from "@/plugins/MongoConnector";
-import { IItem } from "@/types/SwrpgTypes";
-import type { IEventBase } from "@/types/SwrpgTypes/IEventBase";
-import { defineComponent, type PropType } from "vue";
+import { getMatchingLocation, IItem, ILocation } from "@/types/SwrpgTypes";
+import type { IEventBase, IEventHelper } from "@/types/SwrpgTypes/IEventBase";
+import { defineComponent, onMounted, reactive, Ref, ref, watch, type PropType } from "vue";
+import { useStore } from "vuex";
+const store = useStore();
 
-export default defineComponent({
-	name: "EventFullView",
-	components: { DiscordEmbed, EventEditor },
-	props: {
-		show: Boolean,
-		eventData: {
-			type: Object as PropType<IEventBase>,
-			required: true,
-		},
-		allowEdit: Boolean,
-	},
-	data: () => {
-		return {
-			items: [] as IItem[],
-		};
-	},
-	methods: {
-		async saveEvent() {
-			this.$emit("eventSaved", this.eventData);
-		},
-		async loadAllItems() {
-			this.$store.dispatch("showLoader", true);
-			this.items = [];
-			this.items = await getData<IItem>("item");
+const props = defineProps<{
+	show: boolean;
+	allowEdit: boolean;
+	eventData: IEventBase;
+}>();
 
-			console.table(this.items);
-			this.$store.dispatch("showLoader", false);
-		},
-	},
-	mounted() {
-		this.loadAllItems();
-	},
+const items: Ref<IItem[]> = ref([]);
+const locations: Ref<ILocation[]> = ref([]);
+
+const emit = defineEmits(["eventSaved"]);
+
+async function saveEvent() {
+	emit("eventSaved", props.eventData);
+}
+
+async function loadAllItems() {
+	store.dispatch("showLoader", true);
+	items.value = [];
+	items.value = await getData<IItem>("item");
+
+	store.dispatch("showLoader", false);
+}
+async function loadAllLocations() {
+	store.dispatch("showLoader", true);
+	locations.value = [];
+	locations.value = await getData<ILocation>("location");
+
+	store.dispatch("showLoader", false);
+}
+
+onMounted(() => {
+	loadAllItems();
+	loadAllLocations();
 });
+
+const initialState: IEventHelper = {
+	locationMode: "whitelist",
+	locationValues: [],
+	spawnEverywhere: true,
+};
+
+const helpers = reactive({ ...initialState });
+
+function setHelper() {
+	const newState: IEventHelper = initialState;
+	alert(JSON.stringify(props.eventData.circulationOptions));
+	if (props.eventData.circulationOptions.locationOptions) {
+		alert("b");
+		if (props.eventData.circulationOptions.locationOptions.values.length > 0) {
+			newState.spawnEverywhere = false;
+
+			newState.locationMode = "whitelist";
+			newState.locationValues = props.eventData.circulationOptions.locationOptions.values;
+
+			newState.locationValues = newState.locationValues.map((e) => {
+				const location = getMatchingLocation(e, locations.value);
+				if (e != location._id) console.log(`Event ${props.eventData.id} provided ${e} as a trade location. Overriding to ID based value instead. ${location._id}`);
+				return location._id;
+			});
+		} else {
+			newState.spawnEverywhere = true;
+		}
+	}
+
+	Object.assign(helpers, JSON.parse(JSON.stringify(newState)));
+}
+
+watch(
+	() => props.eventData?.id,
+	(newVal, oldVal) => {
+		console.log(":WAAAAATCH");
+		alert("a"); //This watch is not working
+		setHelper();
+	},
+);
 </script>
