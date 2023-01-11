@@ -18,11 +18,7 @@ export interface IEventBase {
 	postOnNoReact?: boolean;
 	embedOptions?: IEmbedOptions;
 	eventLinks?: IEventLink[];
-	requirements?: {
-		match: RequirementMatch;
-		conditions: IEventCondition[];
-		failEvent: IEventBase;
-	};
+	requirements?: IEventRequirement;
 	results?: {
 		pickRandom?: boolean;
 		changes: IEventResult[];
@@ -30,6 +26,12 @@ export interface IEventBase {
 }
 
 export type Frequency = "Disabled" | "Common" | "Regular" | "Uncommon" | "Rare" | "Legendary";
+
+export interface IEventRequirement {
+	match: RequirementMatch;
+	conditions: IEventCondition[];
+	failEvent: IEventBase;
+}
 
 export interface ILocationOptions {
 	/**When set to Whitelist, Locations will *only* be selected from values. When set to Blacklist, any location in values will be ignored. */
@@ -63,11 +65,11 @@ export interface IEmbedOptions {
 export type RequirementMatch = "One of" | "All of" | "None of";
 export type ValueMatch = "Less than" | "Greater than";
 interface IEventNumericalOperator {
-	modifier: "Less than" | "Greater than";
+	modifier: "<" | ">=";
 }
 export interface IEventCondition {
 	match: RequirementMatch;
-	type: "item" | "credits" | "skill" | "location" | "species";
+	type: "item" | "credits" | "skill" | "location" | "species" | "trait" | "hitpoints";
 	values: string[] | (IItemQuantity & IEventNumericalOperator)[] | (ISkillLevel & IEventNumericalOperator)[] | (IAffinity & IEventNumericalOperator)[];
 	//failEvent?: IEventBase; //TODO: Eventually, allow Requirements themselves to specify failure events so failing different requirements can do different things
 }

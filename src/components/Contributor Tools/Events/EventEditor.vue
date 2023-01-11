@@ -87,20 +87,21 @@
 				</div>
 				<v-select v-if="eventData.requirements" label="Match Strategy" :items="matchStrategies" v-model="eventData.requirements.match" variant="solo"></v-select>
 
-				<div class="mx-3 mt-3">
-					<p class="text-h6">Conditions</p>
-					<v-btn color="blue" variant="outlined" @click="addCondition()">Add Condition</v-btn>
-				</div>
 				<br />
-				<div v-if="eventData.requirements">
+				<template v-if="eventData.requirements">
 					<EventCondition
 						:allow-edit="allowEdit"
-						v-for="condition in eventData.requirements.conditions"
-						:condition="condition"
-						:remove-condition="removeCondition"
+						:requirement="eventData.requirements"
+						:remove-subcondition="removeCondition"
 						:items="allItems"
+						:locations="allLocations"
 					></EventCondition>
+				</template>
 
+				<v-col cols="1" class="ma-3">
+					<v-btn color="blue" variant="text" @click="addCondition()">Add Condition</v-btn>
+				</v-col>
+				<template v-if="eventData.requirements">
 					<v-expansion-panels variant="accordion">
 						<v-expansion-panel title="Event - On Fail" color="red-darken-4">
 							<v-expansion-panel-text>
@@ -113,7 +114,7 @@
 							</v-expansion-panel-text>
 						</v-expansion-panel>
 					</v-expansion-panels>
-				</div>
+				</template>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
 		<v-expansion-panel title="Results">
