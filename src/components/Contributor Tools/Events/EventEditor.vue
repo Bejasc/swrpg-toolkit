@@ -85,17 +85,15 @@
 					Conditions can be set for events.<br />
 					When entering *this node* of an event, if the condition is not met, the onFail event will trigger, instead of continuing to the EventLinks..
 				</div>
-				<v-select v-if="eventData.requirements" label="Match Strategy" :items="matchStrategies" v-model="eventData.requirements.match" variant="solo"></v-select>
+				<v-row no-gutters>
+					<v-col cols="2">
+						<v-select v-if="eventData.requirements" label="Match Strategy" :items="matchStrategies" v-model="eventData.requirements.match" variant="solo"></v-select>
+					</v-col>
+				</v-row>
 
 				<br />
 				<template v-if="eventData.requirements">
-					<EventCondition
-						:allow-edit="allowEdit"
-						:requirement="eventData.requirements"
-						:remove-subcondition="removeCondition"
-						:items="allItems"
-						:locations="allLocations"
-					></EventCondition>
+					<EventCondition :allow-edit="allowEdit" :event="eventData" :remove-condition="removeCondition" :items="allItems" :locations="allLocations"></EventCondition>
 				</template>
 
 				<v-col cols="1" class="ma-3">
@@ -200,7 +198,7 @@ const props = defineProps<{
 }>();
 
 const swatches = DrpgSwatches;
-const matchStrategies = ["All of", "One of", "None of"];
+const matchStrategies = ["All of", "Any of", "None of"];
 const frequencies = ["Common", "Regular", "Uncommon", "Rare", "Legendary"];
 
 const previewEmbed: Ref<boolean> = ref(false);
@@ -258,6 +256,7 @@ function addCondition() {
 	}
 
 	const newCondition: IEventCondition = {
+		identifier: "New Condition",
 		match: "All of",
 		type: null,
 		values: null,
