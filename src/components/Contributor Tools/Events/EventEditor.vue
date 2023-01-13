@@ -258,8 +258,7 @@ function addCondition() {
 	const newCondition: IEventCondition = {
 		identifier: "New Condition",
 		match: "All of",
-		type: null,
-		values: null,
+		subConditions: [],
 	};
 
 	props.eventData.requirements.conditions.push(newCondition);

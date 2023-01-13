@@ -65,12 +65,14 @@ export type RequirementMatch = "Any of" | "All of" | "None of";
 export interface IEventCondition {
 	identifier: string;
 	match: RequirementMatch;
+	subConditions: IEventSubCondition[];
+}
+
+export interface IEventSubCondition {
 	type: "item" | "location";
-	values: {
-		key: string;
-		value: string;
-		operator: "<" | ">=" | "is" | "is not";
-	}[];
+	key: string;
+	value: string | number;
+	operator: "<" | ">=" | "is" | "is not";
 }
 
 export interface IEventResult {

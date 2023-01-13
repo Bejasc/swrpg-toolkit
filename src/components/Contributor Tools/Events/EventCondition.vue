@@ -20,6 +20,18 @@
 						<v-select v-if="condition.match" label="Match Strategy" :items="matchStrategies" v-model="condition.match" variant="solo"></v-select>
 					</v-col>
 				</v-row>
+
+				<template v-for="subCondition in condition.subConditions">
+					<v-row no-gutters>
+						<v-btn color="red" variant="outlined" icon="mdi-delete-outline" size="small" @click.stop="removeSubCondition(condition, subCondition)"> </v-btn>
+					</v-row>
+				</template>
+
+				<v-row>
+					<div class="text-center mt-5">
+						<v-btn class="ma-2" icon="mdi-plus" size="small" variant="outlined" color="green" @click="addSubCondition(condition)"> </v-btn>
+					</div>
+				</v-row>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
 	</v-expansion-panels>
@@ -27,7 +39,7 @@
 
 <script setup lang="ts">
 import { IItem, ILocation } from "@/types/SwrpgTypes";
-import type { IEventBase, IEventCondition } from "@/types/SwrpgTypes/IEventBase";
+import type { IEventBase, IEventCondition, IEventSubCondition } from "@/types/SwrpgTypes/IEventBase";
 import { computed, reactive, watch } from "vue";
 
 const props = defineProps<{
@@ -59,6 +71,25 @@ const supportedRequirements = [
 	{ title: "Species", value: "species" },
 	{ title: "Skill", value: "skill" },
 ];
+
+function addSubCondition(condition: IEventCondition) {
+	if (!condition.subConditions) {
+		condition.subConditions = [];
+	}
+
+	const newSubCondition: IEventSubCondition = {
+		operator: ">=",
+		type: "item",
+		key: null,
+		value: 1,
+	};
+
+	condition.subConditions.push(newSubCondition);
+}
+function removeSubCondition(condition: IEventCondition, subCondition: IEventSubCondition) {
+	condition.subConditions = condition.subConditions.filter((e) => e != subCondition);
+	if (condition.subConditions.length == 0) delete condition.subConditions;
+}
 
 const availableItems = computed(() => {
 	return props.items.map((e) => {
