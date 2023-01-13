@@ -23,15 +23,80 @@
 
 				<template v-for="subCondition in condition.subConditions">
 					<v-row no-gutters>
-						<v-btn color="red" variant="outlined" icon="mdi-delete-outline" size="small" @click.stop="removeSubCondition(condition, subCondition)"> </v-btn>
+						<v-col cols="2">
+							<v-select
+								label="Type"
+								:items="supportedRequirements"
+								@update:model-value="resetSubCondition(subCondition)"
+								v-model="subCondition.type"
+								item-title="title"
+								item-value="value"
+								variant="solo"
+							></v-select>
+						</v-col>
+
+						<template v-if="subCondition.type === 'item'">
+							<v-col cols="4">
+								<v-autocomplete
+									label="Item"
+									:items="availableItems"
+									v-model="subCondition.key"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-autocomplete>
+							</v-col>
+							<v-col cols="3">
+								<v-select
+									label="Operator"
+									:items="quantityOperators"
+									v-model="subCondition.operator"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-select>
+							</v-col>
+							<v-col cols="2">
+								<v-text-field v-model="subCondition.value" v-bind:readonly="!allowEdit" type="number" label="Quantity" variant="solo"></v-text-field>
+							</v-col>
+						</template>
+
+						<template v-if="subCondition.type === 'location'">
+							<v-col cols="3">
+								<v-select
+									label="Operator"
+									:items="exactOperators"
+									v-model="subCondition.operator"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-select>
+							</v-col>
+							<v-col cols="4">
+								<v-autocomplete
+									label="Location"
+									:items="availableLocations"
+									v-model="subCondition.key"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+								></v-autocomplete>
+							</v-col>
+						</template>
+
+						<v-spacer></v-spacer>
+						<v-col cols="1">
+							<v-btn color="red" variant="outlined" icon="mdi-delete-outline" size="small" @click.stop="removeSubCondition(condition, subCondition)"> </v-btn>
+						</v-col>
 					</v-row>
 				</template>
 
-				<v-row>
-					<div class="text-center mt-5">
-						<v-btn class="ma-2" icon="mdi-plus" size="small" variant="outlined" color="green" @click="addSubCondition(condition)"> </v-btn>
-					</div>
-				</v-row>
+				<div class="text-center mt-5">
+					<v-btn class="ma-2" icon="mdi-plus" size="small" variant="outlined" color="green" @click="addSubCondition(condition)"> </v-btn>
+				</div>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
 	</v-expansion-panels>
@@ -52,24 +117,24 @@ const props = defineProps<{
 
 const matchStrategies = ["All of", "Any of", "None of"];
 
-const quantifiedResults = ["credits", "item", "skill", "hitpoints"];
-const quantifiedMatch = [
+const quantityResults = ["credits", "item", "skill", "hitpoints"];
+const quantityOperators = [
 	{ title: "Greater or Equal", value: ">=" },
 	{ title: "Less than", value: "<" },
 ];
 
 const exactResults = ["species", "location"];
-const exactMatch = [
+const exactOperators = [
 	{ title: "is", value: "==" },
 	{ title: "is not", value: "!=" },
 ];
 
 const supportedRequirements = [
-	{ title: "Credits", value: "credits" },
+	// { title: "Credits", value: "credits" },
 	{ title: "Item", value: "item" },
 	{ title: "Location", value: "location" },
-	{ title: "Species", value: "species" },
-	{ title: "Skill", value: "skill" },
+	// { title: "Species", value: "species" },
+	// { title: "Skill", value: "skill" },
 ];
 
 function addSubCondition(condition: IEventCondition) {
@@ -86,9 +151,16 @@ function addSubCondition(condition: IEventCondition) {
 
 	condition.subConditions.push(newSubCondition);
 }
+
 function removeSubCondition(condition: IEventCondition, subCondition: IEventSubCondition) {
 	condition.subConditions = condition.subConditions.filter((e) => e != subCondition);
 	if (condition.subConditions.length == 0) delete condition.subConditions;
+}
+
+function resetSubCondition(subCondition: IEventSubCondition) {
+	subCondition.key = null;
+	subCondition.operator = null;
+	subCondition.value = null;
 }
 
 const availableItems = computed(() => {

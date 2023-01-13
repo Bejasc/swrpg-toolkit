@@ -79,11 +79,13 @@
 				</v-dialog>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
-		<v-expansion-panel title="Conditions">
+		<v-expansion-panel title="Requirements and Conditions">
 			<v-expansion-panel-text>
 				<div align="left" class="text-caption font-italic text-medium-emphasis ma-4" v-if="isTopLevel">
-					Conditions can be set for events.<br />
-					When entering *this node* of an event, if the condition is not met, the onFail event will trigger, instead of continuing to the EventLinks..
+					Requirements can be set fo revents. This can be a simple requirement, or, several detailed requirements where any or all conditions must be met.<br />
+					When entering *this node* of an event, if a condition(s) is not met, the onFail event will trigger, instead of continuing to the EventLinks.. <br />
+					<strong>In most cases, you will want a single Condition, with a single Subcondition, e.g for "Player has 100 credits".</strong>. <br />Conditions can be "named"
+					so you can manage them a little easier. This has no in-game affect.
 				</div>
 				<v-row no-gutters>
 					<v-col cols="2">
@@ -182,7 +184,7 @@ import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
 import { joinString } from "@/plugins/Utils";
 import DrpgSwatches from "@/types/DrpgColors";
 import { getMatchingLocation, IItem, ILocation } from "@/types/SwrpgTypes";
-import { DEFAULT_EVENT_STATE, IEventBase, IEventCondition, IEventHelper, IEventLink, IEventResult } from "@/types/SwrpgTypes/IEventBase";
+import { DEFAULT_EVENT_STATE, IEventBase, IEventCondition, IEventHelper, IEventLink, IEventResult, IEventSubCondition } from "@/types/SwrpgTypes/IEventBase";
 import { computed, onMounted, reactive, ref, Ref, watch } from "vue";
 import EventCondition from "./EventCondition.vue";
 import EventResult from "./EventResult.vue";
