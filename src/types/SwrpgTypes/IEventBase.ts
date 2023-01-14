@@ -61,7 +61,7 @@ export interface IEmbedOptions {
 }
 
 export type RequirementMatch = "Any of" | "All of" | "None of";
-
+export type IEventOperator = "<" | ">=" | "==" | "!=";
 export interface IEventCondition {
 	identifier: string;
 	match: RequirementMatch;
@@ -72,7 +72,7 @@ export interface IEventSubCondition {
 	type: "item" | "location" | "credits" | "hitpoints" | "skill" | "attribute" | "species";
 	key: string;
 	value: string | number;
-	operator: "<" | ">=" | "==" | "!=";
+	operator: IEventOperator;
 }
 
 export interface IEventResult {

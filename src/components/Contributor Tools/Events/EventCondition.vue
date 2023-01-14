@@ -5,9 +5,9 @@
 				<template v-slot:default="{ expanded }">
 					{{ condition.identifier }}
 					<v-spacer />
-					<div class="mx-6">
-						<v-btn color="red" variant="outlined" icon="mdi-delete-outline" size="small" @click.stop="removeCondition(condition)"> </v-btn>
-					</div>
+					<v-btn class="mx-3" color="blue" variant="outlined" icon="mdi-help" size="small" @click.stop="showDebugCondition(condition)"> </v-btn>
+
+					<v-btn class="mx-3" color="red" variant="outlined" icon="mdi-delete-outline" size="small" @click.stop="removeCondition(condition)"> </v-btn>
 				</template>
 			</v-expansion-panel-title>
 			<v-expansion-panel-text>
@@ -214,13 +214,39 @@
 			</v-expansion-panel-text>
 		</v-expansion-panel>
 	</v-expansion-panels>
+
+	<v-dialog v-model="showConditionDebug" max-width="290">
+		<v-card width="500">
+			<v-card-title>{{ conditionDebugObject.title }}</v-card-title>
+			<v-card-subtitle> {{ conditionDebugObject.main }} </v-card-subtitle>
+
+			<v-card-text>
+				<v-list-item v-for="(condition, index) in conditionDebugObject.subconditions" :key="index">
+					<v-list-item-title>
+						<strong>
+							{{ condition }}
+						</strong>
+						<br />
+						<template v-if="conditionDebugObject.subconditions.length > 1 && index != conditionDebugObject.subconditions.length - 1">
+							{{ conditionDebugObject.separator }}
+						</template>
+					</v-list-item-title>
+				</v-list-item>
+			</v-card-text>
+
+			<v-card-actions>
+				<v-btn text @click="showConditionDebug = false"> Okay </v-btn>
+			</v-card-actions>
+		</v-card>
+	</v-dialog>
 </template>
 
 <script setup lang="ts">
 import { IItem, ILocation } from "@/types/SwrpgTypes";
 import type { IEventBase, IEventCondition, IEventSubCondition } from "@/types/SwrpgTypes/IEventBase";
-import { computed } from "vue";
+import { computed, reactive, ref, Ref } from "vue";
 import { supportedSpecies, supportedAttributes, supportedSkills } from "@/types/SwrpgTypes/FixedData";
+import { ConditionTranslator } from "@/services/ConditionHelper";
 
 const props = defineProps<{
 	allowEdit: boolean;
@@ -232,13 +258,11 @@ const props = defineProps<{
 
 const matchStrategies = ["All of", "Any of", "None of"];
 
-const quantityResults = ["credits", "item", "skill", "hitpoints"];
 const quantityOperators = [
 	{ title: "Greater or Equal", value: ">=" },
 	{ title: "Less than", value: "<" },
 ];
 
-const exactResults = ["species", "location"];
 const exactOperators = [
 	{ title: "is", value: "==" },
 	{ title: "is not", value: "!=" },
@@ -276,6 +300,31 @@ function resetSubCondition(subCondition: IEventSubCondition) {
 	subCondition.key = null;
 	subCondition.operator = null;
 	subCondition.value = null;
+}
+
+interface IConditionDebug {
+	title: string;
+	main: string;
+	subconditions: string[];
+	separator: string;
+}
+
+const showConditionDebug = ref(false);
+let conditionDebugObject: IConditionDebug = reactive({
+	title: null,
+	main: null,
+	subconditions: [],
+	separator: "and",
+});
+
+function showDebugCondition(condition: IEventCondition) {
+	const dbg = ConditionTranslator.explainCondition(condition, props.items, props.locations);
+
+	conditionDebugObject.main = dbg.main;
+	conditionDebugObject.title = condition.identifier;
+	conditionDebugObject.subconditions = dbg.subConditions;
+	conditionDebugObject.separator = condition.match == "All of" ? "and" : "or";
+	showConditionDebug.value = true;
 }
 
 const availableItems = computed(() => {
