@@ -35,6 +35,62 @@
 							></v-select>
 						</v-col>
 
+						<template v-if="subCondition.type === 'skill'">
+							<v-col cols="4">
+								<v-autocomplete
+									label="Skill"
+									:items="supportedSkills"
+									v-model="subCondition.key"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-autocomplete>
+							</v-col>
+							<v-col cols="3">
+								<v-select
+									label="Operator"
+									:items="quantityOperators"
+									v-model="subCondition.operator"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-select>
+							</v-col>
+							<v-col cols="2">
+								<v-text-field v-model="subCondition.value" v-bind:readonly="!allowEdit" type="number" label="Level" variant="solo"></v-text-field>
+							</v-col>
+						</template>
+
+						<template v-if="subCondition.type === 'attribute'">
+							<v-col cols="4">
+								<v-autocomplete
+									label="Item"
+									:items="supportedAttributes"
+									v-model="subCondition.key"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-autocomplete>
+							</v-col>
+							<v-col cols="3">
+								<v-select
+									label="Operator"
+									:items="quantityOperators"
+									v-model="subCondition.operator"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-select>
+							</v-col>
+							<v-col cols="2">
+								<v-text-field v-model="subCondition.value" v-bind:readonly="!allowEdit" type="number" label="Level" variant="solo"></v-text-field>
+							</v-col>
+						</template>
+
 						<template v-if="subCondition.type === 'item'">
 							<v-col cols="4">
 								<v-autocomplete
@@ -63,6 +119,40 @@
 							</v-col>
 						</template>
 
+						<template v-if="subCondition.type === 'credits'">
+							<v-col cols="3">
+								<v-select
+									label="Operator"
+									:items="quantityOperators"
+									v-model="subCondition.operator"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-select>
+							</v-col>
+							<v-col cols="2">
+								<v-text-field v-model="subCondition.value" v-bind:readonly="!allowEdit" type="number" label="Credits" variant="solo"></v-text-field>
+							</v-col>
+						</template>
+
+						<template v-if="subCondition.type === 'hitpoints'">
+							<v-col cols="3">
+								<v-select
+									label="Operator"
+									:items="quantityOperators"
+									v-model="subCondition.operator"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-select>
+							</v-col>
+							<v-col cols="2">
+								<v-text-field v-model="subCondition.value" v-bind:readonly="!allowEdit" type="number" label="Hitpoints" variant="solo"></v-text-field>
+							</v-col>
+						</template>
+
 						<template v-if="subCondition.type === 'location'">
 							<v-col cols="3">
 								<v-select
@@ -79,6 +169,30 @@
 								<v-autocomplete
 									label="Location"
 									:items="availableLocations"
+									v-model="subCondition.key"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+								></v-autocomplete>
+							</v-col>
+						</template>
+
+						<template v-if="subCondition.type === 'species'">
+							<v-col cols="3">
+								<v-select
+									label="Operator"
+									:items="exactOperators"
+									v-model="subCondition.operator"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-select>
+							</v-col>
+							<v-col cols="4">
+								<v-autocomplete
+									label="Species"
+									:items="supportedSpecies"
 									v-model="subCondition.key"
 									item-title="title"
 									item-value="value"
@@ -105,7 +219,8 @@
 <script setup lang="ts">
 import { IItem, ILocation } from "@/types/SwrpgTypes";
 import type { IEventBase, IEventCondition, IEventSubCondition } from "@/types/SwrpgTypes/IEventBase";
-import { computed, reactive, watch } from "vue";
+import { computed } from "vue";
+import { supportedSpecies, supportedAttributes, supportedSkills } from "@/types/SwrpgTypes/FixedData";
 
 const props = defineProps<{
 	allowEdit: boolean;
@@ -130,11 +245,11 @@ const exactOperators = [
 ];
 
 const supportedRequirements = [
-	// { title: "Credits", value: "credits" },
+	{ title: "Credits", value: "credits" },
 	{ title: "Item", value: "item" },
 	{ title: "Location", value: "location" },
-	// { title: "Species", value: "species" },
-	// { title: "Skill", value: "skill" },
+	{ title: "Species", value: "species" },
+	{ title: "Skill", value: "skill" },
 ];
 
 function addSubCondition(condition: IEventCondition) {
@@ -174,27 +289,4 @@ const availableLocations = computed(() => {
 		return { value: e._id, title: e.name };
 	});
 });
-
-interface IHelpers {
-	conditionKey: string;
-}
-
-const initialState: IHelpers = {
-	conditionKey: "New Condition",
-};
-
-const helpers = reactive({ ...initialState });
-
-function setHelper() {
-	const newState: IHelpers = initialState;
-
-	Object.assign(helpers, JSON.parse(JSON.stringify(newState)));
-}
-
-watch(
-	() => props.event.requirements,
-	(newVal, oldVal) => {
-		setHelper();
-	},
-);
 </script>

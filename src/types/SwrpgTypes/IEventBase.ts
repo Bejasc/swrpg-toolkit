@@ -69,10 +69,10 @@ export interface IEventCondition {
 }
 
 export interface IEventSubCondition {
-	type: "item" | "location";
+	type: "item" | "location" | "credits" | "hitpoints" | "skill" | "attribute" | "species";
 	key: string;
 	value: string | number;
-	operator: "<" | ">=" | "is" | "is not";
+	operator: "<" | ">=" | "==" | "!=";
 }
 
 export interface IEventResult {
