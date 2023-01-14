@@ -31,8 +31,8 @@
 				</v-row>
 
 				<v-expansion-panels variant="accordion">
-					<v-expansion-panel v-for="(event, index) in eventLink.eventId">
-						<v-expansion-panel-title>
+					<v-expansion-panel v-for="(event, index) in eventLink.event">
+						<v-expansion-panel-title color="blue-darken-3">
 							<template v-slot:default="{ expanded }">
 								{{ event.embedOptions.title ?? `Result ${index + 1}` }}
 								<v-spacer />
@@ -43,7 +43,7 @@
 						</v-expansion-panel-title>
 
 						<v-expansion-panel-text>
-							<EventEditorComponent :eventData="event" :allowEdit="allowEdit" :allItems="allItems"></EventEditorComponent>
+							<EventEditorComponent :eventData="event" :allowEdit="allowEdit" :allItems="allItems" :allLocations="allLocations"></EventEditorComponent>
 						</v-expansion-panel-text>
 					</v-expansion-panel>
 				</v-expansion-panels>
@@ -63,9 +63,8 @@
 </style>
 
 <script lang="ts">
-import { IItem } from "@/types/SwrpgTypes";
-import type { IEventBase, IEventLink } from "@/types/SwrpgTypes/IEventBase";
-import mongoose from "mongoose";
+import { IItem, ILocation } from "@/types/SwrpgTypes";
+import { DEFAULT_EVENT_STATE, IEventBase, IEventLink } from "@/types/SwrpgTypes/IEventBase";
 import { defineComponent, type PropType } from "vue";
 export default defineComponent({
 	name: "EventLink",
@@ -90,6 +89,10 @@ export default defineComponent({
 			type: Object as PropType<IItem[]>,
 			required: true,
 		},
+		allLocations: {
+			type: Object as PropType<ILocation[]>,
+			required: true,
+		},
 	},
 	data: () => {
 		return {
@@ -98,21 +101,11 @@ export default defineComponent({
 	},
 	methods: {
 		addEvent() {
-			const newEvent: IEventBase = {
-				id: new mongoose.Types.ObjectId().toString(),
-				embedOptions: {
-					color: "#E6A00E",
-				},
-				eventLinks: [],
-				results: {
-					pickRandom: false,
-					changes: [],
-				},
-			};
-			this.eventLink.eventId.push(newEvent);
+			const newEvent: IEventBase = JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE()));
+			this.eventLink.event.push(newEvent);
 		},
 		removeEventFromLink(event: IEventBase) {
-			this.eventLink.eventId = this.eventLink.eventId.filter((e) => e != event);
+			this.eventLink.event = this.eventLink.event.filter((e) => e != event);
 		},
 	},
 });

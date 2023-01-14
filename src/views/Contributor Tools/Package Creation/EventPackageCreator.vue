@@ -130,7 +130,7 @@
 							</v-col>
 
 							<v-col cols="1">
-								<v-card style="border: 3px dashed grey" width="200px" @click="openEvent(null, true)">
+								<v-card style="border: 3px dashed grey" width="200px" @click="openEvent(undefined, true)">
 									<v-icon size="200px" color="grey">mdi-plus</v-icon>
 								</v-card>
 							</v-col>
@@ -160,7 +160,7 @@
 import EventFullView from "@/components/Contributor Tools/Events/EventFullView.vue";
 import { stringToCamelCase } from "@/plugins/Utils";
 import type { IPackageDefinition } from "@/types/packages/ItemPackage";
-import type { IEventBase } from "@/types/SwrpgTypes/IEventBase";
+import { DEFAULT_EVENT_STATE, IEventBase } from "@/types/SwrpgTypes/IEventBase";
 import FileSaver from "file-saver";
 import mongoose from "mongoose";
 import { defineComponent } from "vue";
@@ -195,17 +195,9 @@ export default defineComponent({
 			} as IPackageDefinition;
 		},
 		saveEvent(eventData: IEventBase) {
-			// this.itemPackageData.items.push({
-			// 	_id: new mongoose.Types.ObjectId().toString(),
-			// 	category: "Unknown",
-			// 	name: "New Item",
-			// 	image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
-			// });
 			this.dialogFullView = false;
-			this.packageData.events.push(eventData);
 
 			const existingEvent = this.packageData.events.find((e) => e.id === eventData.id);
-
 			if (existingEvent) {
 				const i = this.packageData.events.indexOf(existingEvent);
 				this.packageData.events[i] = eventData;
@@ -222,19 +214,13 @@ export default defineComponent({
 			this.packageData.events = this.packageData.events.filter((e) => e.id !== eventdata.id);
 		},
 		openEvent(eventData?: IEventBase, editMode = true) {
-			if (!eventData)
-				eventData = {
-					id: new mongoose.Types.ObjectId().toString(),
-					embedOptions: {
-						color: "#E6A00E",
-					},
-					results: {
-						pickRandom: false,
-						changes: [],
-					},
-					eventLinks: [],
+			if (!eventData) {
+				eventData = JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE()));
+				eventData.circulationOptions = {
+					allowCirculation: true,
+					frequency: "Common",
 				};
-
+			}
 			this.dialogFullView = true;
 
 			this.selectedEvent = eventData;

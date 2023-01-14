@@ -203,7 +203,6 @@ export default defineComponent({
 				const i = this.packageData.locations.indexOf(existingLocation);
 				this.packageData.locations[i] = locData;
 			} else {
-				alert(`${locData.location._id} DIDNT MATCH ANY ${this.packageData.locations.map((e) => e.location._id).join(", ")}`);
 				this.packageData.locations.push(locData);
 			}
 		},

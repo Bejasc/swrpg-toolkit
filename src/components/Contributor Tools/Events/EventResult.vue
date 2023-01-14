@@ -1,5 +1,5 @@
 <template>
-	<v-row>
+	<v-row no-gutters>
 		<v-btn class="my-5" color="red" variant="plain" icon="mdi-delete-outline" size="small" @click.stop="removeResult(eventResult)"> </v-btn>
 		<v-col cols="2">
 			<v-select label="Modifier" :items="supportedModifiers" v-model="eventResult.modifier" item-title="title" item-value="value" variant="solo"></v-select>
