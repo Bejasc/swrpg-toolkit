@@ -123,7 +123,7 @@
 									</v-img>
 									<v-card-actions color="red">
 										<span class="subtitle-1">
-											{{ eventData.id }}
+											{{ eventData.embedOptions.title ?? eventData.id }}
 										</span>
 									</v-card-actions>
 								</v-card>

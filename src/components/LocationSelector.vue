@@ -76,7 +76,8 @@ function checkToggled(id: string, checked: boolean) {
 	if (checked) {
 		props.selectedValues.push(id);
 	} else {
-		props.selectedValues = props.selectedValues.filter((e) => e != id);
+		const index = props.selectedValues.indexOf(id, 0);
+		props.selectedValues.splice(index, 1);
 	}
 	emit("selectionChanged", props.selectedValues);
 }
