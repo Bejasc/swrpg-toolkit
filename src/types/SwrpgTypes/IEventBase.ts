@@ -82,21 +82,6 @@ export interface IEventResult {
 	value: string | number | null;
 }
 
-export interface IItemQuantity {
-	itemId: string;
-	count: number;
-}
-
-export interface ISkillLevel {
-	skill: string;
-	level: number;
-}
-
-export interface IAffinity {
-	faction: string;
-	points: number;
-}
-
 export function DEFAULT_EVENT_STATE(): IEventBase {
 	const event: IEventBase = {
 		id: new mongoose.Types.ObjectId().toString(),
