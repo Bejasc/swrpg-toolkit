@@ -1,10 +1,12 @@
 import { IDrpgItemBase } from "drpg-economy";
+import { IEquipmentProperties } from "./Equipment";
+import { IWeaponProperties } from "./Weapon";
 
 export type ItemCategories =
 	| "Unknown"
 	| "Food"
 	| "Armour"
-	| "Weapons"
+	| "Weapon"
 	| "Medical"
 	| "Tools"
 	| "Clothing"
@@ -15,6 +17,10 @@ export type ItemCategories =
 	| "Salvage"
 	| "Chemicals";
 export type ItemRarity = "Abundant" | "Common" | "Uncommon" | "Rare" | "Legendary" | "Unique";
+
+export interface ISkillCappedItem {
+	attributeRequirement?: { attribute: string; level: number }[];
+}
 
 export interface IItemQuantity {
 	itemId: string;
@@ -28,5 +34,7 @@ export interface IItem extends IDrpgItemBase {
 	description?: string;
 	category: ItemCategories;
 	encumbrance: number;
+	weaponProperties?: IWeaponProperties;
+	equipmentProperties?: IEquipmentProperties;
 	// packageMeta?: IBasePackage;
 }

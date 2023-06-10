@@ -31,11 +31,12 @@
 //* This is the Composition API - what I should aim to use for all componenets.
 //
 import { getData } from "@/plugins/MongoConnector";
+import { mainPropertyStore } from "@/stores/CommonStore";
 import { ILocation } from "@/types/SwrpgTypes";
 import { computed, onMounted, PropType, ref, Ref, watch } from "vue";
-import { useStore } from "vuex";
 import SmallEntityCard from "./SmallEntityCard.vue";
-const store = useStore();
+
+const mainStore = mainPropertyStore();
 
 interface IProps {
 	title: string;
@@ -54,9 +55,11 @@ const search: Ref<string> = ref("");
 const allLocations: Ref<ILocation[]> = ref();
 
 onMounted(async () => {
-	store.dispatch("showLoader", true);
+	mainStore.showLoader(true);
+
 	allLocations.value = await getData<ILocation>("location");
-	store.dispatch("showLoader", false);
+
+	mainStore.showLoader(false);
 });
 
 const filteredLocations = computed(() => {
@@ -76,7 +79,8 @@ function checkToggled(id: string, checked: boolean) {
 	if (checked) {
 		props.selectedValues.push(id);
 	} else {
-		props.selectedValues = props.selectedValues.filter((e) => e != id);
+		const index = props.selectedValues.indexOf(id, 0);
+		props.selectedValues.splice(index, 1);
 	}
 	emit("selectionChanged", props.selectedValues);
 }
