@@ -10,13 +10,13 @@
 </template>
 
 <script setup lang="ts">
-import { useStore } from "vuex";
 import loadMessages from "@/data/loadMessages.json";
+import { mainPropertyStore } from "@/stores/CommonStore";
 import { ComputedRef, computed, watch, ref } from "vue";
 
-const store = useStore();
+const mainStore = mainPropertyStore();
 
-const showLoader: ComputedRef<boolean> = computed((): boolean => store.state.showLoader);
+const showLoader: ComputedRef<boolean> = computed((): boolean => mainStore.isLoading);
 
 const randomLoadMessage = ref("");
 const rOpts = loadMessages as string[];
