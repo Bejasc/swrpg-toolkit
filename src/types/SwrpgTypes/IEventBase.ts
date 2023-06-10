@@ -77,7 +77,7 @@ export interface IEventSubCondition {
 
 export interface IEventResult {
 	modifier: "add" | "subtract" | "set";
-	type: "item" | "credits" | "affinity" | "skill" | "experience" | "hitpoints" | "location" | "primaryWeapon" | "secondaryWeapon" | "ship" | "equipment" | "flag";
+	type: "item" | "credits" | "affinity" | "skill" | "experience" | "hitpoints" | "location" | "primaryweapon" | "secondaryweapon" | "ship" | "equipment" | "flag";
 	key: string;
 	value: string | number | null;
 }

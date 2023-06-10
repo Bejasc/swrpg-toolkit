@@ -34,6 +34,7 @@
 													:items="itemCategories"
 													label="Category"
 													density="compact"
+													@update:model-value="(event) => categoryChanged(event)"
 												></v-autocomplete>
 											</v-col>
 											<v-col cols="6">
@@ -107,6 +108,109 @@
 							</v-row> -->
 								</v-expansion-panel-text>
 							</v-expansion-panel>
+							<v-expansion-panel title="Weapon Properties" v-if="item.category === 'Weapon'">
+								<v-expansion-panel-text>
+									<v-row>
+										<v-col cols="6">
+											<v-select :items="weaponTypes" v-model="item.weaponProperties.weaponType" label="Weapon Type" :readonly="!allowEdit"></v-select>
+										</v-col>
+										<v-col cols="3">
+											<v-select
+												:items="weaponHandling"
+												item-title="title"
+												item-value="value"
+												v-model="item.weaponProperties.handling"
+												label="Handling"
+												:readonly="!allowEdit"
+											></v-select>
+										</v-col>
+										<v-col cols="3">
+											<v-checkbox
+												v-model="helpers.hasRequirement"
+												:label="`Ability Requirement: ${helpers.hasRequirement ? 'Yes' : 'No'}`"
+												:readonly="!allowEdit"
+												v-if="allowEdit == true"
+											></v-checkbox>
+										</v-col>
+									</v-row>
+									<v-row>
+										<!-- <v-col cols="7">
+											<v-range-slider
+												style="margin-top: 10px"
+												:min="1"
+												:max="20"
+												:step="1"
+												hide-details
+												thumb-label
+												show-ticks="always"
+												label="Damage Range"
+
+											/>
+										</v-col> -->
+										<v-col cols="6">
+											<v-select :items="damageTypes" v-model="item.weaponProperties.damageType" label="Damage Type" :readonly="!allowEdit"></v-select>
+										</v-col>
+										<v-col cols="3">
+											<v-text-field
+												v-model="item.weaponProperties.minDamage"
+												type="number"
+												label="Min Damage"
+												:rules="minDamageRules"
+												:readonly="!allowEdit"
+											></v-text-field>
+										</v-col>
+										<v-col cols="3">
+											<v-text-field
+												v-model="item.weaponProperties.maxDamage"
+												type="number"
+												label="Max Damage"
+												:rules="maxDamageRules"
+												:readonly="!allowEdit"
+											></v-text-field>
+										</v-col>
+									</v-row>
+									<template v-if="helpers.hasRequirement">
+										<p class="h1">Attribute Requirements</p>
+										<v-container>
+											<template v-for="req in props.item.weaponProperties.attributeRequirement">
+												<v-row no-gutters>
+													<v-col cols="4">
+														<v-autocomplete
+															label="Item"
+															:items="supportedAttributes"
+															v-model="req.attribute"
+															item-title="title"
+															item-value="value"
+															variant="solo"
+															v-bind:readonly="!allowEdit"
+														></v-autocomplete>
+													</v-col>
+
+													<v-col cols="2">
+														<v-text-field v-model="req.level" v-bind:readonly="!allowEdit" type="number" label="Level" variant="solo"></v-text-field>
+													</v-col>
+													<v-btn
+														style="margin-bottom: 10px"
+														color="red"
+														variant="plain"
+														icon="mdi-delete-outline"
+														size="small"
+														@click.stop="removeRequirement(req)"
+													>
+													</v-btn>
+												</v-row>
+											</template>
+										</v-container>
+
+										<v-row>
+											<v-col cols="1">
+												<v-btn style="margin-left: 40px" color="green" variant="text" @click="addRequirement()">Add Requirement</v-btn>
+											</v-col>
+										</v-row>
+									</template>
+								</v-expansion-panel-text>
+							</v-expansion-panel>
+							<v-expansion-panel title="Equipment Properties" v-if="item.category === 'Clothing' || item.category === 'Armour'"> </v-expansion-panel>
 						</v-expansion-panels>
 					</v-container>
 				</v-card-text>
@@ -137,9 +241,9 @@
 <script setup lang="ts">
 import LocationPicker from "@/components/LocationSelector.vue";
 import { joinString } from "@/plugins/Utils";
-import { getMatchingLocation, IItem, ILocation } from "@/types/SwrpgTypes";
+import { DamageTypes, getMatchingLocation, IItem, ILocation, WeaponTypes, EquipmentSlots, DEFAULT_WEAPON, DEFUALT_EQUIPMENT, WeaponHandling } from "@/types/SwrpgTypes";
+import { supportedAttributes } from "@/types/SwrpgTypes/FixedData";
 import { computed, reactive, ref, Ref, watch } from "vue";
-
 const props = defineProps<{
 	show: boolean;
 	allowEdit: boolean;
@@ -149,10 +253,29 @@ const props = defineProps<{
 
 const emit = defineEmits(["saveItem"]);
 
+function categoryChanged(value: string) {
+	if (value === "Weapon") {
+		if (!props.item.weaponProperties) {
+			props.item.weaponProperties = DEFAULT_WEAPON();
+		}
+	} else if (["Armour", "Clothing"].includes(props.item.category)) {
+		if (!props.item.equipmentProperties) {
+			props.item.equipmentProperties = DEFUALT_EQUIPMENT();
+		}
+	}
+}
+
 function saveNewItem() {
 	const a = helpers.aliasString.replace(" ", "").split(",");
 	props.item.aliases = a;
 	emit("saveItem", props.item);
+
+	if (props.item.category !== "Weapon") {
+		props.item.weaponProperties = undefined;
+	}
+	if (!["Armour", "Clothing"].includes(props.item.category)) {
+		props.item.equipmentProperties = undefined;
+	}
 }
 
 function changeItemImage() {
@@ -181,12 +304,59 @@ function selectedLocationsChanged(newValue?: string[]) {
 }
 
 const itemCategories = computed(() => {
-	return ["Unknown", "Food", "Armour", "Weapons", "Medical", "Tools", "Clothing", "Resources", "Minerals", "Luxuries", "Waste", "Technology", "Salvage", "Chemicals"];
+	return ["Unknown", "Food", "Armour", "Weapon", "Medical", "Tools", "Clothing", "Resources", "Minerals", "Luxuries", "Waste", "Technology", "Salvage", "Chemicals"];
 });
 
 const itemRarities = computed(() => {
 	return ["Abundant", "Common", "Uncommon", "Rare", "Legendary", "Unique"];
 });
+
+const damageTypes = computed(() => {
+	return Object.values(DamageTypes).filter((e) => ["Fire", "Blast"].includes(e) == false);
+});
+
+const weaponTypes = computed(() => {
+	return Object.values(WeaponTypes).filter((e) => ["Lightsaber", "Unarmed", "Thrown", "Slugthrower"].includes(e) == false);
+});
+
+const weaponHandling = [
+	{ title: "Terrible", value: 0.5 },
+	{ title: "Poor", value: 0.75 },
+	{ title: "Average", value: 1 },
+	{ title: "Good", value: 1.25 },
+	{ title: "Great", value: 1.5 },
+];
+
+const equipmentSlots = computed(() => {
+	return Object.values(EquipmentSlots);
+});
+
+const minDamageRules = computed(() => {
+	return [(v) => (v && v >= 1) || "Minimum damage must be at least 1", (v) => (v && v <= props.item.weaponProperties.maxDamage) || "Min Damage cannot be higer than Max Damage"];
+});
+
+const maxDamageRules = computed(() => {
+	return [
+		(v) => (v && v <= 25) || "Max damage must not be higher thant 25",
+		(v) => (v && v >= props.item.weaponProperties.minDamage) || "Max Damage cannot be lower than Min Damage",
+	];
+});
+
+function addRequirement() {
+	if (!props.item.weaponProperties.attributeRequirement) props.item.weaponProperties.attributeRequirement = [];
+
+	const newRequirement = {
+		attribute: "Strength",
+		level: 1,
+	};
+
+	props.item.weaponProperties.attributeRequirement.push(newRequirement);
+}
+
+function removeRequirement(requirement: { attribute: string; level: number }) {
+	props.item.weaponProperties.attributeRequirement = props.item.weaponProperties.attributeRequirement.filter((e) => e != requirement);
+	if (props.item.weaponProperties.attributeRequirement.length == 0) delete props.item.weaponProperties.attributeRequirement;
+}
 
 const marketHelperText = computed(() => {
 	const matchingLocations = props.locations.filter((e) => helpers.tradeLocationIds.includes(e._id));
@@ -209,11 +379,13 @@ interface IHelpers {
 	tradeAvailableEverywhere: boolean;
 	tradeMode: "blacklist" | "whitelist";
 	tradeLocationIds: string[];
+	hasRequirement: boolean;
 }
 
 const initialState: IHelpers = {
 	aliasString: "",
 	tradeAvailableEverywhere: true,
+	hasRequirement: false,
 	tradeMode: "whitelist",
 	tradeLocationIds: [],
 };
