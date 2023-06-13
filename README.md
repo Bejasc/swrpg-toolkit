@@ -1,3 +1,7 @@
+<!--
+::image=https://cdn.discordapp.com/attachments/964178424258236466/1118186075291136030/swrpg-toolkit.png
+-->
+
 # swrpg-toolkit
 
 This template should help get you started developing with Vue 3 in Vite.
