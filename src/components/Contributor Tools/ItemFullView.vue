@@ -55,20 +55,28 @@
 											<v-checkbox v-if="allowEdit" v-model="item.tradeProperties.isTradeable" :label="`Is Tradeable`"></v-checkbox>
 										</v-col>
 									</v-row>
+									<p class="text-caption" v-if="allowEdit">
+										Looking to create a <strong>Weapon</strong> or <strong>Armour/Clothing</strong> Item?<br />Select the appropriate category and provide their
+										relevant stats below.
+									</p>
 								</v-expansion-panel-text>
 							</v-expansion-panel>
 							<v-expansion-panel title="Trade Properties" v-if="item.tradeProperties.isTradeable">
 								<v-expansion-panel-text>
-									<div align="left" class="text-caption font-italic text-medium-emphasis ma-4">
-										<span class="font-weight-bold">Trading Notes</span> <br />
-										Items that are less rare will generally appear in markets in higher quantities, and be slightly more stable in their price. <br />
-										Rarer (or higher priced) items will generally fluctuate in price more than less rare (or lower priced items).
-										<br />
-										<br />
-										<span class="font-weight-bold">Overrides</span> <br />
-										It is possible for the Rarity or a price modifier to be overrideen on a per-location basis. <br />
-										This can be controlled either via the Location, or the Item itself.
-									</div>
+									<v-row v-if="allowEdit">
+										<v-col cols="12">
+											<v-alert class="text-caption" title="Trading Notes" type="info" variant="outlined" density="compact" closable>
+												<strong>Price and Rarity Relationship</strong> <br />
+												Items that are less rare will generally appear in markets in higher quantities, and be slightly more stable in their price. <br />
+												Rarer (or higher priced) items will generally fluctuate in price more than less rare (or lower priced items).
+												<br /><br />
+												<strong>Overrides</strong><br />
+												It is possible for the Rarity or a price modifier to be overrideen on a per-location basis. <br />
+												This can be controlled either via the Location, or the Item itself.
+											</v-alert>
+										</v-col>
+									</v-row>
+
 									<v-row>
 										<v-col cols="5">
 											<v-select :items="itemRarities" v-model="item.tradeProperties.itemRarity" label="Rarity" density="compact"></v-select>
@@ -120,20 +128,26 @@
 							</v-expansion-panel>
 							<v-expansion-panel title="Weapon Properties" v-if="item.category === 'Weapon'">
 								<v-expansion-panel-text>
-									<div align="left" class="text-caption font-italic text-medium-emphasis ma-4">
-										<span class="font-weight-bold">Handling</span> <br />
-										Reflects how easy the weapon is to use (a character to apply their skills to)<br />Based on the Weapon Type, Characters will be able to add
-										their Strength/Hand to Hand stat, or their Dexterity/Marksman stat to boost their original roll, and their chances to hit. <br />
-										The handling will affect how much of that boost they can use, anywhere from 50% (Terrible) to 150% (Great)
-										<br />
-										<br />
+									<v-row v-if="allowEdit">
+										<v-col cols="12">
+											<v-alert class="text-caption" title="Weapon Notes" type="info" variant="outlined" density="compact" closable>
+												<strong>Handling</strong> <br />
+												Based on the Weapon Type, Characters will be able to add their <strong>Strength/Hand to Hand</strong> stat, or their
+												<strong>Dexterity/Marksman</strong> stat to boost their original roll, and their chances to hit. Equipped gear may also provide
+												bonuses or penalties to this value. <br />The handling will affect how much of this total they can use, anywhere from 50% (Terrible)
+												to 150% (Great).
+												<br />
+												<br />
+												<strong>Damage Output</strong><br />
+												The amount of damage dealt by this weapon on hit, will be a random number chosen between the min and max value. <br />
+												Note that certain armours may be more resistant or susceptible to certain damage types, which will reduce or add to the damage they
+												receive.
+												<br />
+												No other skill or effect impacts this.
+											</v-alert>
+										</v-col>
+									</v-row>
 
-										<span class="font-weight-bold">Min and Max Damage</span> <br />
-										The amount of damage dealt by this weapon on hit, will be a random number chosen between these values. <br />
-										Note that certain armours may be more resistant or susceptible to certain damage types, which will reduce or add to the damage they receive.
-										<br />
-										No other skill or effect impacts this.
-									</div>
 									<v-row>
 										<v-col cols="6">
 											<v-select :items="weaponTypes" v-model="item.weaponProperties.weaponType" label="Weapon Type" :readonly="!allowEdit"></v-select>
@@ -236,19 +250,22 @@
 							</v-expansion-panel>
 							<v-expansion-panel title="Equipment Properties" v-if="item.category === 'Clothing' || item.category === 'Armour'">
 								<v-expansion-panel-text>
-									<div align="left" class="text-caption font-italic text-medium-emphasis ma-4">
-										<span class="font-weight-bold">Armour Bonus</span> <br />
-										As players can wear multiple pieces of Armour, consider that the Armour Bonus is added as a boost to the wearers Armor Class. Multiple
-										pieces of Armour that provide a boost may quickly become OP. A higher Armour Bonus in effect means the wearer is less likely to be hit.<br />
-										For this reason, it's suggested that the Armour Bonus is kept to none or low unless it is a higher tier item. <br />
-										<br />
-
-										<span class="font-weight-bold">Damage Resistance and Susceptability</span> <br />
-										This is the amount of damage that will be ignored (or added), if the wearer is hit by a weapon of that type.<br />
-										For example, if the item has a -3 Susceptability to Ion, if the wearer is hit by a weapon dealing 4 Ion damage, the wearer will suffer 7 Ion
-										damage.
-									</div>
-
+									<v-row v-if="allowEdit">
+										<v-col cols="12">
+											<v-alert class="text-caption" title="Equipment Notes" type="info" variant="outlined" density="compact" closable>
+												<strong>Armour Bonus</strong> <br />
+												As players can wear multiple pieces of Armour, consider that the Armour Bonus is added as a
+												<strong>boost to the wearers Armor Class</strong>. Multiple pieces of Armour that provide a boost may quickly become OP. A higher
+												Armour Bonus in effect means the wearer is less likely to be hit.<br />
+												For this reason, it's suggested that the Armour Bonus is kept to none or low unless it is a higher tier item. <br />
+												<br />
+												<strong>Damage Resistance and Susceptability</strong><br />
+												This is the amount of damage that will be ignored (or added), if the wearer is hit by a weapon of that type.<br />
+												For example, if the item has a -3 Susceptability to Ion, if the wearer is hit by a weapon dealing 4 Ion damage, the wearer will
+												suffer 7 Ion damage.
+											</v-alert>
+										</v-col>
+									</v-row>
 									<v-row>
 										<v-col cols="6">
 											<v-select
