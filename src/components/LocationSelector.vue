@@ -31,12 +31,11 @@
 //* This is the Composition API - what I should aim to use for all componenets.
 //
 import { getData } from "@/plugins/MongoConnector";
-import { mainPropertyStore } from "@/stores/CommonStore";
 import { ILocation } from "@/types/SwrpgTypes";
 import { computed, onMounted, PropType, ref, Ref, watch } from "vue";
+import { useStore } from "vuex";
 import SmallEntityCard from "./SmallEntityCard.vue";
-
-const mainStore = mainPropertyStore();
+const store = useStore();
 
 interface IProps {
 	title: string;
@@ -55,11 +54,9 @@ const search: Ref<string> = ref("");
 const allLocations: Ref<ILocation[]> = ref();
 
 onMounted(async () => {
-	mainStore.showLoader(true);
-
+	store.dispatch("showLoader", true);
 	allLocations.value = await getData<ILocation>("location");
-
-	mainStore.showLoader(false);
+	store.dispatch("showLoader", false);
 });
 
 const filteredLocations = computed(() => {
