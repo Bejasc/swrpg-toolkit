@@ -23,7 +23,7 @@ export interface IEquipmentProperties extends ISkillCappedItem {
 
 export function DEFUALT_EQUIPMENT(): IEquipmentProperties {
 	return {
-		armorBonus: 1,
+		armorBonus: 0,
 		slot: EquipmentSlots.Torso,
 		resistances: [],
 		attributeRequirement: [],
