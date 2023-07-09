@@ -6,17 +6,24 @@ export interface IDamageResistance {
 	value: number;
 }
 
-export enum EquipmentSlots {
-	Primary = "primary",
-	Head = "head",
-	Torso = "torso",
-	Legs = "legs",
-	// Arms,
-	Back = "back",
-}
+export type EquipmentSlot = "primaryWeapon" | "head" | "upperBody" | "lowerBody" | "back";
 
+export type EquipmentSlotConfig = {
+	key: EquipmentSlot;
+	name: string;
+	aliases?: string[];
+	displayOrder: number;
+};
+
+export const EquipmentSlots: Record<EquipmentSlot, EquipmentSlotConfig> = {
+	primaryWeapon: { key: "primaryWeapon", name: "Primary Weapon", displayOrder: 1, aliases: ["weapon"] },
+	head: { key: "head", name: "Head", displayOrder: 2, aliases: ["helmet", "headgear", "mask", "face", "hat"] },
+	upperBody: { key: "upperBody", name: "Upper Body", displayOrder: 3, aliases: ["gloves", "shirt", "torso", "upper", "chest", "top"] },
+	lowerBody: { key: "lowerBody", name: "Lower Body", displayOrder: 4, aliases: ["pants", "boots", "trousers", "legs", "greaves", "lower", "bottoms"] },
+	back: { key: "back", name: "Back", displayOrder: 5, aliases: ["backpack", "bag"] },
+};
 export interface IEquipmentProperties extends ISkillCappedItem {
-	slot: EquipmentSlots;
+	slot: EquipmentSlot[];
 	armorBonus: number;
 	resistances: IDamageResistance[];
 }
@@ -24,7 +31,7 @@ export interface IEquipmentProperties extends ISkillCappedItem {
 export function DEFUALT_EQUIPMENT(): IEquipmentProperties {
 	return {
 		armorBonus: 0,
-		slot: EquipmentSlots.Torso,
+		slot: [EquipmentSlots.upperBody.key],
 		resistances: [],
 		attributeRequirement: [],
 	};

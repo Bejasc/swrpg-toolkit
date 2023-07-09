@@ -274,6 +274,7 @@
 												:items="equipmentSlots"
 												v-model="item.equipmentProperties.slot"
 												label="Equipment Slot"
+												multiple
 												:readonly="!allowEdit"
 											></v-select>
 										</v-col>
@@ -522,10 +523,11 @@
 		const options = [];
 
 		for (const slot in EquipmentSlots) {
+			if (slot == "primaryWeapon") continue;
 			if (Object.prototype.hasOwnProperty.call(EquipmentSlots, slot)) {
 				options.push({
-					title: slot,
-					value: EquipmentSlots[slot],
+					title: EquipmentSlots[slot].name,
+					value: EquipmentSlots[slot].key,
 				});
 			}
 		}
