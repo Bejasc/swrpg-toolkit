@@ -153,14 +153,24 @@
 											<v-select :items="weaponTypes" v-model="item.weaponProperties.weaponType" label="Weapon Type" :readonly="!allowEdit"></v-select>
 										</v-col>
 										<v-col cols="3">
-											<v-select
+											<!-- <v-select
 												:items="weaponHandling"
 												item-title="title"
 												item-value="value"
 												v-model="item.weaponProperties.handling"
 												label="Handling"
 												:readonly="!allowEdit"
-											></v-select>
+											></v-select> -->
+											<v-text-field
+												v-model="item.weaponProperties.handling"
+												type="number"
+												:label="getWeaponHandlingPower()"
+												density="compact"
+												step="0.1"
+												:min="0.5"
+												:max="2"
+												:readonly="!allowEdit"
+											></v-text-field>
 										</v-col>
 										<v-col cols="3">
 											<v-checkbox
@@ -279,14 +289,13 @@
 											></v-select>
 										</v-col>
 										<v-col cols="3">
-											<v-select
-												:items="armorBonus"
-												item-title="title"
-												item-value="value"
+											<v-text-field
 												v-model="item.equipmentProperties.armorBonus"
-												label="Armour Bonus"
+												type="number"
+												:label="getArmorBonusPower()"
 												:readonly="!allowEdit"
-											></v-select>
+												density="compact"
+											></v-text-field>
 										</v-col>
 										<v-col cols="3">
 											<v-checkbox
@@ -449,6 +458,29 @@
 		}
 	}
 
+	function getArmorBonusPower(): string {
+		const bonus = props.item.equipmentProperties.armorBonus;
+		const slots = props.item.equipmentProperties.slot.length;
+
+		const score = bonus / slots;
+		if (score >= 0) return `Armor Bonus (Average)`;
+		if (score <= 1) return `Armor Bonus (Low)`;
+		if (score <= 2) return `Armor Bonus (Moderate)`;
+		if (score <= 3) return `Armor Bonus (High)`;
+		if (score >= 4) return `Armor Bonus (Very High)`;
+		else return "Armor Bonus (Extreme)";
+	}
+
+	function getWeaponHandlingPower(): string {
+		const handling = props.item.weaponProperties.handling;
+		if (handling <= 0.5) return `Handling (Terrible)`;
+		if (handling <= 0.75) return `Handling (Poor)`;
+		if (handling <= 1) return `Handling (Average)`;
+		if (handling <= 1.25) return `Handling (Good)`;
+		if (handling <= 1.5) return `Handling (Great)`;
+		else return `Handling (Extreme)`;
+	}
+
 	function saveNewItem() {
 		const a = helpers.aliasString.replace(" ", "").split(",");
 		props.item.aliases = a;
@@ -509,15 +541,11 @@
 		{ title: "Average", value: 1 },
 		{ title: "Good", value: 1.25 },
 		{ title: "Great", value: 1.5 },
+		{ title: "Custom", value: 1 },
 	];
 
 	//TODO provide different values based on type ie Torso should be highest
-	const armorBonus = [
-		{ title: "Average (None)", value: 0 },
-		{ title: "Low", value: 1 },
-		{ title: "Moderate", value: 2 },
-		{ title: "High", value: 3 },
-	];
+	const armorBonus = [{ title: "Average (None)", value: 0 }, { title: "Low", value: 1 }, { title: "Moderate", value: 2 }, { title: "High", value: 3 }, { title: "Custom" }];
 
 	const equipmentSlots = computed(() => {
 		const options = [];
