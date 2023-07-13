@@ -35,10 +35,11 @@ a {
 import EventEditor from "@/components/Contributor Tools/Events/EventEditor.vue";
 import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
 import { getData } from "@/plugins/MongoConnector";
-import { mainPropertyStore } from "@/stores/CommonStore";
 import { getMatchingLocation, IItem, ILocation } from "@/types/SwrpgTypes";
 import type { IEventBase, IEventHelper } from "@/types/SwrpgTypes/IEventBase";
 import { defineComponent, onMounted, reactive, Ref, ref, watch, type PropType } from "vue";
+import { useStore } from "vuex";
+const store = useStore();
 
 const props = defineProps<{
 	show: boolean;
@@ -51,26 +52,23 @@ const locations: Ref<ILocation[]> = ref([]);
 
 const emit = defineEmits(["eventSaved"]);
 
-const mainStore = mainPropertyStore();
-
 async function saveEvent() {
 	emit("eventSaved", props.eventData);
 }
 
 async function loadAllItems() {
-	mainStore.showLoader(true);
+	store.dispatch("showLoader", true);
 	items.value = [];
 	items.value = await getData<IItem>("item");
 
-	mainStore.showLoader(false);
+	store.dispatch("showLoader", false);
 }
 async function loadAllLocations() {
-	mainStore.showLoader(true);
-
+	store.dispatch("showLoader", true);
 	locations.value = [];
 	locations.value = await getData<ILocation>("location");
 
-	mainStore.showLoader(false);
+	store.dispatch("showLoader", false);
 }
 
 onMounted(() => {
