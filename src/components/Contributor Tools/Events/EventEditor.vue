@@ -180,121 +180,121 @@
 </template>
 
 <script setup lang="ts">
-import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
-import { joinString } from "@/plugins/Utils";
-import DrpgSwatches from "@/types/DrpgColors";
-import { getMatchingLocation, IItem, ILocation } from "@/types/SwrpgTypes";
-import { DEFAULT_EVENT_STATE, IEventBase, IEventCondition, IEventHelper, IEventLink, IEventResult, IEventSubCondition } from "@/types/SwrpgTypes/IEventBase";
-import { computed, onMounted, reactive, ref, Ref, watch } from "vue";
-import EventCondition from "./EventCondition.vue";
-import EventResult from "./EventResult.vue";
-import LocationPicker from "@/components/LocationSelector.vue";
+	import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
+	import { joinString } from "@/plugins/Utils";
+	import DrpgSwatches from "@/types/DrpgColors";
+	import { getMatchingLocation, IItem, ILocation } from "@/types/SwrpgTypes";
+	import { DEFAULT_EVENT_STATE, IEventBase, IEventCondition, IEventHelper, IEventLink, IEventResult, IEventSubCondition } from "@/types/SwrpgTypes/IEventBase";
+	import { computed, onMounted, reactive, ref, Ref, watch } from "vue";
+	import EventCondition from "./EventCondition.vue";
+	import EventResult from "./EventResult.vue";
+	import LocationPicker from "@/components/LocationSelector.vue";
 
-const props = defineProps<{
-	eventData: IEventBase;
-	allowEdit: boolean;
-	isTopLevel: boolean;
-	allItems: IItem[];
-	allLocations: ILocation[];
-	helper: IEventHelper;
-}>();
+	const props = defineProps<{
+		eventData: IEventBase;
+		allowEdit: boolean;
+		isTopLevel: boolean;
+		allItems: IItem[];
+		allLocations: ILocation[];
+		helper: IEventHelper;
+	}>();
 
-const swatches = DrpgSwatches;
-const matchStrategies = ["All of", "Any of", "None of"];
-const frequencies = ["Common", "Regular", "Uncommon", "Rare", "Legendary"];
+	const swatches = DrpgSwatches;
+	const matchStrategies = ["All of", "Any of", "None of"];
+	const frequencies = ["Common", "Regular", "Uncommon", "Rare", "Legendary"];
 
-const previewEmbed: Ref<boolean> = ref(false);
+	const previewEmbed: Ref<boolean> = ref(false);
 
-function availableEverywhereChanged() {
-	if (props.helper.spawnEverywhere) delete props.eventData.circulationOptions.locationOptions;
-	else {
-		props.eventData.circulationOptions.locationOptions = {
-			type: props.helper.locationMode,
-			values: props.helper.locationValues,
-		};
-	}
-}
-
-function addEventLink() {
-	if (!props.eventData.eventLinks) props.eventData.eventLinks = [];
-
-	const newLink: IEventLink = {
-		title: null,
-		event: [JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE()))],
-	};
-	props.eventData.eventLinks.push(newLink);
-}
-
-function removeEventLink(eventLink: IEventLink) {
-	props.eventData.eventLinks = props.eventData.eventLinks.filter((e) => e != eventLink);
-	if (props.eventData.eventLinks.length === 0) delete props.eventData.eventLinks;
-}
-
-function addResult() {
-	if (!props.eventData.results) props.eventData.results = { pickRandom: false, changes: [] };
-
-	const newResult: IEventResult = {
-		modifier: "add",
-		type: "item",
-		key: null,
-		value: null,
-	};
-
-	props.eventData.results.changes.push(newResult);
-}
-
-function removeResult(result: IEventResult) {
-	props.eventData.results.changes = props.eventData.results.changes.filter((e) => e != result);
-	if (props.eventData.results.changes.length == 0) delete props.eventData.results;
-}
-
-function addCondition() {
-	if (!props.eventData.requirements) {
-		props.eventData.requirements = {
-			match: "All of",
-			conditions: [],
-			failEvent: JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE())),
-		};
-	}
-
-	const newCondition: IEventCondition = {
-		identifier: "New Condition",
-		match: "All of",
-		subConditions: [],
-	};
-
-	props.eventData.requirements.conditions.push(newCondition);
-}
-
-function removeCondition(condition: IEventCondition) {
-	props.eventData.requirements.conditions = props.eventData.requirements.conditions.filter((e) => e != condition);
-	if (props.eventData.requirements.conditions.length == 0) delete props.eventData.requirements;
-	//If requirement object contains no definitions, delete it from thing
-	//if (props.eventData.requirements.changes.length == 0) delete props.eventData.results;
-}
-
-function selectedLocationsChanged(newValue?: string[]) {
-	props.helper.locationValues = newValue;
-	props.eventData.circulationOptions.locationOptions.values = newValue;
-}
-
-const eventSpawnHelperText = computed(() => {
-	const title = props.eventData.embedOptions.title;
-	const frequency = props.eventData.circulationOptions.frequency;
-
-	const matchingLocations = props.allLocations.filter((e) => props.helper.locationValues.includes(e._id));
-	const matchingLocationNames = joinString(matchingLocations.map((e) => e.name));
-
-	if (props.helper.spawnEverywhere) {
-		return `${title} will spawn ${frequency} everywhere.`;
-	} else {
-		if (props.helper.locationValues.length == 0) return "Make a selection to continue";
-
-		if (props.helper.locationMode === "whitelist") {
-			return `${title} will *ONLY* spawn ${frequency} on ${matchingLocationNames}.`;
-		} else {
-			return `${title} will spawn ${frequency} everywhere *EXCEPT* on ${matchingLocationNames}`;
+	function availableEverywhereChanged() {
+		if (props.helper.spawnEverywhere) delete props.eventData.circulationOptions.locationOptions;
+		else {
+			props.eventData.circulationOptions.locationOptions = {
+				type: props.helper.locationMode,
+				values: props.helper.locationValues,
+			};
 		}
 	}
-});
+
+	function addEventLink() {
+		if (!props.eventData.eventLinks) props.eventData.eventLinks = [];
+
+		const newLink: IEventLink = {
+			title: null,
+			event: [JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE()))],
+		};
+		props.eventData.eventLinks.push(newLink);
+	}
+
+	function removeEventLink(eventLink: IEventLink) {
+		props.eventData.eventLinks = props.eventData.eventLinks.filter((e) => e != eventLink);
+		if (props.eventData.eventLinks.length === 0) delete props.eventData.eventLinks;
+	}
+
+	function addResult() {
+		if (!props.eventData.results) props.eventData.results = { pickRandom: false, changes: [] };
+
+		const newResult: IEventResult = {
+			modifier: "add",
+			type: "item",
+			key: null,
+			value: null,
+		};
+
+		props.eventData.results.changes.push(newResult);
+	}
+
+	function removeResult(result: IEventResult) {
+		props.eventData.results.changes = props.eventData.results.changes.filter((e) => e != result);
+		if (props.eventData.results.changes.length == 0) delete props.eventData.results;
+	}
+
+	function addCondition() {
+		if (!props.eventData.requirements) {
+			props.eventData.requirements = {
+				match: "All of",
+				conditions: [],
+				failEvent: JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE())),
+			};
+		}
+
+		const newCondition: IEventCondition = {
+			identifier: "New Condition",
+			match: "All of",
+			subConditions: [],
+		};
+
+		props.eventData.requirements.conditions.push(newCondition);
+	}
+
+	function removeCondition(condition: IEventCondition) {
+		props.eventData.requirements.conditions = props.eventData.requirements.conditions.filter((e) => e != condition);
+		if (props.eventData.requirements.conditions.length == 0) delete props.eventData.requirements;
+		//If requirement object contains no definitions, delete it from thing
+		//if (props.eventData.requirements.changes.length == 0) delete props.eventData.results;
+	}
+
+	function selectedLocationsChanged(newValue?: string[]) {
+		props.helper.locationValues = newValue;
+		props.eventData.circulationOptions.locationOptions.values = newValue;
+	}
+
+	const eventSpawnHelperText = computed(() => {
+		const title = props.eventData.embedOptions.title;
+		const frequency = props.eventData.circulationOptions.frequency;
+
+		const matchingLocations = props.allLocations.filter((e) => props.helper.locationValues.includes(e._id));
+		const matchingLocationNames = joinString(matchingLocations.map((e) => e.name));
+
+		if (props.helper.spawnEverywhere) {
+			return `${title} will spawn ${frequency} everywhere.`;
+		} else {
+			if (props.helper.locationValues.length == 0) return "Make a selection to continue";
+
+			if (props.helper.locationMode === "whitelist") {
+				return `${title} will *ONLY* spawn ${frequency} on ${matchingLocationNames}.`;
+			} else {
+				return `${title} will spawn ${frequency} everywhere *EXCEPT* on ${matchingLocationNames}`;
+			}
+		}
+	});
 </script>
