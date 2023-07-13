@@ -3,6 +3,7 @@
 
 	const props = defineProps({
 		model: Object,
+		level: Number,
 	});
 
 	const isOpen = ref(false);
@@ -13,6 +14,10 @@
 	function toggle() {
 		isOpen.value = !isOpen.value;
 	}
+
+	const indent = computed(() => {
+		return props.level * 15;
+	});
 </script>
 
 <template>
@@ -21,8 +26,8 @@
 			{{ model.name }}
 			<span v-if="isFolder">[{{ isOpen ? "-" : "+" }}]</span>
 		</div>
-		<ul v-show="isOpen" v-if="isFolder">
-			<TreeItem class="item" v-for="model in model.children" :model="model"> </TreeItem>
+		<ul v-show="isOpen" v-if="isFolder" v-bind:style="{ 'margin-left': indent + 'px' }">
+			<TreeItem class="item" v-for="model in model.children" :model="model" :level="props.level + 1"> </TreeItem>
 		</ul>
 	</li>
 </template>

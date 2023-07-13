@@ -1,6 +1,6 @@
 <template>
 	<v-expansion-panels variant="accordion">
-		<v-expansion-panel title="Circulation Options" v-if="isTopLevel">
+		<v-expansion-panel title="Circulation Options" v-if="isTopLevel" flex>
 			<v-expansion-panel-text>
 				<v-row no-gutters>
 					<v-select label="Frequency" :items="frequencies" v-model="eventData.circulationOptions.frequency" variant="solo"></v-select>
@@ -27,7 +27,7 @@
 				</v-col>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
-		<v-expansion-panel title="Embed Options">
+		<v-expansion-panel title="Embed Options" flex>
 			<v-expansion-panel-text>
 				<v-row no-gutters>
 					<v-col cols="6">
@@ -79,7 +79,7 @@
 				</v-dialog>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
-		<v-expansion-panel title="Requirements and Conditions">
+		<v-expansion-panel title="Requirements and Conditions" flex>
 			<v-expansion-panel-text>
 				<div align="left" class="text-caption font-italic text-medium-emphasis ma-4" v-if="isTopLevel">
 					Requirements can be set fo revents. This can be a simple requirement, or, several detailed requirements where any or all conditions must be met.<br />
@@ -117,7 +117,7 @@
 				</template>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
-		<v-expansion-panel title="Results">
+		<v-expansion-panel title="Results" flex>
 			<v-expansion-panel-text>
 				<div align="left" class="text-caption font-italic text-medium-emphasis ma-4" v-if="isTopLevel">
 					Results are the affects that are applied to the player when this node of the Event is hit. <br />
@@ -146,7 +146,7 @@
 				</v-row>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
-		<v-expansion-panel>
+		<v-expansion-panel flex>
 			<v-expansion-panel-title>
 				<template v-slot:default="{ expanded }">
 					<v-row no-gutters>

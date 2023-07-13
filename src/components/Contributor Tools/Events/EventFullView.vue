@@ -1,26 +1,29 @@
 <template>
-	<v-row justify="center">
-		<v-dialog v-model="show" :fullscreen="fullScreen">
-			<v-card>
-				<v-card-title>
-					<v-col>
-						<v-row>
-							{{ eventData.embedOptions.title }}
-							<v-spacer />
-							<v-btn icon dark @click="toggleFullScreen()">
-								<v-icon>mdi-overscan</v-icon>
-							</v-btn>
-						</v-row>
-					</v-col>
-				</v-card-title>
+	<v-dialog v-model="show" :fullscreen="fullScreen">
+		<v-card>
+			<v-card-title>
+				<v-col>
+					<v-row>
+						{{ eventData.embedOptions.title }}
+						<v-spacer />
+						<v-btn icon dark @click="toggleFullScreen()">
+							<v-icon>mdi-overscan</v-icon>
+						</v-btn>
+					</v-row>
+				</v-col>
+			</v-card-title>
 
+			<v-card-text class="d-flex fill-height">
 				<v-row>
-					<v-col cols="2" v-if="fullScreen">
-						<EventTree :base-event="props.eventData"></EventTree>
+					<v-col cols="3" v-if="fullScreen" class="d-flex flex-column overflow-auto fill-height">
+						<v-container>
+							<EventTree :base-event="props.eventData"></EventTree>
+						</v-container>
 					</v-col>
+
 					<v-divider thickness="2" inset vertical></v-divider>
 
-					<v-col>
+					<v-col class="d-flex flex-column overflow-auto fill-height">
 						<EventEditor
 							:allow-edit="allowEdit"
 							:event-data="eventData"
@@ -31,16 +34,17 @@
 						></EventEditor>
 					</v-col>
 				</v-row>
-				<v-card-actions>
-					<small style="opacity: 0.2">Event ID: {{ eventData.id }}</small>
+			</v-card-text>
 
-					<v-spacer></v-spacer>
-					<v-btn color="blue darken-1" text @click="$emit('closeFullView')"> Close </v-btn>
-					<v-btn v-if="allowEdit" color="green darken-1" :disabled="!eventData.embedOptions.title" text @click="saveEvent()"> Save </v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-	</v-row>
+			<v-card-actions>
+				<small style="opacity: 0.2">Event ID: {{ eventData.id }}</small>
+
+				<v-spacer></v-spacer>
+				<v-btn color="blue darken-1" text @click="$emit('closeFullView')"> Close </v-btn>
+				<v-btn v-if="allowEdit" color="green darken-1" :disabled="!eventData.embedOptions.title" text @click="saveEvent()"> Save </v-btn>
+			</v-card-actions>
+		</v-card>
+	</v-dialog>
 </template>
 
 <style scoped>

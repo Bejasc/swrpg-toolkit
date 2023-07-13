@@ -74,7 +74,7 @@
 				<!--EXTRACT ME END-->
 				<v-expansion-panel title="Events">
 					<v-expansion-panel-text class="ma-2">
-						<v-row style="max-height: 550px" class="overflow-y-auto">
+						<v-row>
 							<v-col v-for="eventData in packageData.events" :key="eventData.id" cols="2">
 								<v-card width="200px" @click="openEvent(eventData, false)">
 									<v-img
@@ -144,111 +144,111 @@
 </template>
 
 <style scoped>
-.imageMouseover {
-	filter: brightness(100%) blur(0.5px);
-	-webkit-transition: -webkit-filter 200ms linear;
-}
-.imageMouseover:hover {
-	cursor: pointer;
+	.imageMouseover {
+		filter: brightness(100%) blur(0.5px);
+		-webkit-transition: -webkit-filter 200ms linear;
+	}
+	.imageMouseover:hover {
+		cursor: pointer;
 
-	filter: brightness(115%) blur(0px);
-	-webkit-transition: -webkit-filter 200ms linear;
-}
+		filter: brightness(115%) blur(0px);
+		-webkit-transition: -webkit-filter 200ms linear;
+	}
 </style>
 
 <script lang="ts">
-import EventFullView from "@/components/Contributor Tools/Events/EventFullView.vue";
-import { stringToCamelCase } from "@/plugins/Utils";
-import type { IPackageDefinition } from "@/types/packages/ItemPackage";
-import { DEFAULT_EVENT_STATE, IEventBase } from "@/types/SwrpgTypes/IEventBase";
-import FileSaver from "file-saver";
-import mongoose from "mongoose";
-import { defineComponent } from "vue";
-// Components
-export default defineComponent({
-	name: "Event Package Creator",
-	emits: ["pageNavigation"],
-	components: { EventFullView },
-	data: () => {
-		return {
-			panels: [0, 1],
-			incompleteSnackbar: true,
-			selectedEvent: {} as IEventBase,
-			dialog: false,
-			dialogConfirmClear: false,
-			dialogFullView: false,
-			showContextMenu: false,
-			allowEdit: true,
-			pastedPackage: "",
-			packageData: {
-				packageInfo: {},
-				events: [],
-			} as IPackageDefinition,
-		};
-	},
-	methods: {
-		clearAll() {
-			this.dialogConfirmClear = false;
-			this.packageData = {
-				packageInfo: {},
-				events: [] as IEventBase[],
-			} as IPackageDefinition;
+	import EventFullView from "@/components/Contributor Tools/Events/EventFullView.vue";
+	import { stringToCamelCase } from "@/plugins/Utils";
+	import type { IPackageDefinition } from "@/types/packages/ItemPackage";
+	import { DEFAULT_EVENT_STATE, IEventBase } from "@/types/SwrpgTypes/IEventBase";
+	import FileSaver from "file-saver";
+	import mongoose from "mongoose";
+	import { defineComponent } from "vue";
+	// Components
+	export default defineComponent({
+		name: "Event Package Creator",
+		emits: ["pageNavigation"],
+		components: { EventFullView },
+		data: () => {
+			return {
+				panels: [0, 1],
+				incompleteSnackbar: true,
+				selectedEvent: {} as IEventBase,
+				dialog: false,
+				dialogConfirmClear: false,
+				dialogFullView: false,
+				showContextMenu: false,
+				allowEdit: true,
+				pastedPackage: "",
+				packageData: {
+					packageInfo: {},
+					events: [],
+				} as IPackageDefinition,
+			};
 		},
-		saveEvent(eventData: IEventBase) {
-			this.dialogFullView = false;
+		methods: {
+			clearAll() {
+				this.dialogConfirmClear = false;
+				this.packageData = {
+					packageInfo: {},
+					events: [] as IEventBase[],
+				} as IPackageDefinition;
+			},
+			saveEvent(eventData: IEventBase) {
+				this.dialogFullView = false;
 
-			const existingEvent = this.packageData.events.find((e) => e.id === eventData.id);
-			if (existingEvent) {
-				const i = this.packageData.events.indexOf(existingEvent);
-				this.packageData.events[i] = eventData;
-			} else {
-				this.packageData.events.push(eventData);
-			}
-		},
-		duplicateEvent(eventData: IEventBase) {
-			const newObj: IEventBase = JSON.parse(JSON.stringify(eventData));
-			newObj.id = new mongoose.Types.ObjectId().toString();
-			this.packageData.events.push(newObj);
-		},
-		removeEvent(eventdata: IEventBase) {
-			this.packageData.events = this.packageData.events.filter((e) => e.id !== eventdata.id);
-		},
-		openEvent(eventData?: IEventBase, editMode = true) {
-			if (!eventData) {
-				eventData = JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE()));
-				eventData.circulationOptions = {
-					allowCirculation: true,
-					frequency: "Common",
-				};
-			}
-			this.dialogFullView = true;
+				const existingEvent = this.packageData.events.find((e) => e.id === eventData.id);
+				if (existingEvent) {
+					const i = this.packageData.events.indexOf(existingEvent);
+					this.packageData.events[i] = eventData;
+				} else {
+					this.packageData.events.push(eventData);
+				}
+			},
+			duplicateEvent(eventData: IEventBase) {
+				const newObj: IEventBase = JSON.parse(JSON.stringify(eventData));
+				newObj.id = new mongoose.Types.ObjectId().toString();
+				this.packageData.events.push(newObj);
+			},
+			removeEvent(eventdata: IEventBase) {
+				this.packageData.events = this.packageData.events.filter((e) => e.id !== eventdata.id);
+			},
+			openEvent(eventData?: IEventBase, editMode = true) {
+				if (!eventData) {
+					eventData = JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE()));
+					eventData.circulationOptions = {
+						allowCirculation: true,
+						frequency: "Common",
+					};
+				}
+				this.dialogFullView = true;
 
-			this.selectedEvent = eventData;
-			this.allowEdit = editMode;
-		},
-		exportPackage() {
-			if (!this.packageData.packageInfo.name || !this.packageData.packageInfo.author) {
-				alert("Please complete the required Package Info");
-				return;
-			}
+				this.selectedEvent = eventData;
+				this.allowEdit = editMode;
+			},
+			exportPackage() {
+				if (!this.packageData.packageInfo.name || !this.packageData.packageInfo.author) {
+					alert("Please complete the required Package Info");
+					return;
+				}
 
-			const packageAsJson = JSON.stringify(this.packageData, null, "\t");
-			const fileName = `${stringToCamelCase(this.packageData.packageInfo.author)}.${stringToCamelCase(this.packageData.packageInfo.name)}`;
+				const packageAsJson = JSON.stringify(this.packageData, null, "\t");
+				const fileName = `${stringToCamelCase(this.packageData.packageInfo.author)}.${stringToCamelCase(this.packageData.packageInfo.name)}`;
 
-			var blob = new Blob([packageAsJson], { type: "text/plain;charset=utf-8" });
-			FileSaver.saveAs(blob, `${fileName}.events.json`);
-			// navigator.clipboard.writeText(packageAsJson);
-			// alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
+				var blob = new Blob([packageAsJson], { type: "text/plain;charset=utf-8" });
+				FileSaver.saveAs(blob, `${fileName}.events.json`);
+				// navigator.clipboard.writeText(packageAsJson);
+				// alert(`${this.itemPackageData.packageInfo.name} has been copied to your clipboard with ${this.itemPackageData.items.length} items.`);
+			},
+			importPackage() {
+				this.dialog = false;
+				const packageFromJson = JSON.parse(this.pastedPackage) as IPackageDefinition;
+				this.packageData = packageFromJson;
+				this.pastedPackage = "";
+			},
 		},
-		importPackage() {
-			this.dialog = false;
-			const packageFromJson = JSON.parse(this.pastedPackage) as IPackageDefinition;
-			this.packageData = packageFromJson;
-			this.pastedPackage = "";
+		mounted() {
+			this.$emit("pageNavigation", this.$route.name);
 		},
-	},
-	mounted() {
-		this.$emit("pageNavigation", this.$route.name);
-	},
-});
+	});
 </script>
