@@ -79,7 +79,7 @@
 				</v-dialog>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
-		<v-expansion-panel title="Requirements and Conditions" flex>
+		<v-expansion-panel title="Conditions and Combat" flex>
 			<v-expansion-panel-text>
 				<div align="left" class="text-caption font-italic text-medium-emphasis ma-4" v-if="isTopLevel">
 					Requirements can be set fo revents. This can be a simple requirement, or, several detailed requirements where any or all conditions must be met.<br />
@@ -89,18 +89,31 @@
 				</div>
 				<v-row no-gutters>
 					<v-col cols="2">
-						<v-select v-if="eventData.requirements" label="Match Strategy" :items="matchStrategies" v-model="eventData.requirements.match" variant="solo"></v-select>
+						<v-select
+							v-if="eventData.requirements?.conditions?.length > 0"
+							label="Match Strategy"
+							:items="matchStrategies"
+							v-model="eventData.requirements.match"
+							variant="solo"
+						></v-select>
 					</v-col>
 				</v-row>
 
 				<br />
-				<template v-if="eventData.requirements">
+				<template v-if="eventData.requirements?.conditions?.length > 0">
 					<EventCondition :allow-edit="allowEdit" :event="eventData" :remove-condition="removeCondition" :items="allItems" :locations="allLocations"></EventCondition>
 				</template>
 
-				<v-col cols="1" class="ma-3">
-					<v-btn color="blue" variant="text" @click="addCondition()">Add Condition</v-btn>
-				</v-col>
+				<template v-if="eventData.requirements?.combat">
+					<EventCombat :allow-edit="allowEdit" :requirement="eventData.requirements" :remove-combat="removeCombat"> </EventCombat>
+				</template>
+
+				<v-row class="ma-3">
+					<v-btn color="blue" variant="text" :disabled="eventData.requirements?.combat != null" @click="addCondition()">Add Condition</v-btn>
+					<v-btn color="red" variant="text" :disabled="eventData.requirements?.conditions?.length > 0 || eventData.requirements?.combat != null" @click="addCombat()"
+						>Add Combat</v-btn
+					>
+				</v-row>
 				<template v-if="eventData.requirements">
 					<v-expansion-panels variant="accordion">
 						<v-expansion-panel title="Event - On Fail" color="red-darken-4">
@@ -187,6 +200,7 @@
 	import { DEFAULT_EVENT_STATE, IEventBase, IEventCondition, IEventHelper, IEventLink, IEventResult, IEventSubCondition } from "@/types/SwrpgTypes/IEventBase";
 	import { computed, onMounted, reactive, ref, Ref, watch } from "vue";
 	import EventCondition from "./EventCondition.vue";
+	import EventCombat from "./EventCombat.vue";
 	import EventResult from "./EventResult.vue";
 	import LocationPicker from "@/components/LocationSelector.vue";
 
@@ -252,10 +266,11 @@
 		if (!props.eventData.requirements) {
 			props.eventData.requirements = {
 				match: "All of",
-				conditions: [],
 				failEvent: JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE())),
 			};
 		}
+
+		if (!props.eventData.requirements.conditions) props.eventData.requirements.conditions = [];
 
 		const newCondition: IEventCondition = {
 			identifier: "New Condition",
@@ -268,9 +283,28 @@
 
 	function removeCondition(condition: IEventCondition) {
 		props.eventData.requirements.conditions = props.eventData.requirements.conditions.filter((e) => e != condition);
-		if (props.eventData.requirements.conditions.length == 0) delete props.eventData.requirements;
+		if (props.eventData.requirements.conditions.length == 0) delete props.eventData.requirements.conditions;
 		//If requirement object contains no definitions, delete it from thing
 		//if (props.eventData.requirements.changes.length == 0) delete props.eventData.results;
+	}
+
+	function addCombat() {
+		if (!props.eventData.requirements) {
+			props.eventData.requirements = {
+				match: "All of",
+				failEvent: JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE())),
+			};
+		}
+
+		if (!props.eventData.requirements.combat) {
+			props.eventData.requirements.combat = {
+				npc: "Ruffian",
+			};
+		}
+	}
+
+	function removeCombat() {
+		delete props.eventData.requirements.combat;
 	}
 
 	function selectedLocationsChanged(newValue?: string[]) {

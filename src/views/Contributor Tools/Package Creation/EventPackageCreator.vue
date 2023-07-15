@@ -75,8 +75,8 @@
 				<v-expansion-panel title="Events">
 					<v-expansion-panel-text class="ma-2">
 						<v-row>
-							<v-col v-for="eventData in packageData.events" :key="eventData.id" cols="2">
-								<v-card width="200px" @click="openEvent(eventData, false)">
+							<v-col v-for="eventData in packageData.events" :key="eventData.id" cols="4">
+								<v-card width="400px" @click="openEvent(eventData, false)">
 									<v-img
 										:src="eventData.embedOptions.image ?? eventData.embedOptions.thumbnail"
 										:lazy-src="eventData.embedOptions.image ?? eventData.embedOptions.thumbnail"
@@ -245,6 +245,15 @@
 				const packageFromJson = JSON.parse(this.pastedPackage) as IPackageDefinition;
 				this.packageData = packageFromJson;
 				this.pastedPackage = "";
+			},
+			eventHasCombat() {
+				return true;
+			},
+			eventHasRandom() {
+				return true;
+			},
+			eventHasSkill() {
+				return true;
 			},
 		},
 		mounted() {
