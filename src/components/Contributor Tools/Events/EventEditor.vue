@@ -1,6 +1,6 @@
 <template>
 	<v-expansion-panels variant="accordion">
-		<v-expansion-panel title="Circulation Options" v-if="isTopLevel">
+		<v-expansion-panel title="Circulation Options" v-if="isTopLevel" flex>
 			<v-expansion-panel-text>
 				<v-row no-gutters>
 					<v-select label="Frequency" :items="frequencies" v-model="eventData.circulationOptions.frequency" variant="solo"></v-select>
@@ -27,7 +27,7 @@
 				</v-col>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
-		<v-expansion-panel title="Embed Options">
+		<v-expansion-panel title="Embed Options" flex>
 			<v-expansion-panel-text>
 				<v-row no-gutters>
 					<v-col cols="6">
@@ -79,7 +79,7 @@
 				</v-dialog>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
-		<v-expansion-panel title="Requirements and Conditions">
+		<v-expansion-panel title="Conditions and Combat" flex>
 			<v-expansion-panel-text>
 				<div align="left" class="text-caption font-italic text-medium-emphasis ma-4" v-if="isTopLevel">
 					Requirements can be set fo revents. This can be a simple requirement, or, several detailed requirements where any or all conditions must be met.<br />
@@ -89,18 +89,31 @@
 				</div>
 				<v-row no-gutters>
 					<v-col cols="2">
-						<v-select v-if="eventData.requirements" label="Match Strategy" :items="matchStrategies" v-model="eventData.requirements.match" variant="solo"></v-select>
+						<v-select
+							v-if="eventData.requirements?.conditions?.length > 0"
+							label="Match Strategy"
+							:items="matchStrategies"
+							v-model="eventData.requirements.match"
+							variant="solo"
+						></v-select>
 					</v-col>
 				</v-row>
 
 				<br />
-				<template v-if="eventData.requirements">
+				<template v-if="eventData.requirements?.conditions?.length > 0">
 					<EventCondition :allow-edit="allowEdit" :event="eventData" :remove-condition="removeCondition" :items="allItems" :locations="allLocations"></EventCondition>
 				</template>
 
-				<v-col cols="1" class="ma-3">
-					<v-btn color="blue" variant="text" @click="addCondition()">Add Condition</v-btn>
-				</v-col>
+				<template v-if="eventData.requirements?.combat">
+					<EventCombat :allow-edit="allowEdit" :requirement="eventData.requirements" :remove-combat="removeCombat"> </EventCombat>
+				</template>
+
+				<v-row class="ma-3">
+					<v-btn color="blue" variant="text" :disabled="eventData.requirements?.combat != null" @click="addCondition()">Add Condition</v-btn>
+					<v-btn color="red" variant="text" :disabled="eventData.requirements?.conditions?.length > 0 || eventData.requirements?.combat != null" @click="addCombat()"
+						>Add Combat</v-btn
+					>
+				</v-row>
 				<template v-if="eventData.requirements">
 					<v-expansion-panels variant="accordion">
 						<v-expansion-panel title="Event - On Fail" color="red-darken-4">
@@ -117,7 +130,7 @@
 				</template>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
-		<v-expansion-panel title="Results">
+		<v-expansion-panel title="Results" flex>
 			<v-expansion-panel-text>
 				<div align="left" class="text-caption font-italic text-medium-emphasis ma-4" v-if="isTopLevel">
 					Results are the affects that are applied to the player when this node of the Event is hit. <br />
@@ -146,7 +159,7 @@
 				</v-row>
 			</v-expansion-panel-text>
 		</v-expansion-panel>
-		<v-expansion-panel>
+		<v-expansion-panel flex>
 			<v-expansion-panel-title>
 				<template v-slot:default="{ expanded }">
 					<v-row no-gutters>
@@ -180,121 +193,142 @@
 </template>
 
 <script setup lang="ts">
-import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
-import { joinString } from "@/plugins/Utils";
-import DrpgSwatches from "@/types/DrpgColors";
-import { getMatchingLocation, IItem, ILocation } from "@/types/SwrpgTypes";
-import { DEFAULT_EVENT_STATE, IEventBase, IEventCondition, IEventHelper, IEventLink, IEventResult, IEventSubCondition } from "@/types/SwrpgTypes/IEventBase";
-import { computed, onMounted, reactive, ref, Ref, watch } from "vue";
-import EventCondition from "./EventCondition.vue";
-import EventResult from "./EventResult.vue";
-import LocationPicker from "@/components/LocationSelector.vue";
+	import DiscordEmbed from "@/components/Discord/DiscordEmbed.vue";
+	import { joinString } from "@/plugins/Utils";
+	import DrpgSwatches from "@/types/DrpgColors";
+	import { getMatchingLocation, IItem, ILocation } from "@/types/SwrpgTypes";
+	import { DEFAULT_EVENT_STATE, IEventBase, IEventCondition, IEventHelper, IEventLink, IEventResult, IEventSubCondition } from "@/types/SwrpgTypes/IEventBase";
+	import { computed, onMounted, reactive, ref, Ref, watch } from "vue";
+	import EventCondition from "./EventCondition.vue";
+	import EventCombat from "./EventCombat.vue";
+	import EventResult from "./EventResult.vue";
+	import LocationPicker from "@/components/LocationSelector.vue";
 
-const props = defineProps<{
-	eventData: IEventBase;
-	allowEdit: boolean;
-	isTopLevel: boolean;
-	allItems: IItem[];
-	allLocations: ILocation[];
-	helper: IEventHelper;
-}>();
+	const props = defineProps<{
+		eventData: IEventBase;
+		allowEdit: boolean;
+		isTopLevel: boolean;
+		allItems: IItem[];
+		allLocations: ILocation[];
+		helper: IEventHelper;
+	}>();
 
-const swatches = DrpgSwatches;
-const matchStrategies = ["All of", "Any of", "None of"];
-const frequencies = ["Common", "Regular", "Uncommon", "Rare", "Legendary"];
+	const swatches = DrpgSwatches;
+	const matchStrategies = ["All of", "Any of", "None of"];
+	const frequencies = ["Common", "Regular", "Uncommon", "Rare", "Legendary"];
 
-const previewEmbed: Ref<boolean> = ref(false);
+	const previewEmbed: Ref<boolean> = ref(false);
 
-function availableEverywhereChanged() {
-	if (props.helper.spawnEverywhere) delete props.eventData.circulationOptions.locationOptions;
-	else {
-		props.eventData.circulationOptions.locationOptions = {
-			type: props.helper.locationMode,
-			values: props.helper.locationValues,
-		};
-	}
-}
-
-function addEventLink() {
-	if (!props.eventData.eventLinks) props.eventData.eventLinks = [];
-
-	const newLink: IEventLink = {
-		title: null,
-		event: [JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE()))],
-	};
-	props.eventData.eventLinks.push(newLink);
-}
-
-function removeEventLink(eventLink: IEventLink) {
-	props.eventData.eventLinks = props.eventData.eventLinks.filter((e) => e != eventLink);
-	if (props.eventData.eventLinks.length === 0) delete props.eventData.eventLinks;
-}
-
-function addResult() {
-	if (!props.eventData.results) props.eventData.results = { pickRandom: false, changes: [] };
-
-	const newResult: IEventResult = {
-		modifier: "add",
-		type: "item",
-		key: null,
-		value: null,
-	};
-
-	props.eventData.results.changes.push(newResult);
-}
-
-function removeResult(result: IEventResult) {
-	props.eventData.results.changes = props.eventData.results.changes.filter((e) => e != result);
-	if (props.eventData.results.changes.length == 0) delete props.eventData.results;
-}
-
-function addCondition() {
-	if (!props.eventData.requirements) {
-		props.eventData.requirements = {
-			match: "All of",
-			conditions: [],
-			failEvent: JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE())),
-		};
-	}
-
-	const newCondition: IEventCondition = {
-		identifier: "New Condition",
-		match: "All of",
-		subConditions: [],
-	};
-
-	props.eventData.requirements.conditions.push(newCondition);
-}
-
-function removeCondition(condition: IEventCondition) {
-	props.eventData.requirements.conditions = props.eventData.requirements.conditions.filter((e) => e != condition);
-	if (props.eventData.requirements.conditions.length == 0) delete props.eventData.requirements;
-	//If requirement object contains no definitions, delete it from thing
-	//if (props.eventData.requirements.changes.length == 0) delete props.eventData.results;
-}
-
-function selectedLocationsChanged(newValue?: string[]) {
-	props.helper.locationValues = newValue;
-	props.eventData.circulationOptions.locationOptions.values = newValue;
-}
-
-const eventSpawnHelperText = computed(() => {
-	const title = props.eventData.embedOptions.title;
-	const frequency = props.eventData.circulationOptions.frequency;
-
-	const matchingLocations = props.allLocations.filter((e) => props.helper.locationValues.includes(e._id));
-	const matchingLocationNames = joinString(matchingLocations.map((e) => e.name));
-
-	if (props.helper.spawnEverywhere) {
-		return `${title} will spawn ${frequency} everywhere.`;
-	} else {
-		if (props.helper.locationValues.length == 0) return "Make a selection to continue";
-
-		if (props.helper.locationMode === "whitelist") {
-			return `${title} will *ONLY* spawn ${frequency} on ${matchingLocationNames}.`;
-		} else {
-			return `${title} will spawn ${frequency} everywhere *EXCEPT* on ${matchingLocationNames}`;
+	function availableEverywhereChanged() {
+		if (props.helper.spawnEverywhere) delete props.eventData.circulationOptions.locationOptions;
+		else {
+			props.eventData.circulationOptions.locationOptions = {
+				type: props.helper.locationMode,
+				values: props.helper.locationValues,
+			};
 		}
 	}
-});
+
+	function addEventLink() {
+		if (!props.eventData.eventLinks) props.eventData.eventLinks = [];
+
+		const newLink: IEventLink = {
+			title: null,
+			event: [JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE()))],
+		};
+		props.eventData.eventLinks.push(newLink);
+	}
+
+	function removeEventLink(eventLink: IEventLink) {
+		props.eventData.eventLinks = props.eventData.eventLinks.filter((e) => e != eventLink);
+		if (props.eventData.eventLinks.length === 0) delete props.eventData.eventLinks;
+	}
+
+	function addResult() {
+		if (!props.eventData.results) props.eventData.results = { pickRandom: false, changes: [] };
+
+		const newResult: IEventResult = {
+			modifier: "add",
+			type: "item",
+			key: null,
+			value: null,
+		};
+
+		props.eventData.results.changes.push(newResult);
+	}
+
+	function removeResult(result: IEventResult) {
+		props.eventData.results.changes = props.eventData.results.changes.filter((e) => e != result);
+		if (props.eventData.results.changes.length == 0) delete props.eventData.results;
+	}
+
+	function addCondition() {
+		if (!props.eventData.requirements) {
+			props.eventData.requirements = {
+				match: "All of",
+				failEvent: JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE())),
+			};
+		}
+
+		if (!props.eventData.requirements.conditions) props.eventData.requirements.conditions = [];
+
+		const newCondition: IEventCondition = {
+			identifier: "New Condition",
+			match: "All of",
+			subConditions: [],
+		};
+
+		props.eventData.requirements.conditions.push(newCondition);
+	}
+
+	function removeCondition(condition: IEventCondition) {
+		props.eventData.requirements.conditions = props.eventData.requirements.conditions.filter((e) => e != condition);
+		if (props.eventData.requirements.conditions.length == 0) delete props.eventData.requirements.conditions;
+		//If requirement object contains no definitions, delete it from thing
+		//if (props.eventData.requirements.changes.length == 0) delete props.eventData.results;
+	}
+
+	function addCombat() {
+		if (!props.eventData.requirements) {
+			props.eventData.requirements = {
+				match: "All of",
+				failEvent: JSON.parse(JSON.stringify(DEFAULT_EVENT_STATE())),
+			};
+		}
+
+		if (!props.eventData.requirements.combat) {
+			props.eventData.requirements.combat = {
+				npc: "Ruffian",
+			};
+		}
+	}
+
+	function removeCombat() {
+		delete props.eventData.requirements.combat;
+	}
+
+	function selectedLocationsChanged(newValue?: string[]) {
+		props.helper.locationValues = newValue;
+		props.eventData.circulationOptions.locationOptions.values = newValue;
+	}
+
+	const eventSpawnHelperText = computed(() => {
+		const title = props.eventData.embedOptions.title;
+		const frequency = props.eventData.circulationOptions.frequency;
+
+		const matchingLocations = props.allLocations.filter((e) => props.helper.locationValues.includes(e._id));
+		const matchingLocationNames = joinString(matchingLocations.map((e) => e.name));
+
+		if (props.helper.spawnEverywhere) {
+			return `${title} will spawn ${frequency} everywhere.`;
+		} else {
+			if (props.helper.locationValues.length == 0) return "Make a selection to continue";
+
+			if (props.helper.locationMode === "whitelist") {
+				return `${title} will *ONLY* spawn ${frequency} on ${matchingLocationNames}.`;
+			} else {
+				return `${title} will spawn ${frequency} everywhere *EXCEPT* on ${matchingLocationNames}`;
+			}
+		}
+	});
 </script>

@@ -18,15 +18,23 @@ export interface IEventBase {
 	postOnNoReact?: boolean;
 	embedOptions?: IEmbedOptions;
 	eventLinks?: IEventLink[];
-	requirements?: {
-		match: RequirementMatch;
-		conditions: IEventCondition[];
-		failEvent: IEventBase;
-	};
+	requirements?: IEventRequirement;
 	results?: {
 		pickRandom?: boolean;
 		changes: IEventResult[];
 	};
+}
+
+export interface IEventRequirement {
+	match?: RequirementMatch;
+	conditions?: IEventCondition[];
+	combat?: {
+		nameOverride?: string;
+		npc: string;
+		//config?: BattleConfig;
+		//fleeEvent?: EventConnection;
+	};
+	failEvent: IEventBase;
 }
 
 export type Frequency = "Disabled" | "Common" | "Regular" | "Uncommon" | "Rare" | "Legendary";

@@ -1,6 +1,6 @@
 <template>
 	<ContributorSidebar />
-	<v-main>
+	<v-main scrollable>
 		<v-container fluid>
 			<!-- <Breadcrumb /> -->
 			<router-view class="ma-4" />
@@ -9,17 +9,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import Breadcrumb from "../../components/Breadcrumb.vue";
-import ContributorSidebar from "../../components/Contributor Tools/ContributorSidebar.vue";
+	import { defineComponent } from "vue";
+	import Breadcrumb from "../../components/Breadcrumb.vue";
+	import ContributorSidebar from "../../components/Contributor Tools/ContributorSidebar.vue";
 
-// Components
+	// Components
 
-export default defineComponent({
-	name: "ContributorDirectory",
-	components: { ContributorSidebar, Breadcrumb },
-	data: () => {
-		return {};
-	},
-});
+	export default defineComponent({
+		name: "ContributorDirectory",
+		components: { ContributorSidebar, Breadcrumb },
+		data: () => {
+			return {};
+		},
+	});
 </script>
