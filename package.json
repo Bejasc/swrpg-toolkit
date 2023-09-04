@@ -21,6 +21,7 @@
 		"roboto-fontface": "*",
 		"vue": "^3.2.33",
 		"vue-emoji-picker": "^1.0.3",
+		"vue-gtag": "^2.0.1",
 		"vue-router": "^4.0.14",
 		"vuetify": "^3.0.6",
 		"vuex": "^4.1.0",
