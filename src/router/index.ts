@@ -1,12 +1,15 @@
+import { createRouter, createWebHashHistory } from "vue-router";
+
+import ContentCreationVue from "@/views/Contributor Tools/Package Creation/AboutPackages.vue";
 import ContributorDirectoryVue from "@/views/Contributor Tools/ContributorDirectory.vue";
+import EventPackageCreator from "@/views/Contributor Tools/Package Creation/EventPackageCreator.vue";
+import HomeView from "@/views/HomeView.vue";
+import HookBuilder from "@/views/Contributor Tools/Tools/HookBuilder.vue";
+import ItemPackageCreatorVue from "@/views/Contributor Tools/Package Creation/ItemPackageCreator.vue";
 import ItemsDataSetVue from "@/views/Contributor Tools/Data Sets/ItemsDataSet.vue";
 import LocationDataSetVue from "@/views/Contributor Tools/Data Sets/LocationDataSet.vue";
-import ContentCreationVue from "@/views/Contributor Tools/Package Creation/AboutPackages.vue";
-import EventPackageCreator from "@/views/Contributor Tools/Package Creation/EventPackageCreator.vue";
-import ItemPackageCreatorVue from "@/views/Contributor Tools/Package Creation/ItemPackageCreator.vue";
 import LocationPackageCreator from "@/views/Contributor Tools/Package Creation/LocationPackageCreator.vue";
-import HomeView from "@/views/HomeView.vue";
-import { createRouter, createWebHashHistory } from "vue-router";
+
 const router = createRouter({
 	history: createWebHashHistory(),
 	routes: [
@@ -62,6 +65,28 @@ const router = createRouter({
 					name: "NPCs",
 					component: LocationDataSetVue, //async () => import("../views/Contributor Tools/ContentCreation.vue"),
 				},
+			],
+		},
+		{
+			path: "/tools",
+			name: "Tools",
+			component: ContributorDirectoryVue,
+			children: [
+				{
+					path: "hook",
+					name: "Hook Builder",
+					component: HookBuilder
+				},
+				// {
+				// 	path: "item",
+				// 	name: "Quest Item Builder",
+				// 	component: () => import("@/views/Tools/QuestItemCreator.vue"),
+				// },
+				// {
+				// 	path: "images",
+				// 	name: "Image Library",
+				// 	component: () => import("@/views/Tools/ImageLibrary.vue"),
+				// }
 			],
 		},
 	],
