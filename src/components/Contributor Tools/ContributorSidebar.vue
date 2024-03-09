@@ -56,27 +56,27 @@ export default {
 						},
 					],
 				},
-				// {
-				// 	name: "GM Tools",
-				// 	isVisible: false,
-				// 	icon: "mdi-dice-d20",
-				// 	items: [
-				// 		{
-				// 			text: "Difficulty Checks",
-				// 			isVisible: true,
-				// 			click: function () {
-				// 				console.warn(`Not Implemented`);
-				// 			},
-				// 		},
-				// 		{
-				// 			text: "Hook Builder",
-				// 			isVisible: true,
-				// 			click: function () {
-				// 				console.warn(`Not Implemented`);
-				// 			},
-				// 		},
-				// 	],
-				// },
+				{
+					name: "GM Tools",
+					isVisible: true,
+					icon: "mdi-dice-d20",
+					items: [
+						{
+							text: "Difficulty Checks",
+							isVisible: false,
+							click: function () {
+								console.warn(`Not Implemented`);
+							},
+						},
+						{
+							text: "Hook Builder",
+							isVisible: true,
+							click: function () {
+								router.push({ path: "/tools/hook" });
+							},
+						},
+					],
+				},
 				{
 					name: "Package Creation",
 					isVisible: true,
