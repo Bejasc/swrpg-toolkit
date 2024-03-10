@@ -5,6 +5,7 @@ import ContributorDirectoryVue from "@/views/Contributor Tools/ContributorDirect
 import EventPackageCreator from "@/views/Contributor Tools/Package Creation/EventPackageCreator.vue";
 import HomeView from "@/views/HomeView.vue";
 import HookBuilder from "@/views/Contributor Tools/Tools/HookBuilder.vue";
+import ImageLibrary from "@/views/Contributor Tools/Data Sets/ImageLibrary.vue";
 import ItemPackageCreatorVue from "@/views/Contributor Tools/Package Creation/ItemPackageCreator.vue";
 import ItemsDataSetVue from "@/views/Contributor Tools/Data Sets/ItemsDataSet.vue";
 import LocationDataSetVue from "@/views/Contributor Tools/Data Sets/LocationDataSet.vue";
@@ -61,9 +62,9 @@ const router = createRouter({
 					component: ItemsDataSetVue, //async () => import("../views/Contributor Tools/ContentCreation.vue"),
 				},
 				{
-					path: "npcs",
-					name: "NPCs",
-					component: LocationDataSetVue, //async () => import("../views/Contributor Tools/ContentCreation.vue"),
+					path: "event-images",
+					name: "Image Library",
+					component: ImageLibrary, //async () => import("../views/Contributor Tools/ContentCreation.vue"),
 				},
 			],
 		},
