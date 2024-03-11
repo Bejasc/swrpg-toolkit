@@ -233,7 +233,7 @@ export default defineComponent({
 					category: "Unknown",
 					name: "New Item",
 					description: "Not much is known about this item.",
-					image: "https://cdn.discordapp.com/attachments/964554539539771412/969787653102899220/crate.png",
+					image: "https://cdn.bejasc.dev/swrpg/public/crate.png",
 					encumbrance: 1,
 					tradeProperties: {
 						isTradeable: true,

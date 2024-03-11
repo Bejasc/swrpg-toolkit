@@ -1,6 +1,6 @@
 <template>
 	<v-navigation-drawer absolute :width="325">
-		<v-img src="https://cdn.discordapp.com/attachments/743332978893258763/876449798306283600/492.jpg" cover></v-img>
+		<v-img src="https://cdn.bejasc.dev/swrpg/events/image1213.png" cover></v-img>
 
 		<v-list active-color="primary">
 			<v-list-group v-for="group in listItems" v-show="group.isVisible">

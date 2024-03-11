@@ -79,13 +79,13 @@ export default defineComponent({
 				{
 					cols: 4,
 					text: "Events",
-					image: "https://cdn.discordapp.com/attachments/964178424258236466/1060589211499110571/FB_IMG_1625695385069.jpg",
+					image: "https://cdn.bejasc.dev/swrpg/events/image084.png",
 					route: "/contributor/packages/event",
 				},
 				{
 					cols: 4,
 					text: "Items",
-					image: "https://cdn.discordapp.com/attachments/964554539539771412/975238642173902879/unknown.png",
+					image: "https://cdn.bejasc.dev/swrpg/events/image1020.png",
 					route: "/contributor/packages/item",
 				},
 
@@ -93,7 +93,7 @@ export default defineComponent({
 				{
 					cols: 4,
 					text: "Locations",
-					image: "https://cdn.discordapp.com/attachments/743332978893258763/876449563504955452/459.jpg",
+					image: "https://cdn.bejasc.dev/swrpg/events/image127.png",
 					route: "/contributor/packages/location",
 				},
 			],

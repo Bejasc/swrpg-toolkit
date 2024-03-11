@@ -229,8 +229,8 @@ export default defineComponent({
 							y: 0,
 						},
 						name: "New Planet",
-						image: "https://cdn.discordapp.com/attachments/964554539539771412/985579435317157918/unknown_environment.png",
-						planetImage: "https://cdn.discordapp.com/attachments/964554539539771412/985578348191313990/unknown_planet.png",
+						image: "https://cdn.bejasc.dev/swrpg/public/unknown_environment.png",
+						planetImage: "https://cdn.bejasc.dev/swrpg/public/unknown_planet.png",
 						description: "Not much is known about this planet.",
 						channelOptions: {
 							name: "New Planet",
