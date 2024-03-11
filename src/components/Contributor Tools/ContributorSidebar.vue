@@ -39,6 +39,14 @@ export default {
 					isVisible: true,
 					items: [
 						{
+							text: "Image Library",
+							isVisible: true,
+							icon: "mdi-image",
+							click: function () {
+								router.push({ path: "/data/event-images" });
+							},
+						},
+						{
 							text: "Items",
 							isVisible: true,
 							icon: "mdi-toolbox",
@@ -74,7 +82,7 @@ export default {
 							click: function () {
 								router.push({ path: "/tools/hook" });
 							},
-						},
+						}
 					],
 				},
 				{

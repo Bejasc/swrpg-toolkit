@@ -24,7 +24,7 @@
 					</v-btn>
 				</v-row>
 			</v-form>
-			<v-snackbar v-model="snackbar" timeout="4000"> {{ hook.title }} was copied to clipboard </v-snackbar>
+			<v-snackbar v-model="snackbar" color="green" timeout="2500"> {{ hook.title }} was copied to clipboard </v-snackbar>
 		</v-card>
 	</v-col>
 </template>
