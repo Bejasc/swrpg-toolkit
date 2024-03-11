@@ -1,16 +1,34 @@
 <template>
 	<v-col cols="11">
-		<v-text-field dense v-model="search" clearable label="Search" prepend-inner-icon="mdi-magnify" single-line></v-text-field>
-		<v-row no-gutters style="max-height: 70vh" class="overflow-y-auto">
-			<v-col v-for="img in allImages" :key="img.url" cols="3">
-				<v-card class="ma-4">
-					<v-img class="imageMouseover" :src="img.url" :lazy-src="img.url" cover height="196px">
+		<!-- <v-row>
+			<v-col cols="10">
+				<v-text-field dense v-model="search" clearable label="Search" prepend-inner-icon="mdi-magnify" single-line></v-text-field>
+			</v-col>
+			<v-col cols="2">
+				<v-select
+				:items="supportedSizes"
+								v-model="selectedSize"
+								item-title="title"
+								item-value="title"
+      label="Size"
+    ></v-select>
+			</v-col>
+		</v-row> -->
+		<v-row no-gutters class="overflow-y-auto">
+			<v-col v-for="img in allImages" :key="img.url" :cols="selectedSize.cols">
+				<v-card class="ma-2">
+					<v-img class="imageMouseover" @click="showPreviewImage(img)" :src="img.url" :lazy-src="img.url" :height="selectedSize.height">
 
 					</v-img>
 				</v-card>
 			</v-col>
 		</v-row>
 	</v-col>
+	<v-snackbar v-model="snackbarClipboard" timeout="2500" color="green">URL copied to clipboard</v-snackbar>
+	<v-dialog v-model="showPreview" transition="fade-transition" width="500">
+		<v-img width="500" aspect-ratio="16/9" :src="previewImage"></v-img>
+		<v-btn class="ma-4" color="blue" @click="copyUrl()">Copy URL</v-btn>
+	</v-dialog>
 </template>
 
 <style scoped>
@@ -24,15 +42,18 @@
 	filter: brightness(115%) blur(0px);
 	-webkit-transition: -webkit-filter 200ms linear;
 }
+.v-overlay--active {
+    backdrop-filter: blur(2px);
+    background: rgb(0 0 0 / 0.9);
+}
 </style>
 
 <script setup lang="ts">
-import { all } from 'axios';
+import axios, { all } from 'axios';
 import { Ref, computed, onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 
 const store = useStore();
-
 
 class ImageData {
 	public url:string;
@@ -46,7 +67,23 @@ class ImageData {
 }
 
 const search: Ref<string> = ref("");
+
+type SizeConfig = { title:string, cols:number, height:number}
+
+const supportedSizes:SizeConfig[] = [
+	{ title: "Tiny", cols:1, height:96 },
+	{ title: "Small", cols:2, height:150 },
+	{ title: "Medium", cols:3, height:196 },
+];
+
+const selectedSize: Ref<SizeConfig> = ref(supportedSizes.find(e=>e.title == "Small"));
+
 const allImages: Ref<ImageData[]> = ref();
+
+const showPreview: Ref<boolean> = ref(false);
+const snackbarClipboard: Ref<boolean> = ref(false);
+
+const previewImage: Ref<string> = ref("");
 
 onMounted(async () => {
 	store.dispatch("showLoader", true);
@@ -54,58 +91,36 @@ onMounted(async () => {
 	store.dispatch("showLoader", false);
 });
 
-async function loadImages(count:number):Promise<ImageData[]>{
-	//TODO actually iterate through Azure
-	const result:ImageData[] = [];
-	for(let i=0;i<count;i++){
-		const key = String(i+1).padStart(3,'0');
-		result.push(new ImageData(`https://cdn.bejasc.dev/swrpg/events/image${key}.png`))
-	}
+function showPreviewImage(image:ImageData){
+	showPreview.value=true;
+	previewImage.value=image.url;
+}
 
-	return result;
+function copyUrl(){
+	snackbarClipboard.value = true;
+	navigator.clipboard.writeText(previewImage.value);
+	showPreview.value = false;
+	previewImage.value = null;
+	
+}
+
+async function loadImages(count:number):Promise<ImageData[]>{
+
+	let url = `https://swrpg.bejasc.dev/api/v2/images`;
+
+	console.log(url)
+	
+	const response = await axios({
+		method: "get",
+		url,
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
+
+	const result: string[] = JSON.parse(JSON.stringify(response.data));
+
+	return result.map(e=>new ImageData(e)).sort()//.slice(0,count);
 }
 
 </script>
-<!-- 
-<script lang="ts">
-import { getData } from "@/plugins/MongoConnector";
-import { ILocation } from "@/types/SwrpgTypes";
-import { defineComponent } from "vue";
-// Components
-export default defineComponent({
-	name: "ImageLibrary",
-	emits: ["pageNavigation"],
-	data: () => {
-		return {
-			search: "",
-			showLoader: false,
-			images: [] as string[],
-		};
-	},
-	mounted() {
-		this.$emit("pageNavigation", this.$route.name);
-
-		this.loadAllItems();
-	},
-	methods: {
-		async loadAllItems() {
-			this.$store.dispatch("showLoader", true);
-			this.locations = [];
-			this.locations = await getData<ILocation>("location");
-
-			console.table(this.locations);
-			this.$store.dispatch("showLoader", false);
-		},
-	},
-	computed: {
-		filteredItems(): ILocation[] {
-			return this.locations.filter((location: ILocation) => {
-				return location.name.toLowerCase().includes(this.search.toLowerCase()) || location.aliases?.some((e) => e.toLowerCase().includes(this.search.toLowerCase()));
-			});
-		},
-	},
-});
-</script> -->
-import { ILocation } from '@/types/SwrpgTypes';
-import { Ref, ref } from 'vue';
-
