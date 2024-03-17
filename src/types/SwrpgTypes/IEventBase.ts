@@ -69,7 +69,7 @@ export interface IEmbedOptions {
 }
 
 export type RequirementMatch = "Any of" | "All of" | "None of";
-export type IEventOperator = "<" | ">=" | "==" | "!=";
+export type IEventOperator = "<" | ">=" | "==" | "!=" | "dc";
 export interface IEventCondition {
 	identifier: string;
 	match: RequirementMatch;

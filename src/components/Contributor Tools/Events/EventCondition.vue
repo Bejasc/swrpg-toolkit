@@ -50,7 +50,7 @@
 							<v-col cols="3">
 								<v-select
 									label="Operator"
-									:items="quantityOperators"
+									:items="skillOperators"
 									v-model="subCondition.operator"
 									item-title="title"
 									item-value="value"
@@ -59,14 +59,27 @@
 								></v-select>
 							</v-col>
 							<v-col cols="2">
-								<v-text-field v-model="subCondition.value" v-bind:readonly="!allowEdit" type="number" label="Level" variant="solo"></v-text-field>
+								<v-select v-if="subCondition.operator === 'dc'"
+									label="Target (In-world difficulty)"
+									:items="difficultyClasses"
+									v-model="subCondition.value"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-select>
+								
+								<!--TODO Allow custom-->
+								<!--TODO Extract into reusable component to apply to attribute/skill-->
+
+								<v-text-field v-else v-model="subCondition.value" v-bind:readonly="!allowEdit" type="number" label="Level" variant="solo"></v-text-field>
 							</v-col>
 						</template>
 
 						<template v-if="subCondition.type === 'attribute'">
 							<v-col cols="4">
 								<v-autocomplete
-									label="Item"
+									label="Attribute"
 									:items="supportedAttributes"
 									v-model="subCondition.key"
 									item-title="title"
@@ -78,7 +91,7 @@
 							<v-col cols="3">
 								<v-select
 									label="Operator"
-									:items="quantityOperators"
+									:items="skillOperators"
 									v-model="subCondition.operator"
 									item-title="title"
 									item-value="value"
@@ -87,7 +100,20 @@
 								></v-select>
 							</v-col>
 							<v-col cols="2">
-								<v-text-field v-model="subCondition.value" v-bind:readonly="!allowEdit" type="number" label="Level" variant="solo"></v-text-field>
+								<v-select v-if="subCondition.operator === 'dc'"
+								label="Target (In-world difficulty)"
+									:items="difficultyClasses"
+									v-model="subCondition.value"
+									item-title="title"
+									item-value="value"
+									variant="solo"
+									v-bind:readonly="!allowEdit"
+								></v-select>
+								
+								<!--TODO Allow custom-->
+								<!--TODO Extract into reusable component to apply to attribute/skill-->
+
+								<v-text-field v-else v-model="subCondition.value" v-bind:readonly="!allowEdit" type="number" label="Level" variant="solo"></v-text-field>
 							</v-col>
 						</template>
 
@@ -263,9 +289,24 @@ const quantityOperators = [
 	{ title: "Less than", value: "<" },
 ];
 
+const skillOperators = [
+	{ title: "Difficulty Check", value: "dc" },
+	{ title: "Greater or Equal (Not recommended)", value: ">=" },
+	{ title: "Less than (Not recommended)", value: "<" },
+];
+
 const exactOperators = [
 	{ title: "is", value: "==" },
 	{ title: "is not", value: "!=" },
+];
+
+const difficultyClasses = [
+	{ title: "Very Easy (5)", value: 5 },
+	{ title: "Easy (10)", value: 10 },
+	{ title: "Medium (15)", value: 15 },
+	{ title: "Hard (20)", value: 20 },
+	{ title: "Very hard (25)", value: 25 },
+	{ title: "Nearly impossible (30)", value: 30 },
 ];
 
 const supportedRequirements = [
@@ -274,6 +315,7 @@ const supportedRequirements = [
 	{ title: "Location", value: "location" },
 	{ title: "Species", value: "species" },
 	{ title: "Skill", value: "skill" },
+	{ title: "Attribute", value: "attribute" },
 ];
 
 function addSubCondition(condition: IEventCondition) {
