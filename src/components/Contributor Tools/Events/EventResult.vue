@@ -7,7 +7,7 @@
 		<v-col cols="2">
 			<v-select label="Target" :items="supportedTypes" v-model="eventResult.type" item-title="title" item-value="value" variant="solo"></v-select>
 		</v-col>
-		<template v-if="['credits', 'item', 'experience'].includes(eventResult.type)">
+		<template v-if="['credits', 'item'].includes(eventResult.type)">
 			<v-col cols="2">
 				<v-text-field :label="eventResult.modifier == 'set' ? 'Value' : 'Quantity'" variant="solo" type="number" v-model="eventResult.value"></v-text-field>
 			</v-col>
@@ -15,6 +15,11 @@
 		<template v-if="eventResult.type == 'item'">
 			<v-col>
 				<v-autocomplete label="Item" :items="availableItems" v-model="eventResult.key" item-title="title" item-value="value" variant="solo"></v-autocomplete>
+			</v-col>
+		</template>
+		<template v-if="eventResult.type == 'experience'">
+			<v-col>
+				<v-autocomplete label="Experience Amount" :items="availableXpSize" v-model="eventResult.key" item-title="title" item-value="value" variant="solo"></v-autocomplete>
 			</v-col>
 		</template>
 	</v-row>
@@ -57,6 +62,20 @@ export default defineComponent({
 			return "Count";
 		},
 		availableItems(): { value: string; title: string }[] {
+			return this.allItems.map((e) => {
+				return { value: e._id, title: e.name };
+			});
+		},
+		availableXpSize(): { value: string; title: string }[] {
+			return [
+				{value:"xs", title:"Tiny"},
+				{value:"s", title:"Small"},
+				{value:"m", title:"Medium"},
+				{value:"l", title:"Large"},
+				{value:"xl", title:"Extra Large (Not recommended)"},
+				{value:"xxl", title:"Huge (Not recommended)"},
+			]
+
 			return this.allItems.map((e) => {
 				return { value: e._id, title: e.name };
 			});
