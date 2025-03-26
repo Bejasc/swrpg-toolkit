@@ -4,9 +4,11 @@
 			<h1 class="white--text mb-2 display-1 text-center">Star Wars: Galaxy in Turmoil</h1>
 			<div class="subheading mb-4 text-center">A custom discord bot based RPG, created by Bejasc</div>
 			<!-- <v-btn class="mt-12" color="primary" href="https://discord.gg/MU4XUVS">Join the fight</v-btn> -->
-			<v-btn class="mt-6" variant="outlined" :to="{ name: 'Contributor Tools' }" large>Contributor Tools</v-btn>
+			<v-btn class="mt-6" variant="outlined" large href="https://discord.gg/8G4PkkbxgX" target="_blank" rel="noopener noreferrer">Join on Discord</v-btn>
+			<v-btn class="mt-6" variant="outlined" :to="{ name: 'About Contributing' }" large>Contributor Tools</v-btn>
 		</div>
 	</v-parallax>
+	<!--
 	<section id="features">
 		<v-container class="text-center">
 			<h2 class="headline">Features</h2>
@@ -52,6 +54,7 @@
 			</v-layout>
 		</v-layout>
 	</section>
+	-->
 </template>
 
 <script lang="ts">

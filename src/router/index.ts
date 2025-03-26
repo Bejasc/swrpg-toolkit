@@ -1,15 +1,14 @@
-import { createRouter, createWebHashHistory } from "vue-router";
-
-import ContentCreationVue from "@/views/Contributor Tools/Package Creation/AboutPackages.vue";
 import ContributorDirectoryVue from "@/views/Contributor Tools/ContributorDirectory.vue";
-import EventPackageCreator from "@/views/Contributor Tools/Package Creation/EventPackageCreator.vue";
-import HomeView from "@/views/HomeView.vue";
-import HookBuilder from "@/views/Contributor Tools/Tools/HookBuilder.vue";
 import ImageLibrary from "@/views/Contributor Tools/Data Sets/ImageLibrary.vue";
-import ItemPackageCreatorVue from "@/views/Contributor Tools/Package Creation/ItemPackageCreator.vue";
 import ItemsDataSetVue from "@/views/Contributor Tools/Data Sets/ItemsDataSet.vue";
 import LocationDataSetVue from "@/views/Contributor Tools/Data Sets/LocationDataSet.vue";
+import ContentCreationVue from "@/views/Contributor Tools/Package Creation/AboutPackages.vue";
+import EventPackageCreator from "@/views/Contributor Tools/Package Creation/EventPackageCreator.vue";
+import ItemPackageCreatorVue from "@/views/Contributor Tools/Package Creation/ItemPackageCreator.vue";
 import LocationPackageCreator from "@/views/Contributor Tools/Package Creation/LocationPackageCreator.vue";
+import HookBuilder from "@/views/Contributor Tools/Tools/HookBuilder.vue";
+import HomeView from "@/views/HomeView.vue";
+import { createRouter, createWebHashHistory } from "vue-router";
 
 const router = createRouter({
 	history: createWebHashHistory(),
@@ -23,6 +22,7 @@ const router = createRouter({
 			path: "/contributor",
 			name: "Contributor Tools",
 			component: ContributorDirectoryVue, //async () => import("../views/Contributor Tools/ContributorDirectory.vue"),
+			redirect: { name: "About Contributing" },
 			children: [
 				{
 					path: "packages/about",
@@ -76,7 +76,7 @@ const router = createRouter({
 				{
 					path: "hook",
 					name: "Hook Builder",
-					component: HookBuilder
+					component: HookBuilder,
 				},
 				// {
 				// 	path: "item",
